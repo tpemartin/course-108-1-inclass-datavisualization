@@ -1,0 +1,76 @@
+---
+title: "每週一圖作業範例"
+output: html_document
+params:
+  組員: ["小明","小花"]  
+  學號: ["410773818","410773293"]
+---
+
+#### 環境設定
+
+以下為老師執行時一定會存在的環境設定
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr);
+library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='60%', fig.align='center', fig.showtext=T)
+```
+
+#### 資料處理
+
+此部份在做：
+
+  * 原始Rda資料引入（即引入**dataList**物件）；
+  
+  * 資料清理成作圖用graphData物件。
+
+請將你最原始的資料連同作業一起上傳到作業上傳網址：  
+  * 若「原始資料為網頁下載」，且下載指令寫在data cleaning chunk裡的話，可以不用上傳「資料」。  
+  * 若原始資料有很多個檔案，請先引入成data frame並存在「一個」.Rda檔裡上傳（如`example_data.Rda`檔）。  
+
+資料檔引入到進入作圖前的資料處理請寫在下面區塊，分二部份：
+
+  * 資料處理  
+  * 作圖用資料物件生成
+  
+```{r data cleaning, echo=TRUE, eval=T}
+# 資料引入
+load("example_data.Rda")
+
+# 資料處理
+employmentLaborForceData1 <- dataList$勞動力$data
+employmentLaborForceData1 %>%
+  tidyr::gather(`年平均勞動力`,`年平均就業人口`, key="類別",value="人數（千）") %>%
+  mutate(
+    年=as.integer(as.character(年))
+  ) -> graphData_employment
+
+# 作圖用資料物件生成：處理好可進行作圖的資料請存在一個名為graphData的list物件裡
+graphData <- list()
+graphData$graphData_employment <- graphData_employment
+```
+
+#### 繪圖程式
+
+```{r graph, echo=T, eval=T}
+graphData$graphData_employment %>%
+  filter(年>=1995) %>%
+  ggplot()+
+  geom_line(
+    aes(
+        x=年,
+        y=`人數（千）`,
+        group=類別,
+        color=類別),
+    size=1
+  )
+```
+
+#### 設計說明
+說明想傳達的訊息（必要）及設計想法（非必要）。寫在***之後
+*** 
+
+圖為台灣1995年之後的勞動力與就業人口趨勢，95年勞動力人口為9百21萬人，就業人口為9百零4萬5千人，就業比例（即就業率）為百分之98.21； ，到2018年勞動力人口為1千1百87萬4千人，就業人口為1千1百43萬4千人，就業率為百分之96.29。
