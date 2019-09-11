@@ -15,7 +15,7 @@ library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lub
 font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
 showtext_auto(enable=TRUE) #啟用字體
 theme_set(theme_classic())
-knitr::opts_chunk$set(fig.align='center', fig.showtext=T)
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
 ```
 
 #### 資料處理
