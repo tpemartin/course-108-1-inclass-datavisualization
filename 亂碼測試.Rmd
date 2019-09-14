@@ -38,8 +38,14 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
   
 ```{r data cleaning, echo=TRUE, eval=T}
 # 資料引入
+library(dplyr); library(readr); library(tmcn)
 load("example_data.Rda")
+names(dataList) %>% toUTF8 -> names(dataList)
+dataList$勞動力
+```
 
+
+```{r}
 dataList$勞動力$data -> df_勞動力
 names(df_勞動力) %>% parse_character() #自動轉譯
 names(df_勞動力) %>% guess_encoding() #猜測encoding
