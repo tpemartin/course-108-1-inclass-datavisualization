@@ -326,3 +326,36 @@ mutate(
 StuDF_依性別調分
 ```
 
+```{r}
+group_by(StuDF,
+         性別,
+         (成績>75)) -> StuDF_by性別成績
+
+summarise(StuDF_by性別成績,
+          平均成績=mean(成績),
+          人數=n())
+```
+
+計算collegeData中不同**縣市名稱,體系別,及等級別**的一年級男生及一年級女生總數（使用sum）和學校數目。
+```{r}
+group_by(collegeData,
+         縣市名稱,體系別,等級別) -> collegeData_grouped
+
+summarise(collegeData_grouped,
+          一年級男生總數=sum(一年級男生),
+          一年級女生總數=sum(一年級女生),
+          學校數目=n())
+```
+
+
+計算collegeData中不同**縣市名稱,體系別**的一年級男生及一年級女生總數（使用sum）和學校數目。
+```{r}
+group_by(collegeData,
+         縣市名稱,體系別) -> collegeData_grouped2
+
+summarise(collegeData_grouped2,
+          一年級男生總數=sum(一年級男生),
+          一年級女生總數=sum(一年級女生),
+          學校數目=length(unique(學校名稱)))
+```
+
