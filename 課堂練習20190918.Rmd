@@ -38,3 +38,78 @@ StuDF <- data.frame(
 StuDF 
 ```
 
+```{r}
+class(StuDF)
+typeof(StuDF)
+```
+
+```{r}
+class(StuList)
+typeof(StuList)
+```
+
+```{r}
+length(StuDF) # 從向量角度看
+nrow(StuDF) # 從矩陣角度看
+```
+
+```{r}
+library(dplyr)
+```
+
+## dplyr
+
+```{r}
+str(StuDF)
+head(StuDF)
+tail(StuDF)
+```
+
+### slice
+
+```{r}
+StuDF
+slice(StuDF,1:3)
+slice(StuDF,4:5)
+slice(StuDF,n())
+```
+
+最後2筆
+```{r}
+slice(StuDF,7:8)
+slice(StuDF,c(7,8))
+slice(StuDF,(n()-1):n())
+```
+
+```{r}
+StuDF
+slice(StuDF,-5:-7)
+```
+
+```{r}
+5:7
+-(5:7)
+c(-5,-6,-7)
+```
+
+不要 5到7
+```{r}
+slice(StuDF,-(5:7)) # 不要 5到7
+slice(StuDF,c(-5,-6,-7))
+```
+
+只要1，4，8
+```{r}
+slice(StuDF,c(1,4,8))
+```
+
+```{r}
+c(1,3,5:8)
+c(1,3,5,6,7,8)
+```
+
+```{r}
+library(readr)
+collegeData <- read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/103_student.csv")
+```
+
