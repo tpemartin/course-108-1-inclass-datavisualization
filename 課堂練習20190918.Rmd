@@ -455,3 +455,16 @@ locMax
 collegeData_result[locMax,]
 ```
 
+```{r}
+load(url("https://www.dropbox.com/s/duh5aaqgl2f5m3z/loopTranscriptData.Rda?raw=1"))
+```
+
+計算每位學生每學年每學期的平均成績。
+```{r}
+transcriptDataFinal %>%
+  group_by(學號,學年,學期) %>%
+  summarise(
+    平均成績=sum(學期成績*學分數)/sum(學分數)
+  )
+```
+
