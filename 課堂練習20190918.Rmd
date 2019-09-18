@@ -359,3 +359,99 @@ summarise(collegeData_grouped2,
           學校數目=length(unique(學校名稱)))
 ```
 
+## pipe
+
+```{r}
+group_by(StuDF,
+         性別) -> StuDF_by性別
+
+mutate(
+  StuDF_by性別,
+  最高分=max(成績),
+  最低分=min(成績),
+  調分大小=(最高分-最低分)/5,
+  調分後成績=成績+調分大小
+) -> StuDF_依性別調分
+
+ungroup(StuDF_依性別調分) -> 
+  StuDF_調分後
+```
+
+```{r}
+# group_by(StuDF,
+#          性別) -> StuDF_by性別
+StuDF %>% group_by(
+         性別) -> StuDF_by性別
+
+# mutate(
+#   StuDF_by性別,
+#   最高分=max(成績),
+#   最低分=min(成績),
+#   調分大小=(最高分-最低分)/5,
+#   調分後成績=成績+調分大小
+# ) -> StuDF_依性別調分
+
+StuDF_by性別 %>%
+mutate(
+  最高分=max(成績),
+  最低分=min(成績),
+  調分大小=(最高分-最低分)/5,
+  調分後成績=成績+調分大小
+) -> StuDF_依性別調分
+
+
+# ungroup(StuDF_依性別調分) -> 
+#   StuDF_調分後
+StuDF_依性別調分 %>% ungroup() -> 
+  StuDF_調分後
+```
+
+```{r}
+StuDF %>% group_by(
+         性別)  %>%
+mutate(
+  最高分=max(成績),
+  最低分=min(成績),
+  調分大小=(最高分-最低分)/5,
+  調分後成績=成績+調分大小
+)  %>% ungroup() -> 
+  StuDF_調分後
+```
+
+```{r}
+StuDF %>% # 將StuDF
+  group_by(性別) %>% # 依性別分群
+  mutate( # 接著計算各群的:
+    最高分=max(成績),
+    最低分=min(成績),
+    調分大小=(最高分-最低分)/5,
+    調分後成績=成績+調分大小
+  )  %>% 
+  ungroup() -> # 接著ungroup後輸出
+  StuDF_調分後
+```
+
+將collegeData，
+
+
+
+依等級別,縣市名稱分群後,
+
+計算一年級男/女生比例後,
+
+找出男女生比例最高的等級別,縣市名稱組合。
+
+```{r}
+collegeData %>%
+  group_by(等級別,縣市名稱) %>%
+  summarise(
+    一年級男女生比例=sum(一年級男生)/sum(一年級女生)
+  ) %>%
+  ungroup() ->
+  collegeData_result
+
+which.max(collegeData_result$一年級男女生比例) -> locMax
+locMax
+collegeData_result[locMax,]
+```
+
