@@ -2,7 +2,7 @@
 title: "Untitled"
 author: "林茂廷"
 date: "9/11/2019"
-output: html_document
+output: html_notebook
 ---
 
 ```{r basic setup, message=FALSE, echo=TRUE, eval=T}
@@ -69,8 +69,8 @@ tail(StuDF)
 
 ```{r}
 StuDF
-slice(StuDF,1:3)
-slice(StuDF,4:5)
+slice(StuDF,1:3) 
+slice(StuDF,4:5) 
 slice(StuDF,n())
 ```
 
@@ -111,5 +111,64 @@ c(1,3,5,6,7,8)
 ```{r}
 library(readr)
 collegeData <- read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/103_student.csv")
+```
+
+```{r}
+str(collegeData)
+slice(collegeData,c(1:4))
+slice(collegeData,(n()-2):n())
+slice(collegeData,101:110)
+```
+
+## mutate
+
+```{r}
+StuDF
+mutate(StuDF,
+       調分後成績=成績+10)
+transmute(StuDF,
+       調分後成績=成績+10) # 不保留其他變數
+```
+
+```{r}
+StuDF
+mutate(StuDF,
+       調分後成績=成績+10) -> StuDF
+StuDF
+```
+
+```{r}
+StuDF$調分後成績 <-
+  StuDF$成績+10
+```
+
+在collegeData:
+
+新增變數男生及女生,其值為「一到四年級」所有男生及女生的加總。（男生使用dplyr, 女生不使用dplyr）
+```{r}
+mutate(collegeData,
+       男生=一年級男生+二年級男生+三年級男生+四年級男生) -> collegeData2
+
+collegeData2$女生 <-
+  collegeData2$一年級女生+collegeData2$二年級女生+collegeData2$三年級女生+collegeData2$四年級女生
+```
+
+
+新增變數男女生比，其值為前述男生/女生。
+
+```{r}
+mutate(collegeData2,
+       男女生比=男生/女生) -> collegeData2
+```
+
+```{r}
+collegeData2
+```
+
+```{r}
+mutate(collegeData,
+       男生=一年級男生+二年級男生+三年級男生+四年級男生,
+       女生=一年級女生+二年級女生+三年級女生+四年級女生,
+       男女生比=男生/女生) 
 ```
 
