@@ -99,6 +99,8 @@ tail(StuDF) #檢查後6筆資料
 
 ## slice
 
+依row位置選擇資料
+
 ```{r slice 1}
 
 StuDF
@@ -130,7 +132,7 @@ slice(StuDF, c(-5, -6, -7)) #也可
 
 5:7
 -(5:7)
-c(-5, -6, -7)
+c(-5, -6, -7) # "c"ombine values into a vector
 c(1:6, 9, 12)
 
 ```
@@ -172,6 +174,8 @@ collegeData[1:3, 1:5] #矩陣取法[列, 行]
 
 
 ## mutate
+
+產生新變數
 
 ```{r mutate 1}
 
@@ -226,102 +230,162 @@ mutate(collegeData,
 ```
 
 
-
-
-
-
-
-
-
-
-
-
 ## summarise
 
-```{r}
+計算資料的特徵值
 
-summarise(StuDF,
-        平均成績=mean(成績),
-        最高分=max(成績),
-        最低分=min(成績))
+```{r summarise 1}
+
+summarise(StuDF, 
+          平均成績=mean(成績), 
+          最高分=max(成績), 
+          最低分=min(成績)
+         )
 
 ```
 
-```{r}
+```{r summarise practice 1}
+
+#若老師的調分為原始成績加上「最高最低分差距除以5」，請產生調分成績:
 
 mutate(StuDF, 
-       平均成績=mean(成績),
-       最高分=max(成績), 
-       最低分=min(成績), 
+       平均成績 = mean(成績),
+       最高分 = max(成績), 
+       最低分 = min(成績), 
        調分後成績 = 成績 + (max(成績)-min(成績))/5
-      ) -> StuDF_2
+      ) -> StuDF_2 #也可用 成績 + (最高分-最低分)/5
+StuDF_2
 
 ```
 
-```{r}
 
-names(StuDF_2)
+## select
+
+選擇欄位變數
+
+```{r select 1}
+
+names(StuDF_2) #顯示list內元素名稱，剛好就是欄位名稱
 
 select(StuDF_2, 
        姓名,學號,成績,調分後成績
        )
 
 select(StuDF_2, 
-       次序,性別,
-       contains("最")
+       -次序, -成績, -平均成績, -最高分, -最低分
        )
 
 ```
 
+```{r select 2}
+
+select(StuDF_2, 
+       次序,性別,
+       contains("最")
+       )
+
+select(StuDF_2, 
+       -次序, -性別, 
+       -contains("最")
+       )
+
+```
+
+```{r select practice 1}
+
+select(collegeData, 
+       contains("男生")
+       )
+
+```
+
+
 # filter
 
-```{r}
+篩選觀測值
+
+```{r not filter 1}
 
 StuDF
-# logical vector
-logiChoose <- c(
-  F,F,F,T,T,F,T,F
-)
-# 使用logical vector選擇所要觀測值"女"
+
+# 自創logical vector
+logiChoose <- c(F,F,F,T,T,F,T,F)
+
+# 使用logical vector選擇所要觀測值"女"（必須先自行觀察資料）
 StuDF[logiChoose,]
 
 ```
-```{r}
+
+```{r not filter2}
 
 logiChoose
-which(logiChoose)
 
-slice()
+which(logiChoose) #顯示True位置的vector
 
+slice(StuDF, 
+      which(logiChoose)
+     ) #與slice連用
 
 ```
 
-```{r}
+```{r not filter 3}
 
-# relational operators
+StuDF$性別=="女" # logical predicate（邏輯判斷）
+
+#使用logical predicate產生logical vector
+logiChoose_1 <- StuDF$性別=="女"
+StuDF[logiChoose_1, ]
+
+```
+
+```{r not filter 4}
+
+# relational operator
 StuDF$性別=="女" 
 StuDF$成績>60
 
-
-```
-
-
-```{r}
-
 # combined with logical operator
-(StuDF$性別=="女" & StuDF$成績>60) -> logiChoose2
-logiChoose2
+(StuDF$性別=="女" & StuDF$成績>60) -> logiChoose_2
+logiChoose_2
 
-StuDF[logiChoose2,]
+StuDF[logiChoose_2, ]
+
+```
+
+```{r filter 1}
+
+filter(StuDF,
+       性別=="女"
+       )
+
+filter(StuDF, 
+       性別=="女" & 成績>60
+       )
+
+filter(StuDF, 
+       性別=="女", 
+       成績>60
+       )
+
 
 
 ```
 
-```{r}
+```{r filter practice 1}
 
+#選出collegeData中縣市名稱為「30 臺北市」
+filter(collegeData, 
+       縣市名稱=="30 臺北市"
+       )
 
+#選出collegeData中縣市名稱為“30 臺北市”或“01 新北市”
+filter(collegeData, 
+       縣市名稱 %in% c("30 臺北市", "01 新北市")
+       ) # %in%為屬於
 
 ```
+
+
 
 
 
@@ -335,6 +399,7 @@ group_by(StuDF,
 
 
 ```
+
 ```{r}
 
 # 使用grouped data frame
