@@ -386,49 +386,191 @@ filter(collegeData,
 ```
 
 
-
-
-
 ## group by
 
-```{r}
+使data frame轉成group data frame，用在mutate、transmute、summarise時會產生分群計算效果
 
-group_by(StuDF,
-         性別) -> StuDF_by性別
+```{r group by 1}
 
+#計算不同性別之平均成績、最高分、最低分
 
+group_by(StuDF, 
+         性別
+        ) -> StuDF_by性別 #已轉成group data frame，表面上看不出有什麼變化
 
-```
-
-```{r}
-
-# 使用grouped data frame
-summarise(StuDF_by性別,
-        平均成績=mean(成績),
-        最高分=max(成績),
-        最低分=min(成績))
-
-# 使用ungrouped data frame
-summarise(StuDF,
-          平均成績=mean(成績),
-          最高分=max(成績),
+#使用grouped data frame
+summarise(StuDF_by性別, 
+          平均成績=mean(成績), 
+          最高分=max(成績), 
           最低分=min(成績)
          )
+
+#使用ungrouped data frame
+summarise(StuDF,
+          平均成績=mean(成績), 
+          最高分=max(成績), 
+          最低分=min(成績)
+         )
+
 ```
 
-```{r}
+```{r group by 2}
 
-group_by(collegeData,
-         縣市名稱, 體系別, 等級別,  
-         ) -> collegeData_by縣市and體系
+#各加其群組之「最高分減最低分除以5」
 
-summarise(collegeData_by縣市and體系, 
-          一年級男生總數 = sum(一年級男生), 
-          一年級女生總數 = sum(一年級女生), 
-          學校數目 = n()
+mutate(StuDF_by性別, 
+       最高分 = max(成績), 
+       最低分 = min(成績), 
+       調分大小 = (最高分-最低分)/5, 
+       調分後成績 = 成績+調分大小
+       ) 
+
+```
+
+```{r group by 3}
+
+#依性別及成績是否大於75分分群
+
+group_by(StuDF,
+         性別,
+         (成績>75)
+         ) -> StuDF_by性別成績
+
+summarise(StuDF_by性別成績,
+          平均成績=mean(成績),
+          人數=n()
           )
 
 ```
+
+```{r group by 4}
+
+#若input為grouped data frame，其output也會是grouped data frame
+#此時output若接著用，也會是分群計算的結果
+#所以最好習慣接著ungroup，
+
+class(StuDF_by性別)
+
+ungroup(StuDF_by性別) -> StuDF_by性別un
+class(StuDF_by性別un)
+
+```
+
+```{r group by practice 1}
+
+#計算collegeData中不同等級別、縣市名稱、體系別的一年級男生總數、一年級女生總數、學校數目
+
+group_by(collegeData, 
+         等級別, 
+         縣市名稱, 
+         體系別) -> collegeData_by等級縣市體系
+
+summarise(collegeData_by等級縣市體系, 
+          一年級男生總數 = sum(一年級男生), 
+          一年級女生總數 = sum(一年級女生), 
+          學校數目 = n())
+
+```
+
+
+## pipe
+
+```{r pipe 1}
+
+#串接下列程式
+
+#group_by(StuDF, 
+#         性別) -> StuDF_by性別
+
+#mutate(StuDF_by性別, 
+#       最高分=max(成績), 
+#       最低分=min(成績), 
+#       調分大小=(最高分-最低分)/5, 
+#       調分後成績=成績+調分大小) -> StuDF_依性別調分
+
+#ungroup(StuDF_依性別調分) -> StuDF_依性別調分un
+
+StuDF %>% #將Studf
+  group_by(性別) %>% #依性別分群
+  mutate(最高分=max(成績), 
+         最低分=min(成績), 
+         調分大小=(最高分-最低分)/5, 
+         調分後成績=成績+調分大小) %>% #新增各性別的調分後成績
+  ungroup() -> 
+  StuDF_依性別調分un #轉回data frame
+
+class(StuDF_依性別調分un)
+
+```
+
+```{r pipe practice 1}
+
+#將collegeData依等級別、縣市名稱分群後
+#計算一年級男女生比例後
+#找出一年級男女生比例最高的等級別、縣市名稱組合
+
+collegeData %>%
+  group_by(等級別, 縣市名稱) %>%
+  mutate(一年級男生總和 = sum(一年級男生), 
+         一年級女生總和 = sum(一年級女生), 
+         一年級男女生比例 = 一年級男生總和/一年級女生總和) %>%
+  ungroup() %>%
+  summarise(max(一年級男女生比例)) #錯
+
+```
+
+```{r pipe practice 1-1}
+
+collegeData %>%
+  group_by(等級別, 縣市名稱) %>%
+  summarise(一年級男女生比例 = sum(一年級男生)/sum(一年級女生)) %>%
+  ungroup() ->
+  collegeData_一年級男女生比例
+
+which.max(collegeData_一年級男女生比例$一年級男女生比例) -> #找出max位置
+  locMax
+
+slice(collegeData_一年級男女生比例, locMax)
+
+```
+
+```{r pipe practice 2}
+
+load(url("https://www.dropbox.com/s/duh5aaqgl2f5m3z/loopTranscriptData.Rda?raw=1"))
+
+```
+
+```{r pipe practice 2-1}
+
+#計算每位學生每學期的平均成績
+
+transcriptDataFinal %>%
+  group_by(學號, 學年, 學期) %>%
+  summarise(平均成績 = sum(學期成績*學分數)/sum(學分數))
+
+```
+
+```{r pipe practice 2-2}
+
+#計算每位學生每學期學分數在 必/選/通 三類的學分數比重
+
+transcriptDataFinal -> 
+  transcriptDataFinal_1
+
+c('學號', '學屆', '學系', '學年', '學期', '學期成績', '學分數', '必選通類別') ->
+  names(transcriptDataFinal_1)
+
+transcriptDataFinal_1 %>%
+  group_by(學號, 學年, 學期, 必選通類別) %>% 
+  mutate(各類學分數 = sum(學分數)) %>% 
+  ungroup() ->
+  transcriptDataFinal_1
+
+
+#學屆為100（即100學年入學）的學生，各系學生在學所修總學分數之中位數，何系最高？
+
+```
+
 
 
 
