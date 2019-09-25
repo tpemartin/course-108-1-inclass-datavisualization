@@ -139,3 +139,29 @@ taifex_open_data <- read_csv("http://www.taifex.com.tw/data_gov/taifex_open_data
 locale = locale(encoding = "CP950"))
 ```
 
+改**日期**變數成date class
+```{r}
+DownloadFile <- read_csv("http://data.moi.gov.tw/MoiOD/System/DownloadFile.aspx?DATA=9796A044-5B71-4194-978C-5148AD7D8DB9",
+locale = locale(encoding = "BIG5"))
+
+```
+
+# ggplot2
+
+```{r}
+library(readr)
+subsetDataTWbank <- read_csv("https://www.dropbox.com/s/t8ulj3d7cgl8jh5/subsetDataTWbank.csv?dl=1")
+```
+
+```{r}
+library(ggplot2)
+subsetDataTWbank %>%
+  ggplot()+
+  geom_point(
+    aes(x=西元年月,y=`定存利率-一個月-固定`)
+    )+  
+  geom_line(
+    aes(x=西元年月,y=`定存利率-一個月-固定`)
+    )
+```
+
