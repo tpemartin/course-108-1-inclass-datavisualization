@@ -13,7 +13,7 @@ params:
 library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr);
 library(tidyr); library(showtext)
 
-font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+#font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
 showtext_auto(enable=TRUE) #啟用字體
 theme_set(theme_classic())
 knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
@@ -41,7 +41,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 load("example_data.Rda")
 
 # 資料處理
-employmentLaborForceData1 <- dataList$勞動力$data
+employmentLaborForceData1 <- dataList[[1]]$data
 employmentLaborForceData1 %>%
   tidyr::gather(`年平均勞動力`,`年平均就業人口`, key="類別",value="人數（千）") %>%
   mutate(
@@ -74,3 +74,5 @@ graphData$graphData_employment %>%
 *** 
 
 圖為台灣1995年之後的勞動力與就業人口趨勢，95年勞動力人口為9百21萬人，就業人口為9百零4萬5千人，就業比例（即就業率）為百分之98.21； ，到2018年勞動力人口為1千1百87萬4千人，就業人口為1千1百43萬4千人，就業率為百分之96.29。
+
+
