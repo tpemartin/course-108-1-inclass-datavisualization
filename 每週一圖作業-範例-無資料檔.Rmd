@@ -1,5 +1,5 @@
 ---
-title: "每週一圖作業範例"
+title: "每週一圖作業"
 output: html_document
 params:
   組員: ["小明","小花"]  
@@ -10,10 +10,9 @@ params:
 
 以下為老師執行時一定會存在的環境設定
 ```{r basic setup, message=FALSE, echo=TRUE, eval=T}
-library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr);
-library(tidyr); library(showtext)
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
 
-#font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
 showtext_auto(enable=TRUE) #啟用字體
 theme_set(theme_classic())
 knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
@@ -34,39 +33,33 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 資料檔引入到進入作圖前的資料處理請寫在下面區塊，分二部份：
 
   * 資料處理  
-  * 作圖用資料物件生成
+  * 作圖用資料物件生成(最後形成作圖資料物件graphData)
   
 ```{r data cleaning, echo=TRUE, eval=T}
-# 資料引入
-load("example_data.Rda")
-
-# 資料處理
-employmentLaborForceData1 <- dataList[[1]]$data
-employmentLaborForceData1 %>%
-  tidyr::gather(`年平均勞動力`,`年平均就業人口`, key="類別",value="人數（千）") %>%
+library(readr)
+bop_aq <- read_csv("https://www.cbc.gov.tw/public/data/OpenData/%E7%B6%93%E7%A0%94%E8%99%95/bop_aq.csv")
+bop_aq %>%
+  rename(
+    "年季"="X1"
+  ) %>%
   mutate(
-    年=as.integer(as.character(年))
-  ) -> graphData_employment
-
-# 作圖用資料物件生成：處理好可進行作圖的資料請存在一個名為graphData的list物件裡
-graphData <- list()
-graphData$graphData_employment <- graphData_employment
+    年季=yq(年季),
+    `A.  經常帳`=`A.  經常帳`/100 # 單位：億美元
+  ) %>% 
+  select(
+    年季,`A.  經常帳`
+  ) -> graphData
 ```
 
 #### 繪圖程式
 
 ```{r graph, echo=T, eval=T}
-graphData$graphData_employment %>%
-  filter(年>=1995) %>%
+graphData %>%
   ggplot()+
   geom_line(
-    aes(
-        x=年,
-        y=`人數（千）`,
-        group=類別,
-        color=類別),
-    size=1
-  )
+    aes(x=年季,y=`A.  經常帳`)
+  ) -> finalplot
+finalplot
 ```
 
 #### 設計說明
@@ -74,6 +67,10 @@ graphData$graphData_employment %>%
 
 *** 
 
-圖為台灣1995年之後的勞動力與就業人口趨勢，95年勞動力人口為9百21萬人，就業人口為9百零4萬5千人，就業比例（即就業率）為百分之98.21； ，到2018年勞動力人口為1千1百87萬4千人，就業人口為1千1百43萬4千人，就業率為百分之96.29。
+此圖為西元2015年第三季至2019年第四季台灣經常帳餘額，期間餘額維持在200億美元上下。資料期間，最高餘額為2017年第三季，金額達280.19億美元，最低為2018年第三季，金額為112.98億美元。
 
+```{r}
+finalplot %>%
+  ggplotly()
+```
 
