@@ -70,6 +70,15 @@ df_taoyuanMarriage_gather %>%
   )
 ```
 
+3.
+```{r}
+df_taoyuanMarriage%>%
+gather(
+       ends_with("月"),
+       key="月份",value="對數"
+      )%>%group_by(月份區域別)%>%summarise(結婚最高峰月份=月份[[which.max(對數)]])
+```
+
 ## spread
 
 ```{r}
@@ -85,5 +94,48 @@ df_spreadExample
 df_spreadExample
 spread(df_spreadExample,
        var,value)
+```
+
+```{r}
+df_twbankExchangeRate <- read_csv("http://www.bot.com.tw/Govinfo/opendata/csv/151/20180101-20181231-FXCRT.csv")
+```
+
+```{r}
+df_twbankExchangeRate %>%
+  select(-即期賣出匯率) %>%
+  spread(
+    幣別, 即期買入匯率
+  )
+```
+
+# 變數類別調整
+
+```{r}
+df_twbankExchangeRate %>%
+  mutate(
+    幣別=as.factor(幣別),
+    即期買入匯率=as.double(即期買入匯率),
+    即期賣出匯率=as.double(即期賣出匯率),
+    日期=lubridate::ymd(日期)
+  ) 
+```
+
+# data import
+
+```{r}
+library(readr); library(dplyr)
+# 線上引入原始資料成字串向量
+read_lines("http://www.taifex.com.tw/data_gov/taifex_open_data.asp?data_name=DailyForeignExchangeRates") ->
+  originalLines
+
+# 將字串由CP950編碼改成UTF8再讀成data frame data2
+originalLines %>%
+  iconv(from="CP950",to="UTF8") %>% 
+  read_csv() -> data2
+```
+
+```{r}
+taifex_open_data <- read_csv("http://www.taifex.com.tw/data_gov/taifex_open_data.asp?data_name=DailyForeignExchangeRates",
+locale = locale(encoding = "CP950"))
 ```
 
