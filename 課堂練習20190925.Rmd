@@ -1,0 +1,167 @@
+---
+title: "Untitled"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+```{r}
+df_gatherExample <- data.frame(
+  country=c("A","B","C"),
+  `1999`=c("0.7k","37k","212k"),
+  `2000`=c("2k","80k","213k"),
+  check.names = F
+)
+df_gatherExample
+```
+
+```{r}
+df_gatherExample
+gather(df_gatherExample,
+       `1999`,`2000`,
+       key="年份",value="人口")
+```
+
+```{r}
+library(readr)
+collegeData <- read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/103_student.csv")
+names(collegeData)
+```
+
+
+```{r}
+collegeData %>%
+  gather(
+    contains("生"),
+    key="類別",value="人數"
+  ) -> collegeData_gather
+```
+
+民國107年桃園各地區每月結婚對數
+```{r}
+library(readr)
+df_taoyuanMarriage <- read_csv("https://data.tycg.gov.tw/opendata/datalist/datasetMeta/download?id=f95d1a33-ec56-44c5-a9ec-3afba8157e39&rid=fd2070ef-7431-4f9c-bc3a-82d7bfbcd2fb")
+```
+
+1. 將資料「一～十二月」縮排在月份變數，而其下的對應值縮排在對數變數。
+```{r}
+df_taoyuanMarriage %>%
+gather(
+       ends_with("月"),
+       key="月份",value="對數"
+      ) -> df_taoyuanMarriage_gather
+```
+
+2. 計算每個月份桃園總結婚對數。
+```{r}
+df_taoyuanMarriage_gather %>%
+  group_by(月份) %>%
+  dplyr::summarise(
+    總結婚對數 = sum(對數)
+  )
+```
+
+3.
+```{r}
+df_taoyuanMarriage%>%
+gather(
+       ends_with("月"),
+       key="月份",value="對數"
+      )%>%group_by(月份區域別)%>%summarise(結婚最高峰月份=月份[[which.max(對數)]])
+```
+
+## spread
+
+```{r}
+df_spreadExample <- data.frame(
+  id = c(1,1,1,2,2,2),
+  var = c("花朶萼片長度", "學名", "總類數"),
+  value = c(5.1, "setosa", 1, 
+            7.0, "versicolor", 2))
+df_spreadExample
+```
+
+```{r}
+df_spreadExample
+spread(df_spreadExample,
+       var,value)
+```
+
+```{r}
+df_twbankExchangeRate <- read_csv("http://www.bot.com.tw/Govinfo/opendata/csv/151/20180101-20181231-FXCRT.csv")
+```
+
+```{r}
+df_twbankExchangeRate %>%
+  select(-即期賣出匯率) %>%
+  spread(
+    幣別, 即期買入匯率
+  )
+```
+
+# 變數類別調整
+
+```{r}
+df_twbankExchangeRate %>%
+  mutate(
+    幣別=as.factor(幣別),
+    即期買入匯率=as.double(即期買入匯率),
+    即期賣出匯率=as.double(即期賣出匯率),
+    日期=lubridate::ymd(日期)
+  ) 
+```
+
+# data import
+
+```{r}
+library(readr); library(dplyr)
+# 線上引入原始資料成字串向量
+read_lines("http://www.taifex.com.tw/data_gov/taifex_open_data.asp?data_name=DailyForeignExchangeRates") ->
+  originalLines
+
+# 將字串由CP950編碼改成UTF8再讀成data frame data2
+originalLines %>%
+  iconv(from="CP950",to="UTF8") %>% 
+  read_csv() -> data2
+```
+
+```{r}
+taifex_open_data <- read_csv("http://www.taifex.com.tw/data_gov/taifex_open_data.asp?data_name=DailyForeignExchangeRates",
+locale = locale(encoding = "CP950"))
+```
+
+改**日期**變數成date class
+```{r}
+DownloadFile <- read_csv("http://data.moi.gov.tw/MoiOD/System/DownloadFile.aspx?DATA=9796A044-5B71-4194-978C-5148AD7D8DB9",
+locale = locale(encoding = "BIG5"))
+
+```
+
+# ggplot2
+
+```{r}
+library(readr)
+subsetDataTWbank <- read_csv("https://www.dropbox.com/s/t8ulj3d7cgl8jh5/subsetDataTWbank.csv?dl=1")
+```
+
+```{r}
+library(ggplot2)
+subsetDataTWbank %>%
+  ggplot()+
+  geom_point(
+    aes(x=西元年月,y=`定存利率-一個月-固定`)
+    )+  
+  geom_line(
+    aes(x=西元年月,y=`定存利率-一個月-固定`)
+    )
+```
+
