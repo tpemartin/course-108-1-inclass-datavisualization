@@ -120,9 +120,23 @@ df_taoyuanMarriage_gather %>%
   summarise(
     每月總對數 = sum(對數)
   ) %>%
-  ungroup()
+  ungroup() ->
+  df_taoyuanMarriage_gather_monSum
 #盡量用pipe寫法
+#排序怪怪的
 
+df_taoyuanMarriage_gather_monSum %>% 
+  mutate(
+    月份 = factor(
+      月份, 
+      levels=c(
+        "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"
+      )
+    )
+  ) -> df_taoyuanMarriage_gather_monSum2
+
+
+#用原始資料。summarise_at()為針對某些變數去算特徵值
 df_taoyuanMarriage %>%
   summarise_at(
     vars(
@@ -132,8 +146,6 @@ df_taoyuanMarriage %>%
       總對數 = sum(.)
     )
   )
-#用原始資料。summarise_at()為針對某些變數去算特徵值
-
 
 ```
 
