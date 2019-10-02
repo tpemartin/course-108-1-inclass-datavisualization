@@ -38,6 +38,9 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 ```{r data cleaning, echo=TRUE, eval=T}
 library(readr)
 bop_aq <- read_csv("https://www.cbc.gov.tw/public/data/OpenData/%E7%B6%93%E7%A0%94%E8%99%95/bop_aq.csv")
+
+graphData <- list()
+
 bop_aq %>%
   rename(
     "年季"="X1"
@@ -48,13 +51,13 @@ bop_aq %>%
   ) %>% 
   select(
     年季,`A.  經常帳`
-  ) -> graphData
+  ) -> graphData$bop_aq
 ```
 
 #### 繪圖程式
 
 ```{r graph, echo=T, eval=T}
-graphData %>%
+graphData$bop_aq %>%
   ggplot()+
   geom_line(
     aes(x=年季,y=`A.  經常帳`)
