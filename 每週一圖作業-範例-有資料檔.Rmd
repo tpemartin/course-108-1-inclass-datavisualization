@@ -39,6 +39,12 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 library(readr)
 bop_aq <- read_csv("BPA2Q01.csv")
 
+save(bop_aq, file="uploadfile.Rda")
+
+load("uploadfile.Rda")
+
+graphData <- list()
+
 bop_aq %>%
   rename(
     "年季"="期間"
@@ -49,13 +55,13 @@ bop_aq %>%
   ) %>%
   filter(
     年季>=yq("2015Q3")
-  )-> graphData
+  )-> graphData$bop_aq
 ```
 
 #### 繪圖程式
 
 ```{r graph, echo=T, eval=T}
-graphData %>%
+graphData$bop_aq %>%
   ggplot()+
   geom_line(
     aes(x=年季,y=`經常帳-淨額-金額`)

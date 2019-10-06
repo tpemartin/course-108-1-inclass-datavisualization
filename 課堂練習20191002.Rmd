@@ -1,0 +1,102 @@
+---
+title: "Untitled"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+```{r}
+colorspace::sequential_hcl(n = 10, h = 270, c = c(70, NA, NA), l = c(25, 95), power = 2, rev = TRUE, register = "myPalette") -> p1
+p1
+```
+
+
+```{r}
+colorspace::diverging_hcl(n = 12, h = c(260, 0), c = 80, l = c(30, 90), power = 2.55, register = "myPalette2")
+```
+
+```{r}
+data.frame(
+  x1 = factor(sample(c(1L,2L,3L),100,replace=T)),
+  x2 = runif(100),
+  y = runif(100),
+  z1 = rnorm(100),
+  z2 = factor(sample(letters[1:4],100,replace=T))
+) -> df_example
+
+df_example %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x=x1,y=y,fill=z2)
+  ) -> basicBoxplot
+basicBoxplot
+```
+
+```{r}
+## Register custom color palette
+colorspace::qualitative_hcl(n = 7, h = c(0, 360), c = 35, l = 85, register = "Custom-Palette")
+basicBoxplot+
+  scale_fill_discrete_qualitative(palette="Custom-Palette",nmax=5)
+```
+
+```{r}
+basicBoxplot
+```
+```{r}
+basicBoxplot+
+  scale_fill_brewer(palette = "Dark2")
+```
+
+
+```{r}
+df_example %>%
+  ggplot()+
+  geom_point(
+    aes(x=x2,y=y,color=z1)
+  ) -> basicScatterPlot
+basicScatterPlot
+```
+
+```{r}
+## Register custom color palette
+colorspace::sequential_hcl(n = 7, h = c(0, 90), c = c(80, NA, 30), l = c(30, 90), power = c(0.2, 2), register = "Custom-Palette2")
+basicScatterPlot+
+  scale_color_continuous_sequential(palette="Custom-Palette2")
+```
+
+```{r}
+basicScatterPlot
+```
+
+```{r}
+data.frame(
+  x1 = factor(sample(c(1L,2L,3L),100,replace=T)),
+  x2 = runif(100),
+  y = runif(100),
+  z1 = rnorm(100),
+  z2 = factor(sample(letters[1:4],100,replace=T))
+) -> df_example
+
+df_example %>%
+  ggplot()+
+  geom_boxplot(
+    aes(x=x1,y=y,fill=z2)
+  ) -> basicBoxplot
+basicBoxplot
+
+colorspace::qualitative_hcl(n = 7, h = c(0, 360), c = 35, l = 85, register = "Custom-Palette")
+
+basicBoxplot +
+  scale_fill_discrete_qualitative(palette="Custom-Palette",nmax=5)
+```
+
+
