@@ -1,0 +1,62 @@
+---
+author: "簡靖軒"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_021.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(reshape2)
+
+人次 = melt(貸款人次1,id.vars="學年度")
+figure_人次=ggplot(人次,
+                   aes(x=學年度,
+                       y=value)) + 
+            geom_line(aes(color=variable)) 
+
+graphData1 = figure_人次 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=98),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '貸款人次/萬人')
+
+金額 = melt(貸款金額1,
+            id.vars="學年度")
+figure_金額=ggplot(金額,
+                   aes(x=學年度,
+                       y=value)) + 
+                   geom_line(aes(color=variable))
+
+graphData2 = figure_金額 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=98),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '貸款金額/千萬元')
+
+平均貸款金額= melt(平均每人貸款金額1,
+                   id.vars="學年度")
+figure_平均貸款金額 = ggplot(平均貸款金額,
+                             aes(x=學年度,
+                                 y=value)) + 
+                      geom_line(aes(color=variable))  
+graphData3 = figure_平均貸款金額 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=100),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '平均貸款金額/元')
+```
+ 

@@ -1,0 +1,62 @@
+---
+author: "林易霆"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_013.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+# line graph of the average times student apply for loan each year
+library(ggthemes); library(colorspace)
+
+# colorspace::choose_palette(gui = "shiny")
+# colorspace::choose_color() , choose "#923DBE" for specific lines
+
+colorspace::qualitative_hcl(n = 7, h = c(10, -350), c = 50, l = 80, register = "HWpalette1")
+
+# palette returns an obscure color set, just choose them manually.
+
+avg.loan.freq <- graphData$tidy %>%
+  ggplot(aes(x = 學年度, y = 當年平均貸款次數, color = 類型)) +
+  geom_line(size = 1.5) +
+  scale_x_continuous(breaks = c(92:105)) + # make sure x axis prints every year
+  scale_color_manual(values = c(公立大專校院 = "#FFB3B5", 
+                                私立大專校院 = "#AAC8FC", 
+                                公立高中職 = "#95D69A",
+                                私立高中職 = "#DAC584")) + 
+# add the average loan times for different education levels
+  geom_line(aes(x = 學年度, y = 公私立平均貸款次數,  group = 學制),
+            linetype = "twodash", size = 1, color = "#923DBE", alpha = 0.6) + 
+# add in annotations for better understanding
+  annotate("text", x = 95, y = 1.54, 
+           label = paste('水平線為該學制之學年平均貸款次數'), size = 3) +
+  annotate("text", x = 103.5, y = 1.85, 
+           label = paste("平均一學年 1.825 次"), size = 3) +
+  annotate("text", x = 103.5, y = 1.725, 
+           label = paste("平均一學年 1.714 次"), size = 3) +
+  labs(title = "每學年學生申請學貸之平均次數",
+       caption = "資料來源: 台灣政府公開資料庫") +
+  theme(plot.title = element_text(size = 14, face = "bold",    
+                                        hjust = 0.5), 
+              plot.caption = element_text(face = "italic"),
+        plot.background = element_rect(fill = "#FBDFB3"),
+        legend.box.background = element_rect(),
+        legend.box.margin = margin(6,6,6,6), 
+        panel.border = element_rect(linetype = "solid", fill = NA),
+        panel.grid.major = element_line(color = "grey90"),
+        panel.grid.minor = element_line(color = "grey90"))
+
+avg.loan.freq
+```
+ 

@@ -1,0 +1,33 @@
+---
+author: "邱詩涵"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_012.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$disposableIncome %>%
+  gather(contains("所得"),key = "可支配所得按戶數五等分位組", value = "所得") %>%
+  ggplot(aes(x=年份,y=所得, color = 可支配所得按戶數五等分位組)) +
+  geom_line(size=1) +
+  scale_colour_hue(l = 85, c = 70,h = c(0, 180))
+
+graphData$disposableIncome_percent %>%
+  gather(contains("所得"),key = "可支配所得按戶數五等分位組", value = "所得") %>%
+  ggplot(aes(x=年份,y=所得, color = 可支配所得按戶數五等分位組)) +
+  geom_line(size=1) +
+  scale_colour_hue(l = 80, c = 75)
+
+```
+ 

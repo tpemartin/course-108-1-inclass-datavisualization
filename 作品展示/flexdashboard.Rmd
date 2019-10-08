@@ -1,0 +1,621 @@
+---
+title: "作業展示: 2019-10-08"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    storyboard: true
+    source_code: "https://github.com/tpemartin/course-108-1-inclass-datavisualization/作品展示"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr);
+library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(fig.align='center', fig.showtext=T)
+```
+
+
+
+
+ 
+### 【001: 王正評】公投案第10案：你是否**同意**民法婚姻規定**應限定在一男一女**的結合？
+ 
+```{r}
+#getwd()
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_001.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+library(scales)
+library(colorspace)
+library(shiny)
+library(shinyjs)
+
+qualitative_hcl(n = 6, h = c(180, 360), c = 50, l = 80, register = "god-Palette-Qualitative1")
+
+graphData$Case_10_result %>% 
+  ggplot(
+    aes(
+      x = 六都, 
+      y = `同意比例（同意票／有效票）`
+    )
+  ) + 
+  geom_col(
+    aes(
+      fill = 六都, 
+      width = 0.5
+    )
+  ) + 
+  coord_flip() + 
+   scale_y_continuous(
+    limits = c(0, 0.8), 
+    labels = percent_format()
+  ) + 
+  labs(
+    title = "你是否同意民法婚姻規定應限定在一男一女的結合 ?"
+  ) + 
+  scale_fill_discrete_qualitative(
+    palette = "god-Palette-Qualitative1", 
+    nmax = 6
+  ) + 
+  geom_text(
+    aes(
+      label = str_c(
+        round(`同意比例（同意票／有效票）`*100, 1), 
+        "%"
+      )
+    ), 
+    size = 10
+  ) + 
+  theme(
+    plot.title = element_text(
+      colour = "black", face = "bold", 
+      size = 35 
+    ), 
+    axis.title.x = element_text(face = "bold", size = 25), 
+    axis.title.y = element_text(face = "bold", size = 25), 
+    axis.text.x = element_text(size = 20), 
+    axis.text.y = element_text(size = 20), 
+    legend.position = "none"
+  )
+```
+ 
+***
+公投案第10案：你是否**同意**民法婚姻規定**應限定在一男一女**的結合？
+
+<ol>
+  <li>六都的同意比例皆超過5成，顯示台灣社會對於性別的觀念仍趨保守。</li>
+  <li>可看出雙北對於性別的觀念較其他四都開放，臺北市的同意比例甚至掉到7成以下。</li>
+  <li>可看出愈往北部，性別觀念有愈趨成熟的趨勢。</li>
+</ol>
+
+ 
+ 
+### 【007: 鄭喬翊】我想要傳達的訊息是台灣的平均可支配所得各階層的差距。由此圖表而言，收入最低階層的民眾甚至未達到總平均
+ 
+```{r, eval=FALSE}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_007.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+disposableIncomeGather %>%
+  ggplot(
+    aes(x=西元年份,y=比例,color=對平均所得)
+    )+
+  geom_line(size=1) +
+  labs(title = "年各所得分位平均對年總平均可支配所得")
+
+```
+ 
+***
+我想要傳達的訊息是台灣的平均可支配所得各階層的差距。由此圖表而言，收入最低階層的民眾甚至未達到總平均可支配所得的一半，而最高階層卻是兩倍多，這其實反映了貧富差距有點大，而且財富其實集中在少數人手中。除了最高所得階層的人之外，其他人都很接近總平均所得(比例 = 1.0)或在其之下。這些便是我想傳達的訊息。
+
+
+ 
+ 
+### 【010: 游筑茵】此筆資料為日本Hostel滿意度調查，圖形顯示五種滿意水準中Good的價格跨度最大；Fabulous
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_010.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+#choose_palette(gui="shiny")
+colorspace::sequential_hcl(n = 5, h = c(-83, 20), c = c(65, NA, 18), l = c(32, 90), power = c(0.5, 1), register = "mypalette")
+ggplot(graphData,aes(x=atmosphere,y=price))+
+ geom_point(aes(colour=rating))+
+ geom_smooth(aes(colour=rating,fill=rating))+
+  facet_wrap(~rating,ncol=3,nrow=2)->basicplot
+ basicplot +
+  scale_color_discrete_sequential(palette="mypalette")+scale_fill_discrete_sequential(palette="mypalette") ->finalplot
+ finalplot   
+
+```
+ 
+***
+此筆資料為日本Hostel滿意度調查，圖形顯示五種滿意水準中Good的價格跨度最大；Fabulous的價格跨度最小。而且可以從圖形看出price和atmosphere 沒有明顯的關係。
+
+
+
+ 
+ 
+### 【011: 彭亦楓】此圖表現民國107年時，在台來自各區域的生母，在不同年齡層下生產的嬰兒總數，佔生母原屬區域的嬰兒總數
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_011.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$data%>%
+  ggplot()+
+  geom_line(size=1.2,
+    aes(x=生母年齡,y=嬰兒總數佔該區域嬰兒總數百分比,color=生母原屬國籍或地區)
+  )
+```
+ 
+***
+此圖表現民國107年時，在台來自各區域的生母，在不同年齡層下生產的嬰兒總數，佔生母原屬區域的嬰兒總數之百分比。圖中我們可以看到大部分的生母都在30~34歲時生產，隨著年齡越小或越大，生產的嬰兒總數就佔越少的百分比。
+原屬國籍在東南亞地區的生母在20~24歲生產的比例，遠高於東南亞地區以外的生母在20~24歲時生產的比例，可見比起其他國籍的生母，來自於東南亞地區的生母較有可能在20~24歲生產；原屬國籍在大陸地區的生母，比起台灣、東南亞、港澳地區的生母，更有可能在35歲或以後生產；而原屬國籍在其他地區的生母，在35歲或以後生產的比例特別的高，所以他們是在台灣最有可能成為高齡產婦的族群。
+ 
+ 
+### 【012: 游崇翰】圖一為台灣不同家庭所得在2003年金融海嘯後的所得上升差異，我們把可支配所得按戶數五等分位組以及平均
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_012.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$disposableIncome %>%
+  gather(contains("所得"),key = "可支配所得按戶數五等分位組", value = "所得") %>%
+  ggplot(aes(x=年份,y=所得, color = 可支配所得按戶數五等分位組)) +
+  geom_line(size=1) +
+  scale_colour_hue(l = 85, c = 70,h = c(0, 180))
+
+graphData$disposableIncome_percent %>%
+  gather(contains("所得"),key = "可支配所得按戶數五等分位組", value = "所得") %>%
+  ggplot(aes(x=年份,y=所得, color = 可支配所得按戶數五等分位組)) +
+  geom_line(size=1) +
+  scale_colour_hue(l = 80, c = 75)
+
+```
+ 
+***
+1. 圖為台灣2002年至2016年的亞洲地區外國來台旅遊人數趨勢，其中最顯著的變化是，於2003年時，亞洲地區總來台人數從157.92萬跌落至124.51萬，以及在2009年則從211.62萬人減少至192.87萬人，其他年分人數呈現逐漸上升趨勢。日本旅客在亞洲地區來台人數中為多數，其趨勢與亞洲地區總人數相似。
+
+2. 選用長條圖的原因為能清楚觀察出各國家人數量高低落差。
+
+
+
+ 
+ 
+### 【013: 林易霆】該圖為台灣92學年度至105學年度公私立高教機構學生之平均申請學貸次數的趨勢圖。橫軸為各學年度，縱軸
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_013.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+# line graph of the average times student apply for loan each year
+library(ggthemes); library(colorspace)
+
+# colorspace::choose_palette(gui = "shiny")
+# colorspace::choose_color() , choose "#923DBE" for specific lines
+
+colorspace::qualitative_hcl(n = 7, h = c(10, -350), c = 50, l = 80, register = "HWpalette1")
+
+# palette returns an obscure color set, just choose them manually.
+
+avg.loan.freq <- graphData$tidy %>%
+  ggplot(aes(x = 學年度, y = 當年平均貸款次數, color = 類型)) +
+  geom_line(size = 1.5) +
+  scale_x_continuous(breaks = c(92:105)) + # make sure x axis prints every year
+  scale_color_manual(values = c(公立大專校院 = "#FFB3B5", 
+                                私立大專校院 = "#AAC8FC", 
+                                公立高中職 = "#95D69A",
+                                私立高中職 = "#DAC584")) + 
+# add the average loan times for different education levels
+  geom_line(aes(x = 學年度, y = 公私立平均貸款次數,  group = 學制),
+            linetype = "twodash", size = 1, color = "#923DBE", alpha = 0.6) + 
+# add in annotations for better understanding
+  annotate("text", x = 95, y = 1.54, 
+           label = paste('水平線為該學制之學年平均貸款次數'), size = 3) +
+  annotate("text", x = 103.5, y = 1.85, 
+           label = paste("平均一學年 1.825 次"), size = 3) +
+  annotate("text", x = 103.5, y = 1.725, 
+           label = paste("平均一學年 1.714 次"), size = 3) +
+  labs(title = "每學年學生申請學貸之平均次數",
+       caption = "資料來源: 台灣政府公開資料庫") +
+  theme(plot.title = element_text(size = 14, face = "bold",    
+                                        hjust = 0.5), 
+              plot.caption = element_text(face = "italic"),
+        plot.background = element_rect(fill = "#FBDFB3"),
+        legend.box.background = element_rect(),
+        legend.box.margin = margin(6,6,6,6), 
+        panel.border = element_rect(linetype = "solid", fill = NA),
+        panel.grid.major = element_line(color = "grey90"),
+        panel.grid.minor = element_line(color = "grey90"))
+
+avg.loan.freq
+```
+ 
+***
+該圖為台灣92學年度至105學年度公私立高教機構學生之平均申請學貸次數的趨勢圖。橫軸為各學年度，縱軸為當年各機構的平均申請學貸次數。繪圖的高教機構分為四組: 公立大專校院、私立大專校院、公立高中職、以及私立高中職。因每學年分上下學期，且原始資料中不含高教機構分組的總學生數。故無法得知各高教機構分組對於學貸需求的急切性。若以是否上下學期皆申請學貸作為判斷依據，或能窺探該高教機構組別對於學貸之需求。  
+\  
+
+整體來說，大專校院申請學貸的比例遠高出高中職的申請比例。此現象可能原自學制間的學費差異，高中職的學費應低於大專院校之學費，不同學制難以互相比較。兩學制的歷年平均申請貸款次數也具明顯的差異，更加凸顯學制間不可比較的特性。  
+\  
+
+大專校院的歷年平均申請次數為1.825次。由圖形中的趨勢可發現，公立以及私立體系的申請學貸次數皆在平均線上震盪。此現象意味著公私體系的大專校院學生對於學貸的需求較為相近。若要重新分配學貸資金的比例可能需要更加詳細的調查。  
+\  
+
+高中職的歷年平均申請次數相較大專校院稍低一些，為1.714次。但私立高中職的申請次數普遍遠高於公立高中職的申請次數，也就是說，私立高中職的學生有較多的學生在一學年中的上下學期皆申請學貸。此現象可能緣由私立高中職的學費遠高於公立高中職，導致較多的學生須申請學貸來減輕學費的壓力。若能將學貸資金分配於私立學校或許是比較能幫助到學生的政策。且自98、99年以後，高中職的申請學貸次數便急速的減低，而大專校院卻仍維持震盪現象，並無降低的趨勢。此可能代表就讀大專院校的學生較就讀高中職的學生更加需要學貸的申請。若能將學貸資金於各學制間的比例重新調整，或許是更為有效的政策。  
+\  
+
+ 
+ 
+### 【014: 邱詩涵】1. 圖為台灣2002年至2016年的亞洲地區外國來台旅遊人數趨勢，其中最顯著的變化是，於2003年
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_014.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$travelerFromAsia %>%
+  ggplot(aes(x=`年分`,y=`來台旅遊人數(萬)`,fill=地區)) +
+    geom_bar(stat="identity", position=position_dodge())
+```
+ 
+***
+1. 圖為台灣2002年至2016年的亞洲地區外國來台旅遊人數趨勢，其中最顯著的變化是，於2003年時，亞洲地區總來台人數從157.92萬跌落至124.51萬，以及在2009年則從211.62萬人減少至192.87萬人，其他年分人數呈現逐漸上升趨勢。日本旅客在亞洲地區來台人數中為多數，其趨勢與亞洲地區總人數相似。
+
+2. 選用長條圖的原因為能清楚觀察出各國家人數量高低落差。
+
+
+
+ 
+ 
+### 【015: 李靜怡】圖1為2003年金融海嘯後，台灣家庭所得五等分位分組之收入變動狀況，y軸以萬位表示並搭配格線可更易於
+ 
+```{r, eval=F}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_015.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(scales)
+#圖1
+disposableIncome %>%
+  filter(年份 >= 2003) %>%
+  gather(
+    -1,
+    key = "組別", value = "可支配所得"
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(x=年份, y=可支配所得, color = 組別)
+  ) +
+  scale_y_continuous(
+    breaks = c(500000,1000000,1500000,2000000),
+    labels = c("50萬","100萬","150萬","200萬")
+  ) +
+  scale_color_discrete(breaks = c(
+    "平均每戶可支配所得",
+    "最高所得組",
+    "次高所得組",
+    "中間所得組",
+    "次低所得組",
+    "最低所得組")) +
+  theme_grey() +
+  labs(title = "不同家庭所得在金融海嘯後所得變動") +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) -> answer1
+
+answer1
+
+#圖2
+percent %>%
+  filter(年份 >= 2003) %>%
+  gather(
+    -1,
+    key = "組別", value = "可支配所得成長"
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(x=年份, y=可支配所得成長, color = 組別)
+  ) +
+  expand_limits(y = c(-0.075,0.075)) +
+  scale_y_continuous(
+    labels = percent_format()
+  ) +
+  scale_color_discrete(breaks = c(
+    "平均每戶可支配所得",
+    "最高所得組",
+    "次高所得組",
+    "中間所得組",
+    "次低所得組",
+    "最低所得組")) +
+  theme_grey() +
+  labs(title = "不同家庭所得在金融海嘯後所得較前年成長") +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) -> answer2
+
+answer2
+```
+ 
+***
+圖1為2003年金融海嘯後，台灣家庭所得五等分位分組之收入變動狀況，y軸以萬位表示並搭配格線可更易於閱讀。
+圖2為2003年金融海嘯後，台灣家庭所得五等分位分組之收入較前年成長之幅度，y軸以百分比表示並搭配格線可更易於閱讀；由此圖可見，在2007~2008的金融海嘯中，受影響最大的是五分為中最低所得組的家庭，但對比圖1會發現其所得減幅相較他組並不突出，推測可能原因為其所得原本就是五組中最低，故在所得減少程度相同時受影響比例較大。
+ 
+ 
+### 【016: 陳盈蓁】此圖為西元2015年歐洲地區各國來台旅遊的職業分布，想透過圖看出歐洲各國來台旅遊各職業的人數多寡。
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_016.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData %>%
+  ggplot()+
+  geom_point(
+    aes(x=人數,y=國家,color=職業,size=人數),
+  )-> finalplot
+finalplot
+```
+ 
+***
+此圖為西元2015年歐洲地區各國來台旅遊的職業分布，想透過圖看出歐洲各國來台旅遊各職業的人數多寡。
+ 
+ 
+### 【017: 林應廷】身為一個花蓮人想要了解花蓮某些特定知名景點的遊客人數分配，意外的發現慶修院的人數竟然還不少，從圖形上
+ 
+```{r, eval=FALSE}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_017.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+hualien2 %>%
+  ggplot()+
+  geom_area(
+    aes(x=景點,y=人數,color=景點)
+  )
+
+```
+ 
+***
+身為一個花蓮人想要了解花蓮某些特定知名景點的遊客人數分配，意外的發現慶修院的人數竟然還不少，從圖形上來看也勝過了松園別館及林田山，因為慶修院在自己家附近沒想到這麼多人，滿意外的。
+
+ 
+ 
+### 【018: 王姿文】此圖為臺北市青年創業融資貸款趨勢圖，期間由2012年12月至2019年8月。以`類別`為組別繪製，橫
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_018.Rda")
+## ----graph, echo=T, eval=T, warning=FALSE--------------------------------
+graphData$HW1 %>%
+  ggplot()+
+  geom_line(
+    aes(x=年月,y=累計數量, group = 類別, color=factor(類別))
+  )+
+  geom_point(aes(x=年月,y=累計數量, group = 類別, color=factor(類別))
+  )+ 
+  labs(x = "西元年月", y = "累計件數", 
+       title = "臺北市青年創業融資貸款") -> finalplot
+finalplot
+```
+ 
+***
+此圖為臺北市青年創業融資貸款趨勢圖，期間由2012年12月至2019年8月。以`類別`為組別繪製，橫軸為`西元年月`，縱軸為`累計件數`，而兩條趨勢圖分別為`申請件數`、`核准件數`。
+
+臺北市青年創業融資貸款的`申請件數`從2012年12月的346件，增至2019年8月的1839件；`核准件數`從2012年12月的284件，增至2019年8月的1638件。其中由圖形和數據可以看出累計件數的申請件數與核准件數之間的差距越來越大，2012年12月的差距為62件，至2019年8月為201件，原因應是申請件數逐年增加的數量遠大於核准件數。這可能與政府和各大教育機構鼓勵青年就業有關，也可能是因為越來越多青年認為自行創業遠比初入社會的低薪更優，因此促成這個結果。
+
+人們可從此圖分別看出`申請件數`、`核准件數`的趨勢，並使用鼠標來查看不同年月的累計件數。
+ 
+ 
+### 【019: 王童緯】圖表為日圓對美元匯率的變動,從2010年到2018年間的變化,可以看到在2011-2012年間為最低
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_019.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+graphData %>% 
+  ggplot()+
+  geom_line(
+    aes(x=期間,y=`日圓JPY/USD`,color="red")
+    )-> finalplot
+finalplot
+
+```
+ 
+***
+圖表為日圓對美元匯率的變動,從2010年到2018年間的變化,可以看到在2011-2012年間為最低點為日圓強勢的時期,而在這之後,日圓開始疲乏,到2015年貶值最為嚴重,而至目前仍持續低迷
+
+ 
+ 
+### 【020: 王先誠】此圖資料為106學年大專院校校別學生數，我將國立台北大學的學生特別挑出，並進行男女生數量的比較。由圖
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_020.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+    ggplot(graphData$graphy) +
+    geom_line(
+      aes(x=女生,y=男生,color=等級別))+
+    geom_point(
+      aes(x=女生,y=男生,color=等級別)    
+    )->finalplot
+    finalplot
+
+ 
+```
+ 
+***
+此圖資料為106學年大專院校校別學生數，我將國立台北大學的學生特別挑出，並進行男女生數量的比較。由圖可知，國立台北大學的學生大部分為學士，且女生多於男生。次多的學生為碩士，碩士的男女由斜率可知大約為1:1。而博士班的男女生太少，可以知道國立台北大學應該很少系有博士班。
+
+ 
+ 
+### 【021: 簡靖軒】此資料為92-105學年度高級中等以上學校學生申請就學貸款人次、人數及貸款金額。
+ 
+```{r, eval=FALSE}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_021.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(reshape2)
+
+人次 = melt(貸款人次1,id.vars="學年度")
+figure_人次=ggplot(人次,
+                   aes(x=學年度,
+                       y=value)) + 
+            geom_line(aes(color=variable)) 
+
+graphData1 = figure_人次 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=98),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '貸款人次/萬人')
+
+金額 = melt(貸款金額1,
+            id.vars="學年度")
+figure_金額=ggplot(金額,
+                   aes(x=學年度,
+                       y=value)) + 
+                   geom_line(aes(color=variable))
+
+graphData2 = figure_金額 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=98),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '貸款金額/千萬元')
+
+平均貸款金額= melt(平均每人貸款金額1,
+                   id.vars="學年度")
+figure_平均貸款金額 = ggplot(平均貸款金額,
+                             aes(x=學年度,
+                                 y=value)) + 
+                      geom_line(aes(color=variable))  
+graphData3 = figure_平均貸款金額 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=100),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '平均貸款金額/元')
+```
+ 
+***
+此資料為92-105學年度高級中等以上學校學生申請就學貸款人次、人數及貸款金額。
+
+ 
+ 
+### 【022: 曾雨晴】此圖為民國105年到106年，全國大學(含)以上的學生，到各個地區交流的人數。可以看出大部分學生去交
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_022.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$exchangeData%>%
+ggplot()+
+  geom_col(
+  aes(x=`進修交流國家(地區)區域別`,y=人數)
+  )->finalplot
+finalplot
+
+```
+ 
+***
+此圖為民國105年到106年，全國大學(含)以上的學生，到各個地區交流的人數。可以看出大部分學生去交流仍以亞洲地區(包含大陸地區、其他亞洲地區、東協、港澳、南亞)為主，其次為歐洲。而亞洲地區又可比較出，其他亞洲地區人數最多，像是日本、韓國等等，其次是大陸地區，第三名則是東協地區。
+而選用長條圖是因為希望可以展現出數量上的明顯差異。
+ 
+ 
+### 【023: 林奕齊】此圖以 William J. Baumol 的成本病理論為基礎，檢視台灣醫療保健支出是否滿足該理論。
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_023.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+library(colorspace)
+library(shinyjs) 
+colorspace::qualitative_hcl(n = 9, h = c(0, 258), c = 100, l = 42, register = "Custom-Palette")
+
+graphData$cost_disease %>% 
+  ggplot(aes(x = 年, y = 價格指數, color = 類別)) + 
+  geom_line(aes(size = 0.3)) + geom_point(aes(size = 0.5)) + 
+  guides(size = FALSE ) +
+  ggtitle( "台灣醫療費用的成本病")  +
+  theme(plot.title = element_text(size = 35, face = "bold", vjust = 6.5),
+        panel.background = element_rect(fill = "AntiqueWhite1"),
+        legend.background = element_rect(fill = "AntiqueWhite1"),
+        panel.grid.major = element_line(color = "gray80", size = 0.5, linetype = "dotted"),
+        panel.grid.major.x = element_blank(),
+        line = element_blank(),
+        legend.position = "top",
+        axis.ticks.length = unit(.15, "cm"),
+        plot.background = element_rect(fill = "AntiqueWhite1"),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(4, 4, 4, 4, "cm"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 15, face = "bold"),
+        axis.text.y = element_text(size = 15, face = "bold"),
+        legend.text = element_text(size = 15),
+        legend.title = element_text(size = 18, face = "bold"),
+        legend.key.size = unit(15, "point")) +
+  scale_color_discrete_qualitative(palette = "Custom-Palette" ,nmax=5) + 
+  scale_x_continuous(breaks = seq(1991,2017, 1)) -> finalplot
+
+finalplot
+```
+ 
+***
+此圖以 William J. Baumol 的成本病理論為基礎，檢視台灣醫療保健支出是否滿足該理論。資料來源為主計處與中華明國統計網，並進行彙整，以醫療健保支出(平均、總額)、平均醫療專業(年)薪資，與物價水準(CPI)做為比較對象。調整各變數基期為民國 80 年。依圖所示，台灣醫療支出自民國 80 年起，與物價水準的差距，逐步拉開，存在擴大的趨勢，意即醫療健保 "實質成本" 高升不止。另外，醫療專業人員薪資也不及醫療支出費用。根據成本病理論，此為因 "個人服務" 行業未有大量要素替代的情況，且技術進步較緩慢，導致醫療事業的生產力上升不及成本隨物價上升的幅度，因而台灣醫療產業的情形符合成本病的特徵。
+
+  此構圖靈感參考"華爾街日報"與"經濟學人"的圖形設計。主要比較各變數的價格指數的趨勢，故省略軸線標題，與一致化背景，並挑選深色以凸顯折線部分的對比。
+  
+
+ 
+ 
+### 【025: 劉信傑】本圖清楚地表現了高雄及台北-兩大台灣最繁榮的城市，在生活消費上"食"和"衣"的差異。
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_025.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+graphData %>% mutate(
+  地區=factor(地區,levels=c("高雄市","台北市"))
+)%>% ggplot(
+  aes(x=食物種類,y=消費金額,color=地區)
+  )+
+  geom_point(size=5)+
+  theme_gray()+
+  ggtitle(label = "台北與高雄-持卡人之平均每月`食衣消費`比較")
+```
+ 
+***
+*圖形表達:
+本圖清楚地表現了高雄及台北-兩大台灣最繁榮的城市，在生活消費上"食"和"衣"的差異。
+
+*概念核心:
+原始資料為台灣六都中，針對持有信用卡人士，做出的各項消費統計。
+而我認為持有信用卡，代表消費者屬於有一定消費水準的人士，再加上台北及高雄的都市開發相對於其他縣市，算是非常突出，用信用卡消費金額更能凸顯--"兩地中皆有一定消費水準的人們，在兩地的基本消費差異"。
+
+*資料篩選作法:
+在繪圖前，將資料篩出並算出台北及高雄、食物及衣服的平均每月消費金額，從而繪圖。
+
+*補充:
+1.高雄地理位置偏南方，且大眾普遍認為較有熱情，因此選用紅色，台北則為其對比色。
+2.計算部分已於EXCEL再次驗算過。
+3.某些檢查變數結構以即檢查資料等問題，已處理並加上"井字號"，讓程式可以先跑出結果。
+
+
+
+
+
+ 
+ 
+### 【026: 林書玉】此圖呈現台灣1974年~2016年三項主要稅目的年度稅收總額變化情形，可以發現
+ 
+```{r}
+load("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/作品展示/graphData_homework2019-10-08_026.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+# Draw the line graph
+graphData$tax_data %>%
+  ggplot(aes(x = 年分, y = tax_revenue/1000000, colour = tax_type))+
+  geom_line(size = 0.8)+
+  labs(x = "", y = "Tax Revenue (in million NTD)")+
+  scale_x_continuous(breaks=seq(1974,2016,5))-> finalplot_tax_data
+
+finalplot_tax_data
+
+```
+ 
+***
+此圖呈現台灣1974年~2016年三項主要稅目的年度稅收總額變化情形，可以發現
+1.所得稅、貨物稅、營利事業所得稅三者差距逐漸拉大
+2.其中又以所得稅收金額上升最劇、貨物稅變化幅度最小
+
+ 

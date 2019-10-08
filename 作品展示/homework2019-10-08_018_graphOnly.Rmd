@@ -1,0 +1,31 @@
+---
+author: "王姿文"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_018.Rda")
+## ----graph, echo=T, eval=T, warning=FALSE--------------------------------
+graphData$HW1 %>%
+  ggplot()+
+  geom_line(
+    aes(x=年月,y=累計數量, group = 類別, color=factor(類別))
+  )+
+  geom_point(aes(x=年月,y=累計數量, group = 類別, color=factor(類別))
+  )+ 
+  labs(x = "西元年月", y = "累計件數", 
+       title = "臺北市青年創業融資貸款") -> finalplot
+finalplot
+```
+ 

@@ -1,0 +1,74 @@
+---
+author: "王正評"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_001.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+library(scales)
+library(colorspace)
+library(shiny)
+library(shinyjs)
+
+qualitative_hcl(n = 6, h = c(180, 360), c = 50, l = 80, register = "god-Palette-Qualitative1")
+
+graphData$Case_10_result %>% 
+  ggplot(
+    aes(
+      x = 六都, 
+      y = `同意比例（同意票／有效票）`
+    )
+  ) + 
+  geom_col(
+    aes(
+      fill = 六都, 
+      width = 0.5
+    )
+  ) + 
+  coord_flip() + 
+   scale_y_continuous(
+    limits = c(0, 0.8), 
+    labels = percent_format()
+  ) + 
+  labs(
+    title = "你是否同意民法婚姻規定應限定在一男一女的結合 ?"
+  ) + 
+  scale_fill_discrete_qualitative(
+    palette = "god-Palette-Qualitative1", 
+    nmax = 6
+  ) + 
+  geom_text(
+    aes(
+      label = str_c(
+        round(`同意比例（同意票／有效票）`*100, 1), 
+        "%"
+      )
+    ), 
+    size = 10
+  ) + 
+  theme(
+    plot.title = element_text(
+      colour = "black", face = "bold", 
+      size = 35 
+    ), 
+    axis.title.x = element_text(face = "bold", size = 25), 
+    axis.title.y = element_text(face = "bold", size = 25), 
+    axis.text.x = element_text(size = 20), 
+    axis.text.y = element_text(size = 20), 
+    legend.position = "none"
+  )
+```
+ 

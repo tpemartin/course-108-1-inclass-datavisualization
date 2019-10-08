@@ -1,0 +1,30 @@
+---
+author: "林書玉"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_026.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+# Draw the line graph
+graphData$tax_data %>%
+  ggplot(aes(x = 年分, y = tax_revenue/1000000, colour = tax_type))+
+  geom_line(size = 0.8)+
+  labs(x = "", y = "Tax Revenue (in million NTD)")+
+  scale_x_continuous(breaks=seq(1974,2016,5))-> finalplot_tax_data
+
+finalplot_tax_data
+
+```
+ 

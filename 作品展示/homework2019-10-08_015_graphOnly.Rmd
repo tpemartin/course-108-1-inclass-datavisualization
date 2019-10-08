@@ -1,0 +1,81 @@
+---
+author: "李靜怡"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_015.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(scales)
+#圖1
+disposableIncome %>%
+  filter(年份 >= 2003) %>%
+  gather(
+    -1,
+    key = "組別", value = "可支配所得"
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(x=年份, y=可支配所得, color = 組別)
+  ) +
+  scale_y_continuous(
+    breaks = c(500000,1000000,1500000,2000000),
+    labels = c("50萬","100萬","150萬","200萬")
+  ) +
+  scale_color_discrete(breaks = c(
+    "平均每戶可支配所得",
+    "最高所得組",
+    "次高所得組",
+    "中間所得組",
+    "次低所得組",
+    "最低所得組")) +
+  theme_grey() +
+  labs(title = "不同家庭所得在金融海嘯後所得變動") +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) -> answer1
+
+answer1
+
+#圖2
+percent %>%
+  filter(年份 >= 2003) %>%
+  gather(
+    -1,
+    key = "組別", value = "可支配所得成長"
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(x=年份, y=可支配所得成長, color = 組別)
+  ) +
+  expand_limits(y = c(-0.075,0.075)) +
+  scale_y_continuous(
+    labels = percent_format()
+  ) +
+  scale_color_discrete(breaks = c(
+    "平均每戶可支配所得",
+    "最高所得組",
+    "次高所得組",
+    "中間所得組",
+    "次低所得組",
+    "最低所得組")) +
+  theme_grey() +
+  labs(title = "不同家庭所得在金融海嘯後所得較前年成長") +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) -> answer2
+
+answer2
+```
+ 
