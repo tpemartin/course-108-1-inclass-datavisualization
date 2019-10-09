@@ -29,3 +29,67 @@ graphData %>%
   )
 ```
 
+## linetype
+
+```{r}
+library(readr)
+disposableIncome <- read_csv("https://www.dropbox.com/s/z80sbjw94cjex8x/disposableIncome.csv?dl=1",locale = locale(encoding = "BIG5"), skip = 4)
+disposableIncome_gather <- read_csv("https://www.dropbox.com/s/cdw1f10jow4frxb/disposableIncome_gather.csv?dl=1")
+```
+
+```{r}
+c('X1','平均每戶可支配所得','可支配所得按戶數五等分位組-最低所得組','可支配所得按戶數五等分位組-次低所得組','可支配所得按戶數五等分位組-中間所得組','可支配所得按戶數五等分位組-次高所得組','可支配所得按戶數五等分位組-最高所得組') -> names(disposableIncome)
+
+c('年','平均每戶可支配所得','所得組距','可支配所得') -> names(disposableIncome_gather)
+```
+
+
+```{r}
+disposableIncome %>%
+  mutate(
+    年=as.integer(X1)
+  ) -> disposableIncome
+
+disposableIncome %>%
+  ggplot(aes(x=年,y=平均每戶可支配所得))+
+  geom_line(linetype="dashed")
+```
+
+```{r}
+disposableIncome %>%
+  ggplot(aes(x=年,y=平均每戶可支配所得))+
+  geom_line(linetype="33")
+```
+
+
+```{r}
+disposableIncome %>%
+  ggplot(aes(x=年,y=平均每戶可支配所得))+
+  geom_line(linetype='2451')
+```
+
+```{r}
+library(magrittr)
+disposableIncome_gather$所得組距 %<>%
+  factor(levels=c(
+    "可支配所得按戶數五等分位組-最低所得組",
+    "可支配所得按戶數五等分位組-次低所得組",
+    "可支配所得按戶數五等分位組-中間所得組",
+    "可支配所得按戶數五等分位組-次高所得組",
+    "可支配所得按戶數五等分位組-最高所得組"
+  )) 
+
+disposableIncome_gather %>%
+  ggplot(aes(x=年,y=可支配所得))+
+  geom_line(
+    aes(linetype=所得組距,size=所得組距)
+  ) +
+  scale_linetype_manual(
+    values=c("15","24","34","51","71")
+  ) +
+  scale_size_manual(
+    values=c(0.1,0.3,0.3,0.5,0.7)*1.5
+  ) -> p_linetype
+p_linetype
+```
+
