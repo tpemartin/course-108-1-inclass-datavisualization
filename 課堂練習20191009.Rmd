@@ -17,5 +17,15 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 ```
 
 
+# 016
 
+```{r}
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/graphData_homework2019-10-08_016.Rda?raw=true"))
+
+graphData %>%
+  ggplot()+
+  geom_tile(
+    aes(x=國家,y=職業,fill=人數)
+  )
+```
 

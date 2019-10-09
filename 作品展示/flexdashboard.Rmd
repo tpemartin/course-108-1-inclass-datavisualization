@@ -5,7 +5,9 @@ output:
     orientation: columns
     vertical_layout: fill
     storyboard: true
-    source_code: "https://github.com/tpemartin/course-108-1-inclass-datavisualization/作品展示"
+    source_code: "https://github.com/tpemartin/course-108-1-inclass-datavisualization/tree/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA"
+    includes:
+      in_header: "../In_header/ga.html"
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +18,7 @@ library(tidyr); library(showtext)
 font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
 showtext_auto(enable=TRUE) #啟用字體
 theme_set(theme_classic())
-knitr::opts_chunk$set(fig.align='center', fig.showtext=T)
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75,fig.align='center', fig.showtext=T)
 ```
 
 
