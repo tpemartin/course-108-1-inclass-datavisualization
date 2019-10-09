@@ -94,3 +94,330 @@ disposableIncome_gather %>%
 p_linetype
 ```
 
+
+## 作品014
+
+```{r}
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/graphData_homework2019-10-08_014.Rda?raw=true"))
+
+c('年分','地區','來台旅遊人數(萬)') -> names(graphData$travelerFromAsia)
+```
+
+```{r}
+graphData$travelerFromAsia %>% 
+  mutate(
+    年份=as.integer(年分)
+  ) -> graphData$travelerFromAsia
+
+graphData$travelerFromAsia %>%
+  ggplot()+
+  geom_line(
+    aes(
+      x=年份,y=`來台旅遊人數(萬)`,linetype=地區
+    )
+  )
+```
+
+```{r}
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/graphData_homework2019-10-08_014.Rda?raw=true"))
+
+# rename the column names cause its messy and just wrong
+colnames(graphData$travelerFromAsia) <- c("年分", "地區", "來台旅遊人數(萬)")
+
+graphData$travelerFromAsia$年分 <- as.numeric(graphData$travelerFromAsia$年分)
+
+graphData$travelerFromAsia %>%
+  ggplot(aes(x=`年分`,y=`來台旅遊人數(萬)`,color = 地區, linetype = 地區)) +
+  geom_line()
+```
+
+```{r}
+graphData$travelerFromAsia$地區 %>% as.factor %>% levels
+
+library(magrittr)
+graphData$travelerFromAsia$地區 %<>% as.factor()
+```
+
+```{r}
+graphData$travelerFromAsia %>%
+  ggplot(aes(x=`年分`,y=`來台旅遊人數(萬)`,color = 地區, linetype = 地區)) +
+  geom_line()+
+  scale_linetype_manual(
+    values=c(
+      "38","48","58","68","78","88","91"
+    )
+  )
+```
+
+```{r}
+dataCPI <- read_csv("https://www.dropbox.com/s/ov2bvef5o3apei0/PR0101A2Mc.csv?dl=1")
+
+
+## 改變數名稱
+dataCPI %>% 
+  dplyr::rename(
+    年月=X1,
+    CPI=原始值
+  ) -> dataCPI
+
+# 移除「有NA」的row
+dataCPI %>% na.omit() -> dataCPI
+
+## 調整class
+dataCPI$年月 %>% str_c("/01") %>% #擴增為YMD表示
+  ymd() -> dataCPI$年月
+
+# 改成2003M1為基期,其指數為100
+dataCPI %>% filter(年月==ymd("2003-01-01")) %>% 
+  select(CPI) -> CPI2003M1
+dataCPI %>% 
+  mutate(CPI=CPI/CPI2003M1$CPI*100) -> dataCPI2
+```
+
+```{r}
+dataCPI2 %>% ggplot()+
+  geom_line(aes(x=年月,y=CPI)) -> basePlot2
+basePlot2
+```
+
+
+```{r}
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA))
+```
+
+```{r}
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA))+
+  scale_y_continuous(limits=c(80,NA)) 
+```
+
+```{r}
+disposableIncome_gather %>%
+  ggplot(aes(x=年,y=可支配所得))+
+  geom_line(
+    aes(linetype=所得組距)
+  ) +
+  scale_linetype_manual(
+    values=c("15","24","34","51","71"),
+    limits=c(
+    "可支配所得按戶數五等分位組-次低所得組",
+    "可支配所得按戶數五等分位組-中間所得組",
+    "可支配所得按戶數五等分位組-次高所得組")
+  )
+```
+
+## breaks
+
+```{r}
+breakDates <- c("2003-01-01",
+                "2005-01-01","2010-01-01","2015-01-01",
+                "2018-01-01")
+breakDates %>% ymd() -> breakDates
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA),
+               breaks = breakDates)
+```
+
+```{r}
+dataCPI <- read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/PR0101A2Mc.csv", 
+    locale = locale(encoding = "BIG5"), skip = 3)
+
+## 改變數名稱
+dataCPI %>% 
+  dplyr::rename(
+    年月=X1,
+    CPI=原始值
+  ) -> dataCPI
+
+# 移除「有NA」的row
+dataCPI %>% na.omit() -> dataCPI
+
+## 調整class
+dataCPI$年月 %>% str_c("/01") %>% #擴增為YMD表示
+  ymd() -> dataCPI$年月
+
+# 改成2003M1為基期,其指數為100
+dataCPI %>% filter(年月==ymd("2003-01-01")) %>% 
+  select(CPI) -> CPI2003M1
+dataCPI %>% 
+  mutate(CPI=CPI/CPI2003M1$CPI*100) -> dataCPI2
+```
+ 
+## labels
+
+```{r}
+breakDates <- c("2003-01-01",
+                "2005-01-01","2010-01-01","2015-01-01",
+                "2018-01-01")
+breakDates %>% ymd() -> breakDates
+
+breakLabels <- c("2003",
+                 "2005","2010","2015",
+                 "2018")
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA),
+               breaks = breakDates,
+               labels = breakLabels)
+```
+
+```{r}
+breaklabel_fun <- function(x){
+  as.character(year(x))
+}
+
+breakDates
+
+breaklabel_fun(breakDates)
+```
+
+```{r}
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA),
+               breaks = breakDates,
+               labels = breaklabel_fun)
+```
+
+```{r}
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA),
+               breaks = breakDates,
+               labels = function(x) as.character(year(x)))
+```
+
+```{r}
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA),
+               breaks = breakDates,
+               labels = function(x) year(x)-1911)
+```
+
+```{r}
+breaklabel_fun <- function(x){
+  year(x)-1911
+}
+```
+
+```{r}
+disposableIncome_gather %>%
+  ggplot(aes(x=年,y=可支配所得))+
+  geom_line(
+    aes(linetype=所得組距)
+  ) +
+  scale_linetype_manual(
+    values=c("15","24","34","51","71"),
+    breaks=c(
+    "可支配所得按戶數五等分位組-次低所得組",
+    "可支配所得按戶數五等分位組-中間所得組",
+    "可支配所得按戶數五等分位組-次高所得組"),
+    labels=c(
+    "次低所得組",
+    "中間所得組",
+    "次高所得組"),
+    )
+```
+
+```{r}
+basePlot2 +
+  scale_x_date(limits=c(ymd("2003-01-01"),NA),
+               labels = function(x) year(x)-1911)
+```
+
+## geom_text
+
+```{r}
+disposableIncome_gather %>%
+  group_by(所得組距) %>%
+  summarise(
+    最後一年=last(年),
+    可支配所得=last(可支配所得)
+  ) %>%
+  ungroup() %>% #View
+  mutate(
+    所得組=stringr::str_replace(
+      as.character(所得組距),"可支配所得按戶數五等分位組-","")
+    )-> disposableIncome_gather_legend
+disposableIncome_gather_legend %>% View
+```
+
+```{r}
+disposableIncome_gather %>%
+  ggplot(aes(x=年,y=可支配所得))+
+  geom_line(
+    aes(linetype=所得組距)
+  ) +
+  scale_linetype_manual(
+    values=c("15","24","34","51","71"),
+    breaks=c(
+    "可支配所得按戶數五等分位組-次低所得組",
+    "可支配所得按戶數五等分位組-中間所得組",
+    "可支配所得按戶數五等分位組-次高所得組")
+    ) +
+  theme(legend.position = "none") + # 取消legend
+  geom_text(
+    data=disposableIncome_gather_legend,
+    aes(
+      x=最後一年,
+      y=可支配所得,
+      label=所得組
+    ),
+    nudge_x= -3.8, size=3
+  )
+```
+
+## 練習
+
+```{r}
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/graphData_homework2019-10-07_001.Rda?raw=true"))
+
+c('公投案編號','六都','同意票數','有效票數','同意比例（同意票／有效票）') -> names(graphData$Case_10_result)
+```
+
+```{r}
+# qualitative_hcl(n = 6, h = c(180, 360), c = 50, l = 80, register = "god-Palette-Qualitative1")
+
+## Register custom color palette
+## Register custom color palette
+colorspace::sequential_hcl(n = 7, h = 321, c = c(85, NA, NA), l = c(25, 95), power = 1.3, rev=FALSE, register = "liberal_palette")
+graphData$Case_10_result %>% 
+  ggplot(
+    aes(
+      x = 六都, 
+      y = `同意比例（同意票／有效票）`
+    )
+  ) + 
+  geom_col(
+    aes(fill=-`同意比例（同意票／有效票）`)
+  ) + 
+  scale_fill_continuous_sequential(
+    palette='liberal_palette',
+    rev=TRUE
+  )+
+#  coord_flip() + 
+   scale_y_continuous(
+    limits = c(0, 0.8), 
+    labels = percent_format()
+  ) + 
+  theme(
+    legend.position = "none"
+  )+
+  geom_text(
+    aes(
+      label = str_c(
+        round(`同意比例（同意票／有效票）`*100, 1), 
+        "%"
+      )
+    ), 
+    size = 3.5,
+    nudge_y = -0.05, 
+    color="white"
+  )+
+  coord_flip()
+```
+
+```{r}
+choose_palette(
+  gui="shiny"
+)
+```
+
