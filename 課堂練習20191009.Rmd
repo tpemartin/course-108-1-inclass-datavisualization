@@ -373,6 +373,11 @@ load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/bl
 c('公投案編號','六都','同意票數','有效票數','同意比例（同意票／有效票）') -> names(graphData$Case_10_result)
 ```
 
+
+<figure>
+<figcaption>
+圖二
+</figcaption>
 ```{r}
 # qualitative_hcl(n = 6, h = c(180, 360), c = 50, l = 80, register = "god-Palette-Qualitative1")
 
@@ -390,8 +395,7 @@ graphData$Case_10_result %>%
     aes(fill=-`同意比例（同意票／有效票）`)
   ) + 
   scale_fill_continuous_sequential(
-    palette='liberal_palette',
-    rev=TRUE
+    palette='liberal_palette'
   )+
 #  coord_flip() + 
    scale_y_continuous(
@@ -414,10 +418,24 @@ graphData$Case_10_result %>%
   )+
   coord_flip()
 ```
+</figure>
 
 ```{r}
 choose_palette(
   gui="shiny"
 )
 ```
+
+```{r}
+
++geom_col(
+  aes(
+    x=等級別,
+    y=人數,
+    fill=性別
+ 
+  )
+)
+```
+
 
