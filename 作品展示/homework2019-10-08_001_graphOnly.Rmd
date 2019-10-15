@@ -69,6 +69,7 @@ graphData$Case_10_result %>%
     axis.text.x = element_text(size = 20), 
     axis.text.y = element_text(size = 20), 
     legend.position = "none"
-  )
+  ) -> finalplot
+finalplot
 ```
  

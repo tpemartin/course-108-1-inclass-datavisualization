@@ -1,0 +1,31 @@
+---
+author: "王姿文"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_006.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+finalplot <- graphData$HW2 %>% 
+  ggplot(aes(x=`縣市`,y=`資本額`,fill=行業)) + 
+  geom_bar(stat="identity", position=position_dodge()) + 
+  labs(x="縣市", y="資本額(百億)", title="2019年8月全臺各行業公司實收資本額") + 
+  theme(text=element_text(size=10,  family="QYuan")) + 
+  geom_hline(yintercept= mean(HW2$資本額), color = "blue", linetype = 2) +
+  annotate("text", x = 3, y = 20, 
+           label = paste("平均資本額5.3百億元"), size = 3.5)
+finalplot
+```
+ 

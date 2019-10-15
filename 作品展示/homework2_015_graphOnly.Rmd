@@ -1,0 +1,55 @@
+---
+author: "林奕齊"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_015.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$money_inflation %>% group_by(變數類別) %>% summarise(最後一年 = last(年), `貨幣總計數 & CPI` = last(`貨幣總計數 & CPI`)) %>% ungroup() -> graphData$money_inflation_legend 
+
+library(RColorBrewer)
+
+graphData$money_inflation %>% 
+  ggplot(aes(x = `年`, y = `貨幣總計數 & CPI`, color = 變數類別)) +
+  geom_line(aes(linetype = 變數類別), size = 1.2) + 
+  scale_linetype_manual(values = c("81","81","81","81")) +
+  labs(title = "台灣貨幣總計數與 CPI 的關聯", caption = "來源：中央銀行與主計處") +
+  theme(legend.position = "none",
+        plot.title = element_text(vjust = 2, size = 15),
+        plot.background = element_rect(fill = "#82C0E9" , colour = "white"),
+        panel.background = element_rect(fill = "#82C0E9"),
+        axis.text.x = element_text(angle = 90 , color = "black", size = 10),
+        axis.text.y = element_text(size = 15 ,color = "black"),
+        axis.line.x = element_blank(),
+        axis.line.y = element_blank(),
+        panel.grid.major = element_line(color = "white", size = 1),
+        panel.grid.major.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        plot.caption = element_text(size = 10, hjust = 0, vjust = -5),
+        plot.margin = margin(0.7, 0.7, 0.7, 0.7, "cm")) +
+  geom_text(data = graphData$money_inflation_legend, aes(x = 最後一年, y = `貨幣總計數 & CPI`, label= 變數類別), nudge_x = 0, nudge_y = 20, size = 7 ) +
+  scale_x_continuous(breaks = 1998:2018) +
+  geom_vline(xintercept = c(2002, 2008) , linetype = "f1", color = "#DC143C", size = 1) +
+  scale_colour_brewer(type = "qual ", palette = "Pastel2" ) + 
+  scale_y_continuous(position = "right") -> finalplot
+
+finalplot %>% ggplotly()
+ 
+  
+```
+ 

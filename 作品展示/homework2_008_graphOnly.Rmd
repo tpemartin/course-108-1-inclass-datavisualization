@@ -1,0 +1,52 @@
+---
+author: "林易霆"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_008.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+# How bout a pie chart for the severe and conventional accidents?
+library(ggthemes); library(colorspace)
+
+pie.chart <- graphData$pie %>% ggplot(aes(x = "", y = pct, fill = 嚴重程度)) +
+  geom_bar(stat = 'identity') + coord_polar("y", start = 0) + 
+  geom_text(aes(label = paste0(round(pct*100,2),"%")),
+            position = position_stack(vjust = 0.65),
+            color = "white") +
+  labs(x = NULL, y = NULL, title = "全台嚴重死傷車禍於各時段發生之佔比", 
+       caption = "資料來源: 台灣政府公開資料庫") +
+  facet_wrap(~發生時間) +
+  scale_fill_manual(values = c("grey50", "red")) +
+  theme(axis.text.x = element_blank(), # remove the ugly x breaks
+        plot.title = element_text(size = 15, face = "bold", # hjust = -0.5
+                                  hjust = 0.5, color = "black"), 
+        plot.caption = element_text(face = "italic",
+                                    color = "black"), # hjust = 2
+        plot.background = element_rect(fill = "#FBDFB3"), 
+        legend.background = element_rect(linetype = "solid", fill = "#97E3F4", color = "black"),
+        legend.box.margin = margin(6, 6, 6, 6),
+        panel.border = element_rect(fill = NA),
+        panel.background = element_rect(fill = "white"),
+        strip.text = element_text(face = "bold", size = 10),
+        strip.background = element_rect(fill = "#97E3F4", colour = "black", size = 1.5),
+        axis.line = element_blank())
+
+pie.chart
+
+# colorspace::choose_palette(gui = "shiny")
+# colorspace::choose_color() 
+```
+ 

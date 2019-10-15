@@ -1,0 +1,55 @@
+---
+author: "李靜怡"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_012.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$X107indicators %>%
+  ggplot()+
+  geom_line(
+    aes(x=學年度, y=平均每生分攤經費, color = 各級學校) 
+  ) +
+  scale_color_discrete(breaks = c(
+    "大學及學院",
+    "專科學校",
+    "高中",
+    "高職",
+    "國中",
+    "國小",
+    "幼兒園")) +
+  labs(title = "各級學校平均每生分攤經費",
+       caption = "資料來源: 中華民國統計資訊網",
+       subtitle="單位：每人平均經費(元)") +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5),
+    plot.caption = element_text(size = 10,
+                                color = "#6D6D6D"),
+    plot.subtitle = element_text(size = 10),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_line(color = "grey90")
+  ) +
+  geom_hline(aes(yintercept=100000),
+             alpha=0.3,linetype="dashed") +
+  geom_vline(aes(xintercept=97),
+             alpha=0.3,linetype="dashed") +
+  scale_y_continuous(
+    breaks = c(50000,100000,150000,200000),
+    labels = c("50,000","100,000","150,000","200,000")
+  ) ->finalplot
+finalplot
+```
+ 

@@ -1,0 +1,36 @@
+---
+author: "陳盈蓁"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_016.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+world <- map_data('world')
+world <- world %>% filter(region != "Antarctica")
+graphData %>%
+  ggplot()+
+  geom_map(data=world, map=world,
+                  aes(x=long, y=lat, group=group, map_id=region),
+                  fill="white", colour="black") + 
+  geom_map(data=graphData, map=world,
+                  aes(fill=Index, map_id=Country),
+                  colour="black") + 
+  scale_fill_continuous(high = "yellow",low = "blue",
+                               guide="colorbar") + 
+  labs(title ="Economic Freedom Index in 2019") ->finalplot
+finalplot
+```
+ 
