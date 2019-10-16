@@ -89,94 +89,351 @@ graphData$originalDesign+
       label=name
     ),
     inherit.aes = FALSE, size=2
+  ) -> graphData$improvedDesign
+
+
+```
+
+
+```{r}
+graphData$originalDesign
+
+graphData$improvedDesign
+```
+
+
+## geom_col
+
+```{r}
+startSalaryTopCat<- read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/startSalaryTopCat.csv")
+
+startSalaryTopCat$大職業別[2:7] %>% str_c(.,collapse="','")
+```
+
+
+```{r}
+startSalaryTopCat %>% filter(
+  大職業別 %in% c('工業部門','礦業及土石採取業','製造業','電力及燃氣供應業','用水供應及污染整治業','營造業')
+) -> startingSalary_industrial
+
+graphList <- list()
+```
+
+```{r}
+startingSalary_industrial %>%
+  filter(大職業別 !='工業部門') -> startingSalary_industrial_sub
+startingSalary_industrial_sub %>%  
+  ggplot(aes(x=大職業別))+
+  geom_col(aes(y=`經常性薪資-薪資`))-> graphList$經常薪資_col0
+
+graphList$經常薪資_col0
+```
+
+### reorder
+
+```{r}
+startingSalary_industrial_sub %>%
+  mutate(
+    大職業別ordered=reorder(大職業別,
+                    `經常性薪資-薪資`,order=T) # order=T才會輸出成ordered factor
+  ) -> startingSalary_industrial_sub
+```
+
+```{r}
+startingSalary_industrial_sub %>%
+  ggplot()+
+  geom_col(
+    aes(x=大職業別ordered,y=`經常性薪資-薪資`)
+  ) -> graphList$經常薪資_x有排序ed_col0
+
+graphList$經常薪資_x有排序ed_col0
+```
+
+```{r}
+startingSalary_industrial_sub %>%
+  ggplot()+
+  geom_col(
+    aes(x=reorder(大職業別,`經常性薪資-薪資`,order = T),y=`經常性薪資-薪資`)
+  ) -> graphList$經常薪資_x有排序ed_col1
+
+graphList$經常薪資_x有排序ed_col1
+```
+
+method 2: 
+```{r}
+breaks_order <- levels(startingSalary_industrial_sub$大職業別ordered)
+breaks_order
+```
+
+```{r}
+startingSalary_industrial_sub %>%
+  ggplot()+
+  geom_col(
+    aes(x=大職業別,y=`經常性薪資-薪資`)
+  )+
+  scale_x_discrete(
+    limits=c("礦業及土石採取業","製造業", "用水供應及污染整治業", "營造業",
+             "電力及燃氣供應業")
+  ) -> graphList$經常薪資_x有排序ed_scaleLimits_col0
+
+graphList$經常薪資_x有排序ed_scaleLimits_col0
+```
+
+```{r}
+startingSalary_industrial_sub %>%  
+  ggplot(aes(x=大職業別ordered,y=`經常性薪資-薪資`))+
+  geom_col(width=0.7)+
+  scale_x_discrete(
+    limits=breaks_order
+  ) -> graphList$經常薪資_x有排序ed_scaleLimits_geomWidth_col0
+
+graphList$經常薪資_x有排序ed_scaleLimits_geomWidth_col0
+```
+
+```{r}
+startingSalary_industrial_sub %>%  
+  ggplot(aes(x=大職業別ordered,y=`經常性薪資-薪資`))->
+  graphList$經常薪資_x有排序ed_ggplotOnly
+```
+
+```{r}
+graphList$經常薪資_x有排序ed_scaleLimits_geomWidth_col0+
+  theme(aspect.ratio = 1/1.3) -> 
+  graphList$經常薪資_x有排序_scalLimits_gmWidth_asp0_col0
+
+graphList$經常薪資_x有排序_scalLimits_gmWidth_asp0_col0
+```
+
+```{r}
+graphList$經常薪資_x有排序ed_ggplotOnly +
+  geom_col(width=0.5) +
+  scale_x_discrete(limits=breaks_order)+
+  theme(aspect.ratio = 1)-> 
+  graphList$經常薪資_x有排序_scalLimits_gmWidth_asp1_col0  
+
+graphList$經常薪資_x有排序_scalLimits_gmWidth_asp1_col0
+```
+
+```{r}
+graphList$經常薪資_x有排序_scalLimits_gmWidth_asp1_col0 +
+  theme(
+    axis.text.x=element_text(angle=45, hjust=1)
+    )
+```
+
+```{r}
+graphList$經常薪資_x有排序_scalLimits_gmWidth_asp1_col0 +
+  coord_flip() -> graphList$經常薪資_x有排序_sclLimits_width_asp_flip_col0
+
+graphList$經常薪資_x有排序_sclLimits_width_asp_flip_col0
+```
+
+## geom_bar
+
+```{r}
+library(readr)
+library100_102 <- read_csv("https://www.dropbox.com/s/wuo5o6l55lk68l6/library100_102.csv?dl=1")
+```
+
+```{r}
+library100_102 %>%
+  mutate(
+    借閱日期=date(ymd_hms(借閱時間)),
+    借閱年=year(借閱日期)
+  ) -> library100_102
+
+library100_102 %>%
+  filter(
+    借閱日期 %>% between(ymd("2014-09-01"),ymd("2015-06-30"))
+  ) -> library2014  
+
+library2014 %>%
+  group_by(學號) %>%
+  summarise(
+    學院=last(學院),
+    讀者年級=max(讀者年級)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    讀者年級=as.factor(讀者年級)
+    )-> library2014 
+
+
+write_csv(library2014,path="/Users/martin/Dropbox/github-data/library2014.csv")
+```
+
+```{r}
+library2014<-read_csv("https://www.dropbox.com/s/999hy0u1y98y6ep/library2014.csv?dl=1")
+```
+
+```{r}
+library2014
+```
+
+```{r}
+library2014 %>%
+  mutate(
+    學院=reorder(學院,學號,length,order=T)
+  ) -> library2014
+
+library2014 %>% 
+  ggplot()-> graphList$圖書_ggplotOnly
+
+graphList$圖書_ggplotOnly+
+  geom_bar(
+    aes(x=學院), fill="#5A99B3", width=0.7
+    )
+```
+
+```{r}
+graphList$圖書_ggplotOnly +
+  geom_bar(
+    aes(x=學院,fill=as.factor(讀者年級)), width=0.7
+  )
+```
+
+#### dodge
+
+```{r}
+graphList$圖書_ggplotOnly +
+  geom_bar(
+    aes(x=學院,fill=as.factor(讀者年級)), width=0.7, position = "dodge"
+  )
+```
+
+#### fill
+
+```{r}
+graphList$圖書_ggplotOnly +
+  geom_bar(
+    aes(x=學院,fill=as.factor(讀者年級)), width=0.7, position = "fill"
+  )
+```
+
+## 連續
+
+```{r}
+set.seed(2019)
+x <- rnorm(100)
+head(x)
+```
+
+```{r}
+ggplot2::cut_interval(x,n=8) -> x_interval
+levels(x_interval)
+```
+
+```{r}
+data.frame(
+  x=x,
+  xinterval=x_interval
+) -> df_x
+df_x %>% View
+```
+
+```{r}
+df_x %>%
+  ggplot()+
+  geom_bar(
+    aes(x=xinterval)
   )
 
+# stat(prop)
 ```
 
-
-
+### geom_histogram
 
 ```{r}
-## ----graph, echo=T, eval=T-----------------------------------------------
-graphData$data %>%
-  ggplot(aes(x=年份,y=毛額,color=國民所得_儲蓄_投資毛額))+
-  geom_line(aes(linetype=國民所得_儲蓄_投資毛額,size=國民所得_儲蓄_投資毛額))+
-  
-  scale_linetype_manual(
-    values = c("85","12","31"),
-    breaks = c(
-    "1.4國民所得毛額GNI:1.1+1.2+1.3","3.3國民儲蓄毛額 :2.1+3.2","3.5國內投資毛額"),
-    labels = c("所得毛額","儲蓄毛額","投資毛額")
-    )+
-  theme(legend.position = "none")+
-  scale_size_manual(values = c(1,0.5,0.2))+
-  
-  annotate("text", x = 2016, y = 155000, 
-           label = paste("國民所得毛額"), size = 3)+
-  annotate("text", x = 2016, y = 70000, 
-           label = paste("國民儲蓄毛額"), size = 3) +
-  annotate("text", x = 2016, y = 42000, 
-           label = paste("國民投資毛額"), size = 3) +
-  annotate("text", x = 2010, y = 180000, 
-           label = paste("2009年"), size = 3) +
-  labs(title = "國民所得、儲蓄、投資毛額",
-       caption = "資料來源: 中華民國統計資料網",
-       tag = "單位:億(新台幣)")+
-  
-  geom_vline(aes(xintercept = 2009),linetype="dotted")
-
+df_x %>%
+  ggplot()+
+  geom_histogram(
+    aes(x=x), bins=8
+  )
 ```
 
-## geom_rect
+```{r}
+df_x %>%
+  ggplot()+
+  geom_histogram(
+    aes(x=x)
+  )
+```
 
 ```{r}
-graphData$events <- data.frame(
-      xmin=c(2008, 2013),
-      xmax=c(2009, 2014),
-      ymin=c(rep(-Inf,2)),
-      ymax=c(rep(Inf,2)),
-      name=c("2008次貸危機","2013歐債危機")
+optimBins <- grDevices::nclass.FD(df_x$x)
+optimBins
+```
+
+```{r}
+df_x %>%
+  ggplot()+
+  geom_histogram(
+    aes(x=x), bins=optimBins
+  )
+```
+
+```{r}
+df_x %>%
+  ggplot()+
+  geom_density(
+    aes(
+      x=x
+    )
+  )
+```
+
+## stat_count
+
+```{r}
+graphList$圖書_ggplotOnly+
+  geom_bar(
+    aes(x=學院), fill="#5A99B3", width=0.7
     )
 
-graphData$data %>%
-  ggplot()+
-  geom_line(aes(x=年份,y=毛額,color=國民所得_儲蓄_投資毛額,linetype=國民所得_儲蓄_投資毛額))+
-  geom_rect(
-    data=graphData$events,
-    mapping=aes(
-      xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax
-    ),
-    alpha=0.1
-  ) +
-  geom_text(
-    data=graphData$events,
-    aes(x=(xmin+xmax)/2,y=180000,label=name)
-  )
-
+graphList$圖書_ggplotOnly+
+  geom_bar(
+    aes(x=學院,
+        y=stat(count)), fill="#5A99B3", width=0.7
+    )
 ```
 
 ```{r}
-  scale_linetype_manual(
-    values = c("85","12","31"),
-    breaks = c(
-    "1.4國民所得毛額GNI:1.1+1.2+1.3","3.3國民儲蓄毛額 :2.1+3.2","3.5國內投資毛額"),
-    labels = c("所得毛額","儲蓄毛額","投資毛額")
-    )+
-  theme(legend.position = "none")+
-  scale_size_manual(values = c(1,0.5,0.2))+
-  
-  annotate("text", x = 2016, y = 155000, 
-           label = paste("國民所得毛額"), size = 3)+
-  annotate("text", x = 2016, y = 70000, 
-           label = paste("國民儲蓄毛額"), size = 3) +
-  annotate("text", x = 2016, y = 42000, 
-           label = paste("國民投資毛額"), size = 3) +
-  annotate("text", x = 2010, y = 180000, 
-           label = paste("2009年"), size = 3) +
-  labs(title = "國民所得、儲蓄、投資毛額",
-       caption = "資料來源: 中華民國統計資料網",
-       tag = "單位:億(新台幣)")
+graphList$圖書_ggplotOnly+
+  geom_bar(
+    aes(x=學院,
+        y=stat(prop)), fill="#5A99B3", width=0.7
+    )
+```
+
+```{r}
+graphList$圖書_ggplotOnly+
+  geom_bar(
+    aes(x=學院,
+        y=stat(prop),
+        group="全校"), fill="#5A99B3", width=0.7
+    )
+```
+
+```{r}
+graphList$圖書_ggplotOnly +
+  geom_bar(
+    aes(x=學院),
+    stat="count"
+  )
+
+graphList$圖書_ggplotOnly +
+  stat_count(
+    aes(x=學院),
+    geom="bar" 
+  )
+```
 
 
+```{r}
+graphList$圖書_ggplotOnly +
+  stat_count(
+    aes(x=學院),
+    geom="bar" # 使用資料 x=學院 進行count計算，並畫bar
+  )
 ```
 
