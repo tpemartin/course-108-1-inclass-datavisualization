@@ -1,0 +1,104 @@
+---
+title: "2019-10-09"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(scales)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+
+```{r}
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/homework2/graphData_homework2_005.Rda?raw=true"))
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$data %>%
+  ggplot(aes(x=年份,y=毛額,color=國民所得_儲蓄_投資毛額))+
+  geom_line(aes(linetype=國民所得_儲蓄_投資毛額,size=國民所得_儲蓄_投資毛額))+
+  
+  scale_linetype_manual(
+    values = c("85","12","31"),
+    breaks = c(
+    "1.4國民所得毛額GNI:1.1+1.2+1.3","3.3國民儲蓄毛額 :2.1+3.2","3.5國內投資毛額"),
+    labels = c("所得毛額","儲蓄毛額","投資毛額")
+    )+
+  theme(legend.position = "none")+
+  scale_size_manual(values = c(1,0.5,0.2))+
+  
+  annotate("text", x = 2016, y = 155000, 
+           label = paste("國民所得毛額"), size = 3)+
+  annotate("text", x = 2016, y = 70000, 
+           label = paste("國民儲蓄毛額"), size = 3) +
+  annotate("text", x = 2016, y = 42000, 
+           label = paste("國民投資毛額"), size = 3) +
+  annotate("text", x = 2010, y = 180000, 
+           label = paste("2009年"), size = 3) +
+  labs(title = "國民所得、儲蓄、投資毛額",
+       caption = "資料來源: 中華民國統計資料網",
+       tag = "單位:億(新台幣)")+
+  
+  geom_vline(aes(xintercept = 2009),linetype="dotted")
+
+```
+
+## geom_rect
+
+```{r}
+graphData$events <- data.frame(
+      xmin=c(2008, 2013),
+      xmax=c(2009, 2014),
+      ymin=c(rep(-Inf,2)),
+      ymax=c(rep(Inf,2)),
+      name=c("2008次貸危機","2013歐債危機")
+    )
+
+graphData$data %>%
+  ggplot()+
+  geom_line(aes(x=年份,y=毛額,color=國民所得_儲蓄_投資毛額,linetype=國民所得_儲蓄_投資毛額))+
+  geom_rect(
+    data=graphData$events,
+    mapping=aes(
+      xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax
+    ),
+    alpha=0.1
+  ) +
+  geom_text(
+    data=graphData$events,
+    aes(x=(xmin+xmax)/2,y=180000,label=name)
+  )
+
+```
+
+```{r}
+  scale_linetype_manual(
+    values = c("85","12","31"),
+    breaks = c(
+    "1.4國民所得毛額GNI:1.1+1.2+1.3","3.3國民儲蓄毛額 :2.1+3.2","3.5國內投資毛額"),
+    labels = c("所得毛額","儲蓄毛額","投資毛額")
+    )+
+  theme(legend.position = "none")+
+  scale_size_manual(values = c(1,0.5,0.2))+
+  
+  annotate("text", x = 2016, y = 155000, 
+           label = paste("國民所得毛額"), size = 3)+
+  annotate("text", x = 2016, y = 70000, 
+           label = paste("國民儲蓄毛額"), size = 3) +
+  annotate("text", x = 2016, y = 42000, 
+           label = paste("國民投資毛額"), size = 3) +
+  annotate("text", x = 2010, y = 180000, 
+           label = paste("2009年"), size = 3) +
+  labs(title = "國民所得、儲蓄、投資毛額",
+       caption = "資料來源: 中華民國統計資料網",
+       tag = "單位:億(新台幣)")
+
+
+```
+
