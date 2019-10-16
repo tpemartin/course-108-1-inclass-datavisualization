@@ -1,0 +1,21 @@
+---
+author: "林易霆"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+#font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_013.RMD")
+# colorspace::choose_palette(gui = "shiny")
+```
+ 

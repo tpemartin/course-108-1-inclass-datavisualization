@@ -1,0 +1,43 @@
+---
+author: "簡靖軒"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_025.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(reshape2)
+
+graphData$traffic %>%
+  melt(id.vars="年別") %>%
+  ggplot(aes(x=年別,
+             y=value)) + 
+  geom_line(aes(color=variable)
+            ) + 
+  labs(
+    title = "2012-2017交通運輸工具年載客量"
+    )+
+  ylab("人次/萬人")+
+  geom_hline(
+    aes(yintercept=10)) +
+       geom_vline(
+         aes(
+           xintercept=2015),
+         colour="#BB0000",
+         linetype="dashed"
+         )
+
+```
+ 

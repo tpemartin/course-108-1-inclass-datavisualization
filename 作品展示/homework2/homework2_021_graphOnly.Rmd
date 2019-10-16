@@ -1,0 +1,60 @@
+---
+author: "邱詩涵"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_021.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(grDevices) # 不同顏色模型代碼的呈現及轉換
+library(scales) # show_col()螢幕立即顯示顏色
+library(colorspace) # 調色盤選擇及ggplot應用工具
+library(shinyjs) # 支援套件
+
+#choose_palette(gui = "shiny")
+colorspace::sequential_hcl(n = 12, h = 4, c = c(85, NA, NA), l = c(25, 95), power = 1.3, rev = TRUE, register = "birth_Palette") -> a
+#show_col(a)
+
+graphData$birthSum_Yilan_arranged %>%
+  ggplot(aes(x = 區域別, y = 嬰兒出生人數))+
+  geom_col(
+    aes(fill = 區域別), width = 0.5)+
+      scale_fill_discrete_sequential(
+    palette = "birth_Palette", 
+    nmax = 12
+  )+ 
+  geom_text(
+    aes(
+      label = 嬰兒出生人數
+      )
+    , 
+    size = 5, color = "black", nudge_y = 11
+  )+
+  theme(legend.position = "none")+
+  labs(title = "107年宜蘭縣各鄉鎮嬰兒出生人口數" ,caption = "資料來源處：政府資料開放平台" )+
+  theme(
+    panel.background = element_rect(fill = "#FFFFE0" ,
+                                    colour = "black",
+                                    size = 1),
+    plot.title = element_text(face = "bold" , size = 20, hjust = 0.5),
+    plot.caption = element_text(face = "bold" , size = 10, hjust = 1),
+    axis.title.x = element_text(face = "bold" , size = 10),
+    axis.title.y = element_text(face = "bold" , size = 10),
+    axis.text.x.bottom = element_text(face = "bold" , size = 10),
+    axis.text.y.left = element_text(face = "bold" , size = 10)
+  )
+
+```
+ 
