@@ -1,0 +1,309 @@
+---
+title: "Aesthetic Scales"
+author: "jacky wang"
+date: "2019/10/12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+```
+
+
+
+## line type
+
+```{r import data 1}
+
+disposableIncome <- read_csv("https://www.dropbox.com/s/z80sbjw94cjex8x/disposableIncome.csv?dl=1")
+
+disposableIncome_gather <- read_csv("https://www.dropbox.com/s/cdw1f10jow4frxb/disposableIncome_gather.csv?dl=1")
+
+```
+
+```{r line type 1}
+
+disposableIncome %>%
+  mutate(
+    年 = as.integer(X1)
+  ) -> 
+  disposableIncome
+
+#使用線的名稱
+disposableIncome %>%
+  ggplot(
+    aes(
+      x=年, 
+      y=平均每戶可支配所得
+    )
+  ) + 
+  geom_line(linetype="dashed")
+
+disposableIncome %>%
+  ggplot(
+    aes(
+      x=年, 
+      y=平均每戶可支配所得
+    )
+  ) + 
+  geom_line(linetype="dotdash")
+
+#使用hex碼
+#數字依序代表：「線」「空白」「線」「空白」……依此類推，所以最好用偶數位數。
+# eg. "33"：3個點距的「線」接3個點距的「空白」
+disposableIncome %>%
+  ggplot(
+    aes(
+      x=年, 
+      y=平均每戶可支配所得
+    )
+  ) + 
+  geom_line(linetype="3972")
+
+```
+
+```{r line type 2}
+
+disposableIncome_gather$所得組距 %<>%
+  factor(
+    levels=c(
+    "可支配所得按戶數五等分位組-最低所得組",
+    "可支配所得按戶數五等分位組-次低所得組",
+    "可支配所得按戶數五等分位組-中間所得組",
+    "可支配所得按戶數五等分位組-次高所得組",
+    "可支配所得按戶數五等分位組-最高所得組"
+    )
+  ) #將「所得組距」轉換成factor並排序
+
+disposableIncome_gather %>%
+  ggplot(
+    aes(x=年, y=可支配所得)
+  ) + 
+  geom_line(
+    aes(
+      linetype = 所得組距, 
+      size = 所得組距
+    ) #以linetype和size區分不同所得組距
+  ) + 
+  scale_linetype_manual(
+    values = c("15", "24", "34", "51", "71") #自訂linetype
+  ) + 
+  scale_size_manual(
+    values =c(0.1, 0.3, 0.3, 0.5, 0.7)*1.5 #自訂size
+  ) + 
+  theme_classic()
+
+```
+
+```{r line type practice d}
+
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/homework1/graphData_homework2019-10-08_014.Rda?raw=true"))
+
+c('年分','地區','來台旅遊人數(萬)') -> names(graphData$travelerFromAsia)
+
+```
+
+
+```{r line type practice}
+
+graphData$travelerFromAsia$地區 %<>%
+  as.factor()
+
+graphData$travelerFromAsia
+  
+
+#將 作品014_2019-10-08 改成時間趨勢圖，並添加你認為可以改善的設計
+
+graphData$travelerFromAsia %>%
+  filter(
+    地區 %in% c("日本 Japan", "韓國 Korea,Republic of", "印度 India")
+  ) %>% 
+  ggplot(
+    aes(
+      x = as.integer(年分), 
+      y = `來台旅遊人數(萬)`
+    )
+  ) + 
+  geom_line(
+    aes(
+      color = 地區, 
+      linetype = 地區
+    )
+  ) -> 
+  godplot_1
+
+
+#加入字型
+showtext.auto(enable = TRUE)
+font.add("標楷體", "kaiu.ttf")
+
+
+godplot_1 + 
+  #自訂color，並修改圖例順序
+  scale_color_manual(
+    values = c("blue", "purple", "#FF5809"), 
+    breaks = c("日本 Japan", "韓國 Korea,Republic of", "印度 India")
+  ) + 
+  #自訂linetype，並修改圖例順序
+  scale_linetype_manual(
+    values = c("solid", "31", "61"), 
+    breaks = c("日本 Japan", "韓國 Korea,Republic of", "印度 India")
+  ) + 
+  #加入輔助線
+  geom_hline(
+    aes(yintercept = 100), 
+    color = "red", 
+    size = 2
+  ) + 
+  theme_classic() + 
+  labs(
+    x = "西元年"
+  ) + 
+  # annotate("text", x= , y= ,label= )：加入輔助文字（family：改變字型）
+  annotate(
+    "text", x = 2015, y = 110, label = "一百萬人", 
+    family = "標楷體", 
+    color = "red", 
+    size = 5
+    #face沒用
+  )
+
+```
+
+
+## Date/Time
+
+若X（Y）軸為日期or時間，要更改X（Y）軸的美感呈現，以x軸為例，可使用scale_x_…，其中…依其時間型態決定。
+
+```{r import data 2}
+
+dataCPI <- read_csv("https://www.dropbox.com/s/ov2bvef5o3apei0/PR0101A2Mc.csv?dl=1")
+
+```
+
+```{r data wrangling 2}
+
+#修改變數名稱
+dataCPI %<>%
+  dplyr::rename(
+    年月 = X1, 
+    CPI = 原始值
+  )
+
+#移除NA值
+dataCPI %<>%
+  na.omit()
+
+#調整年月的class
+dataCPI %<>%
+  mutate(
+    年月 = ymd(
+      str_c(年月, "01")
+    )
+  ) #老師pipe有問題
+
+#改以2003-01-01為基期
+dataCPI %>% 
+  filter(年月 == ymd("20030101")) %>%
+  select(CPI) %>%
+  as.double() -> 
+  CPI2003M1
+
+dataCPI %>%
+  mutate(
+    CPI = CPI/CPI2003M1*100
+  ) ->
+  dataCPI2
+  
+```
+
+```{r graph 2}
+
+dataCPI2 %>%
+  ggplot(
+    aes(
+      x = 年月, 
+      y = CPI
+    )
+  ) + 
+  geom_line() + 
+  theme_classic() ->
+  CPIgraph_base
+
+CPIgraph_base
+
+```
+
+### limits
+
+```{r graph 2-1}
+
+# limits：scale變數呈現範圍
+
+CPIgraph_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA)
+  ) # 不設上限打NA
+
+#適用於任何scale
+
+CPIgraph_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA)
+  ) + 
+  scale_y_continuous(
+    limits = c(90, NA)
+  )
+
+#「所得變化資料」只呈現“最低所得組”、“中間所得組”、“最高所得組”
+
+disposableIncome_gather %>%
+  ggplot(
+    aes(x=年, y=可支配所得)
+  )+
+  geom_line(
+    aes(linetype=所得組距)
+  ) +
+  scale_linetype_manual(
+    values=c("15","24","34","51","71"),
+    limits=c(
+      "可支配所得按戶數五等分位組-最低所得組",
+      "可支配所得按戶數五等分位組-中間所得組",
+      "可支配所得按戶數五等分位組-最高所得組"
+    )
+  )
+
+```
+
+### breaks
+
+```{r graph 2-2}
+
+CPIgraph_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA)
+  ) + 
+  scale_y_continuous(
+    limits = c(90, NA)
+  )
+
+
+```
+
