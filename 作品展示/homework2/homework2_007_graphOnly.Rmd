@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_007.Rda")
+c('X','City','price','Distance','rating','atmosphere','cleanliness','facilities','location','security','staff','valueformoney','lon','lat')->names(graphData)
 ## ----graph, echo=T, eval=T-----------------------------------------------
 
 #choose_palette(gui="shiny")

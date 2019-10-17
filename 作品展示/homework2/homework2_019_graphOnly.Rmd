@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_019.Rda")
+c('分析項目','吸菸率類型','比率','教育別','年')->names(graphData[[1]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 library(scales)
 library(colorspace)

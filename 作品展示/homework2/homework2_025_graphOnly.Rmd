@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_025.Rda")
+c('年別','自強號','莒光號','區間列車','高鐵')->names(graphData[[1]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 library(reshape2)
 

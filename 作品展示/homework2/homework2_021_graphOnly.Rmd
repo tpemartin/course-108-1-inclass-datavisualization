@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_021.Rda")
+c('區域別','嬰兒出生人數')->names(graphData[[1]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 library(grDevices) # 不同顏色模型代碼的呈現及轉換
 library(scales) # show_col()螢幕立即顯示顏色

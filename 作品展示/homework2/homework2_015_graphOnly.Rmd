@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_015.Rda")
+c('year','變數類別','貨幣總計數 & CPI','年')->names(graphData[[1]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 graphData$money_inflation %>% group_by(變數類別) %>% summarise(最後一年 = last(年), `貨幣總計數 & CPI` = last(`貨幣總計數 & CPI`)) %>% ungroup() -> graphData$money_inflation_legend 
 

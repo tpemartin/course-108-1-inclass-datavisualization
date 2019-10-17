@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_020.Rda")
+c('洲別','年度','人數')->names(graphData[[1]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 
 library(grDevices) # 不同顏色模型代碼的呈現及轉換

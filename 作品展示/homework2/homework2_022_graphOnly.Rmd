@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_022.Rda")
+c('Site','county','PM25','DataCreationDate','ItemUnit')->names(graphData)
 ## ----graph, echo=T, eval=T-----------------------------------------------
 graphData %>%
   ggplot()+

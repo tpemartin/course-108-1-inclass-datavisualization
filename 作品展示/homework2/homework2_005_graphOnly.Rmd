@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_005.Rda")
+c('年份','國民所得_儲蓄_投資毛額','毛額')->names(graphData[[1]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 graphData$data %>%
   ggplot(aes(x=年份,y=毛額,color=國民所得_儲蓄_投資毛額))+

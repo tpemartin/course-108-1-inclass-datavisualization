@@ -17,6 +17,9 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_008.Rda")
+c('發生時間','發生地點','死亡受傷人數','車種','經度','緯度')->names(graphData[[1]])
+c('發生時間','縣市','死亡','受傷','嚴重程度')->names(graphData[[2]])
+c('發生時間','嚴重程度','count','pct')->names(graphData[[3]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 # How bout a pie chart for the severe and conventional accidents?
 library(ggthemes); library(colorspace)

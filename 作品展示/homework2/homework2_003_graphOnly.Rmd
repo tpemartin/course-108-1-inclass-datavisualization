@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_003.Rda")
+c('區名','月份','營業額(元)')->names(graphData[[1]])
 ## ----graph, echo=T, eval=T-----------------------------------------------
 
 breakmoney <- c(10000000,30000000,50000000,70000000)

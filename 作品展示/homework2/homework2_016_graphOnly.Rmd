@@ -17,6 +17,7 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
 
  
 load("graphData_homework2_016.Rda")
+c('Country','Trade Freedom','Index')->names(graphData)
 ## ----graph, echo=T, eval=T-----------------------------------------------
 world <- map_data('world')
 world <- world %>% filter(region != "Antarctica")
