@@ -32,22 +32,57 @@ library(showtext) #從字型檔讀取字型，並在繪圖時使用
 
 ```{r import data 1}
 
-disposableIncome <- read_csv("https://www.dropbox.com/s/z80sbjw94cjex8x/disposableIncome.csv?dl=1")
+disposableIncome <- list()
 
-disposableIncome_gather <- read_csv("https://www.dropbox.com/s/cdw1f10jow4frxb/disposableIncome_gather.csv?dl=1")
+disposableIncome$origin <- 
+  read_csv("https://www.dropbox.com/s/z80sbjw94cjex8x/disposableIncome.csv?dl=1")
+
+disposableIncome$gather <- 
+  read_csv("https://www.dropbox.com/s/cdw1f10jow4frxb/disposableIncome_gather.csv?dl=1")
 
 ```
 
-```{r line type 1}
+```{r data wrangling 1}
 
-disposableIncome %>%
+disposableIncome$origin %<>%
   mutate(
     年 = as.integer(X1)
-  ) -> 
-  disposableIncome
+  )
+
+
+#將「所得組距」轉換成factor並排序
+disposableIncome$gather$所得組距 %<>% 
+  factor(
+    levels=c(
+    "可支配所得按戶數五等分位組-最低所得組",
+    "可支配所得按戶數五等分位組-次低所得組",
+    "可支配所得按戶數五等分位組-中間所得組",
+    "可支配所得按戶數五等分位組-次高所得組",
+    "可支配所得按戶數五等分位組-最高所得組"
+    )
+  )
+
+disposableIncome$gather %<>%
+  transmute(
+    西元年月日 = str_c(年, "0101"), 
+    所得分組 = 所得組距, 
+    可支配所得 = 可支配所得
+  )
+
+disposableIncome$gather$西元年月日 %<>%
+  ymd()
+
+disposableIncome$gather
+
+```
+
+
+```{r line type 1}
+
+
 
 #使用線的名稱
-disposableIncome %>%
+disposableIncome$origin %>%
   ggplot(
     aes(
       x=年, 
@@ -56,7 +91,7 @@ disposableIncome %>%
   ) + 
   geom_line(linetype="dashed")
 
-disposableIncome %>%
+disposableIncome$origin %>%
   ggplot(
     aes(
       x=年, 
@@ -68,7 +103,7 @@ disposableIncome %>%
 #使用hex碼
 #數字依序代表：「線」「空白」「線」「空白」……依此類推，所以最好用偶數位數。
 # eg. "33"：3個點距的「線」接3個點距的「空白」
-disposableIncome %>%
+disposableIncome$origin %>%
   ggplot(
     aes(
       x=年, 
@@ -81,26 +116,15 @@ disposableIncome %>%
 
 ```{r line type 2}
 
-disposableIncome_gather$所得組距 %<>%
-  factor(
-    levels=c(
-    "可支配所得按戶數五等分位組-最低所得組",
-    "可支配所得按戶數五等分位組-次低所得組",
-    "可支配所得按戶數五等分位組-中間所得組",
-    "可支配所得按戶數五等分位組-次高所得組",
-    "可支配所得按戶數五等分位組-最高所得組"
-    )
-  ) #將「所得組距」轉換成factor並排序
-
-disposableIncome_gather %>%
+disposableIncome$gather %>%
   ggplot(
-    aes(x=年, y=可支配所得)
+    aes(x=西元年月日, y=可支配所得)
   ) + 
   geom_line(
     aes(
-      linetype = 所得組距, 
-      size = 所得組距
-    ) #以linetype和size區分不同所得組距
+      linetype = 所得分組, 
+      size = 所得分組
+    ) #以linetype和size區分不同所得分組
   ) + 
   scale_linetype_manual(
     values = c("15", "24", "34", "51", "71") #自訂linetype
@@ -120,14 +144,19 @@ c('年分','地區','來台旅遊人數(萬)') -> names(graphData$travelerFromAs
 
 ```
 
-
-```{r line type practice}
+```{r line type practice d w}
 
 graphData$travelerFromAsia$地區 %<>%
   as.factor()
 
+graphData$travelerFromAsia$年分 %<>%
+  as.integer()
+
 graphData$travelerFromAsia
-  
+
+```
+
+```{r line type practice}
 
 #將 作品014_2019-10-08 改成時間趨勢圖，並添加你認為可以改善的設計
 
@@ -137,7 +166,7 @@ graphData$travelerFromAsia %>%
   ) %>% 
   ggplot(
     aes(
-      x = as.integer(年分), 
+      x = 年分, 
       y = `來台旅遊人數(萬)`
     )
   ) + 
@@ -147,7 +176,9 @@ graphData$travelerFromAsia %>%
       linetype = 地區
     )
   ) -> 
-  godplot_1
+  graphData$godPlot_base
+
+graphData$godPlot_base
 
 
 #加入字型
@@ -155,26 +186,31 @@ showtext.auto(enable = TRUE)
 font.add("標楷體", "kaiu.ttf")
 
 
-godplot_1 + 
-  #自訂color，並修改圖例順序
+graphData$godPlot_base + 
+  #自訂color，並修改變數說明順序
   scale_color_manual(
     values = c("blue", "purple", "#FF5809"), 
     breaks = c("日本 Japan", "韓國 Korea,Republic of", "印度 India")
   ) + 
-  #自訂linetype，並修改圖例順序
+  #自訂linetype，並修改變數說明順序
   scale_linetype_manual(
     values = c("solid", "31", "61"), 
     breaks = c("日本 Japan", "韓國 Korea,Republic of", "印度 India")
   ) + 
-  #加入輔助線
+  theme_classic() + 
+  labs(
+    x = "西元年"
+  ) ->
+  graphData$godPlot_V1
+
+graphData$godPlot_V1
+
+#加入輔助線
+graphData$godPlot_V1 + 
   geom_hline(
     aes(yintercept = 100), 
     color = "red", 
     size = 2
-  ) + 
-  theme_classic() + 
-  labs(
-    x = "西元年"
   ) + 
   # annotate("text", x= , y= ,label= )：加入輔助文字（family：改變字型）
   annotate(
@@ -183,7 +219,10 @@ godplot_1 +
     color = "red", 
     size = 5
     #face沒用
-  )
+  ) -> 
+  graphData$godPlot_V2
+
+graphData$godPlot_V2
 
 ```
 
@@ -194,25 +233,27 @@ godplot_1 +
 
 ```{r import data 2}
 
-dataCPI <- read_csv("https://www.dropbox.com/s/ov2bvef5o3apei0/PR0101A2Mc.csv?dl=1")
+CPI <- list()
+
+CPI$origin <- read_csv("https://www.dropbox.com/s/ov2bvef5o3apei0/PR0101A2Mc.csv?dl=1")
 
 ```
 
 ```{r data wrangling 2}
 
 #修改變數名稱
-dataCPI %<>%
+CPI$origin %<>%
   dplyr::rename(
     年月 = X1, 
     CPI = 原始值
   )
 
 #移除NA值
-dataCPI %<>%
+CPI$origin %<>%
   na.omit()
 
 #調整年月的class
-dataCPI %<>%
+CPI$origin %<>%
   mutate(
     年月 = ymd(
       str_c(年月, "01")
@@ -220,23 +261,26 @@ dataCPI %<>%
   ) #老師pipe有問題
 
 #改以2003-01-01為基期
-dataCPI %>% 
+CPI$origin %>% 
   filter(年月 == ymd("20030101")) %>%
   select(CPI) %>%
   as.double() -> 
   CPI2003M1
 
-dataCPI %>%
+CPI$origin %>%
   mutate(
     CPI = CPI/CPI2003M1*100
   ) ->
-  dataCPI2
+  CPI$base2003M1
+
+CPI$origin
+CPI$base2003M1
   
 ```
 
 ```{r graph 2}
 
-dataCPI2 %>%
+CPI$base2003M1 %>%
   ggplot(
     aes(
       x = 年月, 
@@ -245,26 +289,26 @@ dataCPI2 %>%
   ) + 
   geom_line() + 
   theme_classic() ->
-  CPIgraph_base
+  CPI$godPlot_base
 
-CPIgraph_base
+CPI$godPlot_base
 
 ```
 
 ### limits
 
-```{r graph 2-1}
+limits：scale變數呈現範圍
 
-# limits：scale變數呈現範圍
+```{r ggplot2 limits 1}
 
-CPIgraph_base + 
+CPI$godPlot_base + 
   scale_x_date(
     limits = c(ymd("20030101"), NA)
   ) # 不設上限打NA
 
 #適用於任何scale
 
-CPIgraph_base + 
+CPI$godPlot_base + 
   scale_x_date(
     limits = c(ymd("20030101"), NA)
   ) + 
@@ -272,14 +316,18 @@ CPIgraph_base +
     limits = c(90, NA)
   )
 
+```
+
+```{r ggplot2 limits 2}
+
 #「所得變化資料」只呈現“最低所得組”、“中間所得組”、“最高所得組”
 
-disposableIncome_gather %>%
+disposableIncome$gather %>%
   ggplot(
-    aes(x=年, y=可支配所得)
+    aes(x=西元年月日, y=可支配所得)
   )+
   geom_line(
-    aes(linetype=所得組距)
+    aes(linetype=所得分組)
   ) +
   scale_linetype_manual(
     values=c("15","24","34","51","71"),
@@ -294,16 +342,265 @@ disposableIncome_gather %>%
 
 ### breaks
 
-```{r graph 2-2}
+breaks: scale變數說明範圍
 
-CPIgraph_base + 
+```{r ggplot2 breaks 1}
+
+breakDates <- 
+  c("20030101", "20050101", "20100101", "20180101")
+
+breakDates %<>%
+  ymd()
+
+
+CPI$godPlot_base + 
   scale_x_date(
-    limits = c(ymd("20030101"), NA)
+    limits = c(ymd("20030101"), NA), 
+    breaks = breakDates
+  ) + 
+  scale_y_continuous(
+    limits = c(80, NA)
+  )
+
+#錯誤寫法：被後面的圖層蓋過去了
+CPI$godPlot_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA), 
+  ) + 
+  scale_y_continuous(
+    limits = c(80, NA)
+  ) + 
+  scale_x_date(
+    breaks = breakDates
+  )
+
+```
+
+```{r ggplot2 breaks 2}
+
+#適用於任何scale
+#eg. disposableIncome的linetype圖例只說明「最低所得組」、「中間所得組」、「最高所得組」
+
+disposableIncome$gather %>% 
+  ggplot() + 
+  geom_line(
+    aes(
+      x = 西元年月日, 
+      y = 可支配所得, 
+      linetype = 所得分組
+    )
+  ) + 
+  scale_linetype_manual(
+    values = c("21", "41", "61", "81", "solid"), 
+    breaks = c(
+      "可支配所得按戶數五等分位組-最高所得組", 
+      "可支配所得按戶數五等分位組-中間所得組", 
+      "可支配所得按戶數五等分位組-最低所得組"
+    )
+  )
+# breaks：決定說明範圍
+# limits：決定呈現範圍
+
+```
+
+### labels
+
+scale變數說明文字對應
+
+```{r labels 1}
+
+breakLabels <- c("2003", "2005", "2010", "2018")
+
+CPI$godPlot_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA), 
+    breaks = breakDates
   ) + 
   scale_y_continuous(
     limits = c(90, NA)
   )
 
+CPI$godPlot_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA), 
+    breaks = breakDates, 
+    labels = breakLabels
+  ) + 
+  scale_y_continuous(
+    limits = c(90, NA)
+  )
+
+```
+
+```{r labels 2 fun}
+
+# 自訂函式幫breaks上標籤
+
+breakDates_fun <- 
+  function(x) {(as.character(year(x)))}
+
+breakDates_fun(breakDates)
+
+```
+
+```{r labels 2}
+
+CPI$godPlot_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA), 
+    breaks = breakDates, 
+    labels = breakDates_fun #直接抓breaks的值
+  ) + 
+  scale_y_continuous(
+    limits = c(90, NA)
+  )
+
+#也可不給breaks（讓系統設定），直接給labels
+CPI$godPlot_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA), 
+    labels = breakDates_fun #直接抓breaks的值
+  ) + 
+  scale_y_continuous(
+    limits = c(90, NA)
+  )
+
+```
+
+```{r labels 2-1}
+
+CPI$godPlot_base + 
+  scale_x_date(
+    limits = c(ymd("20030101"), NA), 
+    breaks = breakDates, 
+    labels = function(x) as.character(year(x)) 
+    #函式太短，直接將anonymous function寫在內（一行內可不用大括號）
+  ) + 
+  scale_y_continuous(
+    limits = c(90, NA)
+  )
+
+```
+
+```{r labels practice}
+
+#將x軸座標從西元年改成民國年
+
+CPI$godPlot_base +
+  scale_x_date(
+    limits = c(ymd("20030101"), NA), 
+    breaks = breakDates, 
+    labels = function(x) str_c("民國", as.character(year(x)-1911), "年")
+  )
+
+# str_c(..., sep, collapse)
+#  sep：將各字串中間穿插符號
+#  collapse：將向量內所有元素串起形成單一字串，元素間可加符號
+
+str_c("民國", as.character(year(breakDates)-1911), "年", collapse = ",")
+str_c("民國", as.character(year(breakDates)-1911), "年", sep = "-")
+str_c("民國", as.character(year(breakDates)-1911), "年", sep = "-", collapse = ",")
+
+```
+
+```{r labels 3}
+
+# labels適用於任何scale
+
+disposableIncome$gather %>% 
+  ggplot() + 
+  geom_line(
+    aes(
+      x = 西元年月日, 
+      y = 可支配所得, 
+      linetype = 所得分組
+    )
+  ) + 
+  scale_linetype_manual(
+    values = c("21", "41", "61", "81", "solid"), 
+    breaks = c(
+      "可支配所得按戶數五等分位組-最高所得組", 
+      "可支配所得按戶數五等分位組-中間所得組", 
+      "可支配所得按戶數五等分位組-最低所得組"
+    )
+  )
+
+disposableIncome$gather %>% 
+  ggplot() + 
+  geom_line(
+    aes(
+      x = 西元年月日, 
+      y = 可支配所得, 
+      linetype = 所得分組
+    )
+  ) + 
+  scale_linetype_manual(
+    values = c("21", "41", "61", "81", "solid"), 
+    breaks = c(
+      "可支配所得按戶數五等分位組-最高所得組", 
+      "可支配所得按戶數五等分位組-中間所得組", 
+      "可支配所得按戶數五等分位組-最低所得組"
+    ), 
+    labels = c(
+      "最高所得組", 
+      "中間所得組", 
+      "最低所得組"
+    )
+  )
+
+```
+
+## geom_text
+
+圖例（legends）有時並不是視覺化最佳變數說明方式，有時取消它改用geom_text()或annotate()反而較佳
+
+```{r geom_text 1}
+
+#用geom_text()直接在圖上說明分組
+
+disposableIncome$gather %>%
+  group_by(所得分組) %>%
+  summarise(
+    最後一年 = last(西元年月日), 
+    可支配所得 = last(可支配所得)            #last()：取最後一筆資料
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    標籤用 = str_replace(
+      as.character(所得分組), 
+      "可支配所得按戶數五等分位組-", ""      #用 " " 取代 "可支配所得按戶數五等分位組-"
+    ) 
+  ) ->
+  disposableIncome$forText
+
+
+disposableIncome$gather %>% 
+  ggplot() + 
+  geom_line(
+    aes(
+      x = year(西元年月日), 
+      y = 可支配所得, 
+      linetype = 所得分組
+    )
+  ) + 
+  scale_linetype_manual(
+    values = c("21", "41", "61", "81", "solid")
+  ) + 
+  # 取消圖例
+  theme(
+    legend.position = "none"
+  ) + 
+  geom_text(
+    data = disposableIncome$forText, 
+    aes(
+      x = year(最後一年), 
+      y = 可支配所得, 
+      label = 標籤用
+    ), 
+    nudge_x = -4, 
+    nudge_y = 50000         #根據x、y軸的值做調整
+  )
+#vjust、hjust：不依x、y軸的值做調整
 
 ```
 
