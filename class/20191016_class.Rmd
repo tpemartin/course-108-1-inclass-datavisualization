@@ -1,0 +1,455 @@
+---
+title: "stat functions"
+author: "jacky wang"
+date: "2019/10/16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+```
+
+
+
+# geom_rect：事件分析
+
+```{r import data 1}
+
+load(
+  url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/homework2/graphData_homework2_005.Rda?raw=true")
+)
+
+graphData$data
+
+```
+
+```{r plot 1}
+
+godplot <- list()
+
+graphData$data %>%
+  ggplot() + 
+  geom_line(
+    aes(
+      x = 年份, 
+      y = 毛額, 
+      linetype = 國民所得_儲蓄_投資毛額
+    )
+  ) + 
+  theme_classic() + 
+  theme(
+    legend.position = "none"
+  ) -> 
+  godplot$base
+  
+#標示事件的時間區間用
+data.frame(
+  start = c(2008, 2013), 
+  end = c(2009, 2014), 
+  floor = c(-Inf, -Inf), 
+  celling = c(Inf, Inf), 
+  name = c("次貸危機", "歐債危機")
+) -> 
+  graphData$event
+
+#圖例說明用
+graphData$data %>% 
+  group_by(`國民所得_儲蓄_投資毛額`) %>% 
+  summarise(
+    最後一筆 = last(毛額)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    分類 = c("國民所得毛額", "國民儲蓄毛額", "國民投資毛額")
+  ) -> 
+  graphData$legend
+
+
+godplot$base + 
+  geom_rect(
+    data = graphData$event, 
+    mapping = aes(
+      xmin = start, 
+      xmax = end, 
+      ymin = floor, 
+      ymax = celling
+    ), 
+    alpha = 0.2
+  ) -> 
+  godplot$add_event
+
+
+godplot$add_event + 
+  geom_text(
+    data = graphData$legend, 
+    mapping = aes(
+      x = 2017, 
+      y = 最後一筆, 
+      label = 分類
+    ), 
+    nudge_y = 8000
+  ) + 
+  geom_text(
+    data = graphData$event, 
+    mapping = aes(
+      x = (start+end)/2, 
+      y = 180000, 
+      label = name
+    )
+  ) -> 
+  godplot$add_text
+
+```
+
+```{r plot 1-1}
+
+godplot$base
+godplot$add_text
+
+```
+
+```{r plot 1-2}
+
+#錯誤作法
+graphData$data %>%
+  ggplot(
+    aes(
+      x=年份, 
+      y=毛額
+    )
+  ) + 
+  geom_line(
+    aes(
+      linetype=國民所得_儲蓄_投資毛額
+    )
+  ) + 
+  theme_classic() + 
+  theme(
+    legend.position = "none"
+  ) + 
+  geom_rect(
+    data = graphData$event, 
+    aes(
+      xmin = start, 
+      xmax = end, 
+      ymin = floor, 
+      ymax = celling
+    ), 
+    alpha = 0.2, 
+    inherit.aes = F
+  )
+# ggplot()裡的aes()會套用到所有geom內，因geom_rect()裡的data沒有相同x、y變數導致錯誤
+#在geom_rect()裡使用 inherit.aes = F 使它不受ggplot()影響
+
+```
+
+
+
+# 長條圖
+
+## geom_col
+
+```{r import data 2}
+
+graphListD_2 <- list()
+graphListP_2 <- list()
+
+graphListD_2$startSalaryTopCat <- 
+  read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/startSalaryTopCat.csv")
+
+graphListD_2$startSalaryTopCat
+
+```
+
+```{r data wrangling 2}
+
+graphListD_2$startSalaryTopCat$大職業別[3:7] %>% 
+  str_c(., collapse = " ',' ")
+#方便複製貼上
+  
+graphListD_2$startSalaryTopCat %>% 
+  filter(
+    大職業別 %in% c(
+      '礦業及土石採取業', '製造業', '電力及燃氣供應業', '用水供應及污染整治業', '營造業'
+    )
+  ) -> 
+  graphListD_2$startingSalary_industry
+
+```
+
+```{r plot 2}
+
+graphListD_2$startingSalary_industry %>%  
+  ggplot() + 
+  geom_col(
+    aes(
+      x = 大職業別, 
+      y = `經常性薪資-薪資`
+    )
+  ) -> 
+  graphListP_2$industry_salary
+
+graphListP_2$industry_salary
+
+```
+
+### 改變順序
+
+```{r plot 2-1}
+
+#想依經常性薪資由小到大排列
+
+#作法一：資料整理時
+graphListD_2$startingSalary_industry %<>%
+  mutate(
+    大職業別ordered = stats::reorder(
+      大職業別, `經常性薪資-薪資`, order=T
+    ) # reorder(欲排變數, 依某變數大小, order=T才會排)，產生一 ordered factor 變數
+  )
+
+graphListD_2$startingSalary_industry %>%
+  ggplot()+
+  geom_col(
+    aes(
+      x = 大職業別ordered, 
+      y = `經常性薪資-薪資`
+    )
+  ) -> 
+  graphListP_2$industry_salary_ordered
+
+graphListP_2$industry_salary_ordered
+graphListP_2$industry_salary
+  
+```
+
+```{r plot 2-2}
+
+#作法二：作圖時
+
+graphListP_2$industry_salary
+
+graphListD_2$startingSalary_industry %>% 
+  ggplot() + 
+  geom_col(
+    aes(
+      x = reorder(大職業別, `經常性薪資-薪資`, order = T), 
+      y = `經常性薪資-薪資`
+    )
+  )
+
+```
+
+```{r plot 2-3}
+
+#作法三：使用scale_x_discrete()中的limits
+
+graphListP_2$industry_salary
+
+reorder(
+  graphListD_2$startingSalary_industry$大職業別, 
+  graphListD_2$startingSalary_industry$`經常性薪資-薪資`, 
+  order = T
+  ) %>% 
+  levels() -> 
+  indSalOrder #要下字串給limits
+
+graphListP_2$industry_salary + 
+  scale_x_discrete(
+    limits = indSalOrder
+  )
+
+```
+
+### 改變width
+
+```{r plot 3}
+
+#先建立一個基本ggplot方便後面疊加
+graphListD_2$startingSalary_industry %>% 
+  ggplot(
+    aes(
+      x = 大職業別ordered, 
+      y = `經常性薪資-薪資` 
+    )
+  ) -> 
+  graphListP_2$ggplot_ordered
+
+
+graphListP_2$ggplot_ordered + 
+  geom_col(
+    width = 0.6
+  )
+
+```
+
+```{r plot 3-1}
+
+# theme(..., aspect.ratio = )：改變整個圖的高寬比例
+
+graphListP_2$industry_salary_ordered + 
+  theme(
+    aspect.ratio = 1/2
+  )
+
+#再來調width
+graphListP_2$ggplot_ordered + 
+  geom_col(
+    width = 0.6
+  ) + 
+  theme(
+    aspect.ratio = 1/2
+  )
+
+graphListP_2$ggplot_ordered + 
+  geom_col(
+    width = 0.6
+  )
+
+```
+
+```{r r plot 3-2}
+
+graphListP_2$industry_salary_ordered + 
+  theme(
+    aspect.ratio = 1/0.8
+  )
+#字疊在一起了
+
+graphListP_2$industry_salary_ordered + 
+  theme(
+    aspect.ratio = 1/0.8, 
+    axis.text.x = element_text(angle = 20) #讓字旋轉20度
+  )
+
+```
+
+
+
+
+
+
+```{r}
+
+library2014<-read_csv("https://www.dropbox.com/s/999hy0u1y98y6ep/library2014.csv?dl=1")
+
+```
+
+```{r}
+
+library2014 %>%
+  mutate(
+    學院=reorder(學院,學號,length,order=T)
+  ) -> library2014
+
+graphList <- list()
+
+library2014 %>% 
+  ggplot()-> graphList$圖書_ggplotOnly
+
+graphList$圖書_ggplotOnly+
+  geom_bar(
+    aes(x=學院), fill="#5A99B3", width=0.7
+    )
+
+```
+
+
+```{r}
+
+set.seed(2019)
+x <- rnorm(100)
+head(x)
+
+ggplot2::cut_interval(x,n=8) -> x_interval
+levels(x_interval)
+
+data.frame(
+  x=x,
+  xinterval=x_interval
+) -> df_x
+
+
+df_x %>%
+  group_by(xinterval) %>%
+  summarise(
+    interval_count=n()
+  ) %>%
+  ungroup() %>% #View
+  ggplot(aes(x=xinterval))+
+  geom_col(
+    aes(y=interval_count)
+  )
+
+df_x %>%
+  ggplot(aes(x=x))+
+  geom_histogram(bins=8)
+
+```
+
+```{r}
+
+optimBins <- grDevices::nclass.FD(df_x$x)
+optimBins
+
+df_x %>%
+  ggplot(aes(x=x))+
+  geom_histogram(bins=optimBins)
+
+```
+
+```{r}
+
+df_x %>%
+  ggplot(
+    aes(x = x)
+  ) + 
+  geom_density()
+
+```
+
+## stat_count
+
+```{r}
+
+graphList$圖書_ggplotOnly + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      y = stat(prop), 
+      group = "全校"
+    ), 
+    fill = "#30FF47", 
+    width = 0.7
+  )
+
+graphList$圖書_ggplotOnly + 
+  geom_bar(
+    aes(x = 學院), 
+    stat = "count"
+  )
+
+graphList$圖書_ggplotOnly + 
+  geom_blank(
+    aes(x = 學院), 
+    geom = "bar"
+  )
+
+```
+
