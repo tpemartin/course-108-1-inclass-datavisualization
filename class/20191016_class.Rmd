@@ -162,7 +162,10 @@ graphData$data %>%
 
 
 
+
+
 # 長條圖
+
 
 ## geom_col
 
@@ -194,7 +197,7 @@ graphListD_2$startSalaryTopCat %>%
 
 ```
 
-```{r plot 2}
+```{r}
 
 graphListD_2$startingSalary_industry %>%  
   ggplot() + 
@@ -212,7 +215,7 @@ graphListP_2$industry_salary
 
 ### 改變順序
 
-```{r plot 2-1}
+```{r}
 
 #想依經常性薪資由小到大排列
 
@@ -239,7 +242,7 @@ graphListP_2$industry_salary
   
 ```
 
-```{r plot 2-2}
+```{r}
 
 #作法二：作圖時
 
@@ -256,7 +259,7 @@ graphListD_2$startingSalary_industry %>%
 
 ```
 
-```{r plot 2-3}
+```{r}
 
 #作法三：使用scale_x_discrete()中的limits
 
@@ -279,7 +282,7 @@ graphListP_2$industry_salary +
 
 ### 改變width
 
-```{r plot 3}
+```{r}
 
 #先建立一個基本ggplot方便後面疊加
 graphListD_2$startingSalary_industry %>% 
@@ -299,7 +302,7 @@ graphListP_2$ggplot_ordered +
 
 ```
 
-```{r plot 3-1}
+```{r}
 
 # theme(..., aspect.ratio = )：改變整個圖的高寬比例
 
@@ -324,7 +327,7 @@ graphListP_2$ggplot_ordered +
 
 ```
 
-```{r r plot 3-2}
+```{r}
 
 graphListP_2$industry_salary_ordered + 
   theme(
@@ -336,72 +339,154 @@ graphListP_2$industry_salary_ordered +
   theme(
     aspect.ratio = 1/0.8, 
     axis.text.x = element_text(angle = 20) #讓字旋轉20度
+  ) + 
+  theme(
+    axis.text.x = element_text(hjust = 0.9, vjust = 1)
+  ) # horizontal justification (in [0, 1])
+    # vertical justification (in [0, 1])
+    # 調整angle後vjust、hjust會變得很奇怪
+
+```
+
+### 座標旋轉
+
+使用coord_flip()
+
+```{r}
+
+graphListP_2$industry_salary_ordered + 
+  coord_flip()
+
+```
+
+
+## geom_bar
+
+```{r import data 3}
+
+barListDa <- list()
+barListPo <- list()
+
+barListDa$library2014 <- 
+  read_csv("https://www.dropbox.com/s/999hy0u1y98y6ep/library2014.csv?dl=1")
+
+```
+
+```{r data wrangling 3}
+
+# between()用法
+barListDa$library2014 %>%
+  filter(
+    讀者年級 %>% between(1,2)
+  )
+
+#先將學院依各院人數多寡排序
+
+barListDa$library2014 %<>% 
+  mutate(
+    學院 = reorder(學院, 學號, length, order=T)
+  ) #學院依照各院資料筆數（length(學號)，已依學院分類）排序
+
+barListDa$library2014 %<>% 
+  mutate(
+    讀者年級 = factor(讀者年級, levels = c(4:1))
   )
 
 ```
 
-
-
-
-
-
 ```{r}
 
-library2014<-read_csv("https://www.dropbox.com/s/999hy0u1y98y6ep/library2014.csv?dl=1")
-
-```
-
-```{r}
-
-library2014 %>%
-  mutate(
-    學院=reorder(學院,學號,length,order=T)
-  ) -> library2014
-
-graphList <- list()
-
-library2014 %>% 
-  ggplot()-> graphList$圖書_ggplotOnly
-
-graphList$圖書_ggplotOnly+
+barListDa$library2014 %>% 
+  ggplot() + 
   geom_bar(
-    aes(x=學院), fill="#5A99B3", width=0.7
-    )
+    aes(x = 學院), 
+    fill="#5A99B3", 
+    width=0.7
+  ) # y軸由geom_bar()去呼叫stat_count()計算分類個數
+
+barListDa$library2014 %>% 
+  ggplot + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7
+  ) 
+
+```
+
+### position
+
+dodge：躲避
+fill：填滿（標準化成同高度，呈現比重變化用）
+stack：疊上
+
+```{r}
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width=0.7, 
+    position = "dodge"
+  ) 
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width=0.7, 
+    position = "fill"
+  ) 
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width=0.7, 
+    position = "stack"
+  ) 
 
 ```
 
 
-```{r}
+## geom_histogram
 
-set.seed(2019)
+```{r import data 4}
+
+set.seed(2019) #用以固定後續隨機變數的產生
 x <- rnorm(100)
 head(x)
 
-ggplot2::cut_interval(x,n=8) -> x_interval
-levels(x_interval)
+ggplot2::cut_interval(x, n = 8) ->
+  x_interval
+#以隨機變數的min和max為範圍等距切8段，並將各隨機變數值轉成區間值
 
-data.frame(
-  x=x,
-  xinterval=x_interval
-) -> df_x
+levels(x_interval) #x_interval為類別變數，總共有8類
 
-
-df_x %>%
-  group_by(xinterval) %>%
-  summarise(
-    interval_count=n()
-  ) %>%
-  ungroup() %>% #View
-  ggplot(aes(x=xinterval))+
-  geom_col(
-    aes(y=interval_count)
-  )
-
-df_x %>%
-  ggplot(aes(x=x))+
-  geom_histogram(bins=8)
+xNorm <- data.frame(
+  x = x, 
+  xInterval = x_interval
+)
 
 ```
+
+```{r}
+
+
+
+```
+
 
 ```{r}
 
@@ -423,6 +508,11 @@ df_x %>%
   geom_density()
 
 ```
+
+
+
+
+
 
 ## stat_count
 
