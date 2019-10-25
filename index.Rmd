@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 各週作品
 
+homework 3: https://bookdown.org/tpemartin/datavisualization/dashboard_homework3_2019_10_21with_code.html
+
 homework 2: https://bookdown.org/tpemartin/dashboard/dashboard_homework2_2019_10_15.html
 
 homework 1: https://bookdown.org/tpemartin/flexdashboard2019_10_08/flexdashboard.html
