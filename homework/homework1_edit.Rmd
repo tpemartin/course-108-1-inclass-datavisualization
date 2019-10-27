@@ -37,14 +37,14 @@ knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.show
   
 ```{r data cleaning, echo=TRUE, eval=T}
 
-graphData <- list()
+graphListD <- list()
 
-graphData$Case_10_result <- 
+graphListD$Case_10_result <- 
   read_csv("http://data.cec.gov.tw/%E5%85%A8%E5%9C%8B%E6%80%A7%E5%85%AC%E6%B0%91%E6%8A%95%E7%A5%A8%E8%A8%88%E7%A5%A8%E7%B5%90%E6%9E%9C/Case_10_result.csv")
 
 
 
-graphData$Case_10_result %>%
+graphListD$Case_10_result %>%
   select(
     公投案編號, 
     縣市, 
@@ -64,9 +64,9 @@ graphData$Case_10_result %>%
     有效票數 = as.integer(有效票數), 
     `同意比例（同意票／有效票）` = 同意票數/有效票數, 
   ) ->
-  graphData$Case_10_result1
+  graphListD$Case_10_result1
  
-graphData$Case_10_result1 %>% 
+graphListD$Case_10_result1 %>% 
   mutate(
     六都 = factor(
       六都, 
@@ -75,7 +75,7 @@ graphData$Case_10_result1 %>%
       )
     )
   ) -> 
-  graphData$Case_10_result_eV
+  graphListD$Case_10_result_eV
 
 ```
 
@@ -88,9 +88,13 @@ library(colorspace)
 library(shiny)
 library(shinyjs)
 
-sequential_hcl(n = 7, h = c(10, -80), c = c(100, NA, 80), l = c(6, 90), power = c(0.7, 1.3), register = "godPalette_seq")
+show_col(
+  c("#FF72C7", "#FF92D1", "#FFAEDB", "#FFC6E5", "#FFDBED", "#FEEDF4" ,"#F9F9F9")
+)
 
-graphData$Case_10_result_eV %>% 
+graphListP <- list()
+
+graphListD$Case_10_result_eV %>% 
   ggplot(
     aes(
       x = 六都, 
@@ -99,13 +103,14 @@ graphData$Case_10_result_eV %>%
   ) + 
   geom_col(
     aes(
-      fill = `同意比例（同意票／有效票）`, 
-      width = 0.5
-    )
+      alpha = `同意比例（同意票／有效票）`
+    ), 
+    width = 0.5, 
+    fill = "#FF72C7"
   ) -> 
-  graphData$godPlot_base
+  graphListP$godPlot_base
 
-graphData$godPlot_base + 
+graphListP$godPlot_base + 
   coord_flip() +  
   scale_x_discrete(
     limits = c("高雄市", "臺南市", "臺中市", "桃園市", "新北市", "臺北市")
@@ -114,12 +119,12 @@ graphData$godPlot_base +
     limits = c(0, 0.8), 
     labels =scales::percent_format()
   ) + 
-  scale_fill_continuous_sequential(
-    palette = "godPalette_seq"
+  scale_alpha(
+    range = c(1, 0.2)
   ) -> 
-  graphData$godPlot_1
+  graphListP$godPlot_1
   
-graphData$godPlot_1 + 
+graphListP$godPlot_1 + 
   geom_text(
     aes(
       label = str_c(
@@ -128,10 +133,12 @@ graphData$godPlot_1 +
       )
     ), 
     size = 5, 
-    color = "white", 
     hjust = 1.1
   ) + 
-  theme(legend.position = "none")
+  theme(
+    legend.position = "none", 
+    aspect.ratio = 1/1.9
+  )
 
 ```
 
