@@ -429,11 +429,22 @@ barListDa$library2014 %>%
   geom_bar(
     aes(
       x = 學院, 
-      fill = 讀者年級
+      fill = factor(
+        讀者年級, 
+        levels = c("1", "2", "3", "4")
+      ) 
     ), 
     width=0.7, 
     position = "dodge"
+  ) + 
+  scale_fill_discrete(
+    guide = guide_legend(title = "讀者年級", title.position = "bottom")
   ) 
+# guide: A function used to create a guide or its name. 
+# call to a guide function ( i.e. guide_colourbar() or guide_legend() )
+# guide_legend(): 
+#   title: A character string or expression indicating a title of guide.
+#   title.position: A character string indicating the position of a title.
 
 barListDa$library2014 %>% 
   ggplot() + 
@@ -462,6 +473,12 @@ barListDa$library2014 %>%
 
 ## geom_histogram
 
+直方圖的常見作法是將連續變數
+
+1. 先切成一段段不重疊的數值區間（bin）
+
+2. 以每個bin為長條圖X軸的類別變數，進行作圖
+
 ```{r import data 4}
 
 set.seed(2019) #用以固定後續隨機變數的產生
@@ -470,9 +487,9 @@ head(x)
 
 ggplot2::cut_interval(x, n = 8) ->
   x_interval
-#以隨機變數的min和max為範圍等距切8段，並將各隨機變數值轉成區間值
+#以隨機變數的min和max為範圍等距切8段，並將各隨機變數值轉成所在區間值
 
-levels(x_interval) #x_interval為類別變數，總共有8類
+levels(x_interval) # x_interval為類別變數，總共有8類
 
 xNorm <- data.frame(
   x = x, 
@@ -483,62 +500,117 @@ xNorm <- data.frame(
 
 ```{r}
 
-
-
-```
-
-
-```{r}
-
-optimBins <- grDevices::nclass.FD(df_x$x)
-optimBins
-
-df_x %>%
-  ggplot(aes(x=x))+
-  geom_histogram(bins=optimBins)
+xNorm %>% 
+  ggplot() + 
+  geom_bar(
+    aes(x = x_interval)
+  )
+#錯誤的作法：
+#  1. 連續的資料中間不該有空白
+#  2. 不應該以各組次數為bar的高度，要以各組占比為bar的高度
 
 ```
 
 ```{r}
 
-df_x %>%
-  ggplot(
+xNorm %>% 
+  ggplot() + 
+  geom_histogram(
     aes(x = x)
-  ) + 
-  geom_density()
+  ) # default（默認）為30個bin
+
+xNorm %>% 
+  ggplot() + 
+  geom_histogram(
+    aes(x = x), 
+    bins = 8
+  )
+
+xNorm %>% 
+  ggplot() + 
+  geom_histogram(
+    aes(x = x), 
+    bins = 200
+  ) #資料量愈大，optimal bin應該要愈大（連續的資料不應該有過大的組距）
+
+```
+
+```{r}
+
+#原則上「樣本越大」、「資料越集中」則bin數目越多
+#這裡依Freedman-Diaconis rule選bin數
+
+OptiBins <- grDevices::nclass.FD(xNorm$x)
+
+xNorm %>% 
+  ggplot() + 
+  geom_histogram(
+    aes(x = x), 
+    bins = OptiBins
+  ) 
+
+```
+
+```{r}
+
+xNorm %>% 
+  ggplot() + 
+  geom_density(
+    aes(x = x)
+  )
+#直方圖是最不扭曲連續資料呈現的圖，也是一般的人看得懂的圖
 
 ```
 
 
-
-
-
-
-## stat_count
+## stat function
 
 ```{r}
 
-graphList$圖書_ggplotOnly + 
+barListDa$library2014 %>%
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院
+      #y預設為stat(count)
+    ), 
+    fill = "#5A99B3", 
+    width = 0.7
+  )
+
+barListDa$library2014 %>%
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      y = stat(count)
+    ), 
+    fill = "#5A99B3", 
+    width = 0.7
+  )
+
+# stat(prop)
+barListDa$library2014 %>%
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      y = stat(prop)   # prop: groupwise proportion（以x分組）
+    ), 
+    fill = "#5A99B3", 
+    width = 0.7
+  )
+
+barListDa$library2014 %>%
+  ggplot() + 
   geom_bar(
     aes(
       x = 學院, 
       y = stat(prop), 
-      group = "全校"
+      group = "全校"   #隱性創造一個group變數，值為「全校」
     ), 
-    fill = "#30FF47", 
+    fill = "#5A99B3", 
     width = 0.7
-  )
-
-graphList$圖書_ggplotOnly + 
-  geom_bar(
-    aes(x = 學院), 
-    stat = "count"
-  )
-
-graphList$圖書_ggplotOnly + 
-  geom_blank(
-    aes(x = 學院), 
-    geom = "bar"
   )
 
 ```
