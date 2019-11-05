@@ -1,0 +1,144 @@
+---
+title: "每週一圖作業"
+output: html_document
+params:
+  組員: ["李靜怡"]  
+  學號: ["410773095"]
+---
+
+#### 環境設定
+
+以下為老師執行時一定會存在的環境設定
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+#### 資料處理
+
+此部份在做：
+
+  * 原始Rda資料引入（即引入**dataList**物件）；
+  
+  * 資料清理成作圖用graphData物件。
+
+請將你最原始的資料連同作業一起上傳到作業上傳網址：  
+  * 若「原始資料為網頁下載」，且下載指令寫在data cleaning chunk裡的話，可以不用上傳「資料」。  
+  * 若原始資料有很多個檔案，請先引入成data frame並存在「一個」.Rda檔裡上傳（如`example_data.Rda`檔）。  
+
+資料檔引入到進入作圖前的資料處理請寫在下面區塊，分二部份：
+
+  * 資料處理  
+  * 作圖用資料物件生成(最後形成作圖資料物件graphData)
+  
+```{r data cleaning, echo=TRUE, eval=T}
+library(readr)
+disposableIncome <- read_csv("https://www.dropbox.com/s/z80sbjw94cjex8x/disposableIncome.csv?dl=1",
+locale = locale(encoding = "BIG5"), skip = 4)
+
+#圖1
+colnames(disposableIncome)[[1]] <- "年份"
+colnames(disposableIncome)[[3]] <- "最低所得組"
+colnames(disposableIncome)[[4]] <- "次低所得組"
+colnames(disposableIncome)[[5]] <- "中間所得組"
+colnames(disposableIncome)[[6]] <- "次高所得組"
+colnames(disposableIncome)[[7]] <- "最高所得組"
+
+disposableIncome %>%
+  .[-c(44:49),] -> disposableIncome
+
+as.numeric(disposableIncome$年份) -> 
+  disposableIncome$年份
+
+
+#圖2
+
+disposableIncome[-nrow(disposableIncome),-1] -> 
+  disposableIncome1
+disposableIncome[-1,-1] -> disposableIncome2
+disposableIncome[-1,] -> percent
+
+(disposableIncome2$平均每戶可支配所得 - disposableIncome1$平均每戶可支配所得)/disposableIncome1$平均每戶可支配所得 -> percent$平均每戶可支配所得
+(disposableIncome2$最低所得組 - disposableIncome1$最低所得組)/disposableIncome1$最低所得組 -> percent$最低所得組
+(disposableIncome2$次低所得組 - disposableIncome1$次低所得組)/disposableIncome1$次低所得組 -> percent$次低所得組
+(disposableIncome2$中間所得組 - disposableIncome1$中間所得組)/disposableIncome1$中間所得組 -> percent$中間所得組
+(disposableIncome2$次高所得組 - disposableIncome1$次高所得組)/disposableIncome1$次高所得組 -> percent$次高所得組
+(disposableIncome2$最高所得組 - disposableIncome1$最高所得組)/disposableIncome1$最高所得組 -> percent$最高所得組
+```
+
+#### 繪圖程式
+
+```{r graph, echo=T, eval=T}
+library(scales)
+#圖1
+disposableIncome %>%
+  filter(年份 >= 2003) %>%
+  gather(
+    -1,
+    key = "組別", value = "可支配所得"
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(x=年份, y=可支配所得, color = 組別)
+  ) +
+  scale_y_continuous(
+    breaks = c(500000,1000000,1500000,2000000),
+    labels = c("50萬","100萬","150萬","200萬")
+  ) +
+  scale_color_discrete(breaks = c(
+    "平均每戶可支配所得",
+    "最高所得組",
+    "次高所得組",
+    "中間所得組",
+    "次低所得組",
+    "最低所得組")) +
+  theme_grey() +
+  labs(title = "不同家庭所得在金融海嘯後所得變動") +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) -> answer1
+
+answer1
+
+#圖2
+percent %>%
+  filter(年份 >= 2003) %>%
+  gather(
+    -1,
+    key = "組別", value = "可支配所得成長"
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(x=年份, y=可支配所得成長, color = 組別)
+  ) +
+  expand_limits(y = c(-0.075,0.075)) +
+  scale_y_continuous(
+    labels = percent_format()
+  ) +
+  scale_color_discrete(breaks = c(
+    "平均每戶可支配所得",
+    "最高所得組",
+    "次高所得組",
+    "中間所得組",
+    "次低所得組",
+    "最低所得組")) +
+  theme_grey() +
+  labs(title = "不同家庭所得在金融海嘯後所得較前年成長") +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) -> answer2
+
+answer2
+```
+
+#### 設計說明
+說明想傳達的訊息（必要）及設計想法（非必要）。寫在***之後
+*** 
+圖1為2003年金融海嘯後，台灣家庭所得五等分位分組之收入變動狀況，y軸以萬位表示並搭配格線可更易於閱讀。
+圖2為2003年金融海嘯後，台灣家庭所得五等分位分組之收入較前年成長之幅度，y軸以百分比表示並搭配格線可更易於閱讀；由此圖可見，在2007~2008的金融海嘯中，受影響最大的是五分為中最低所得組的家庭，但對比圖1會發現其所得減幅相較他組並不突出，推測可能原因為其所得原本就是五組中最低，故在所得減少程度相同時受影響比例較大。
+```{r}
+
+```

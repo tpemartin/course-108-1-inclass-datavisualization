@@ -1,0 +1,26 @@
+---
+author: "彭亦楓"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_011.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+graphData$data%>%
+  ggplot()+
+  geom_line(size=1.2,
+    aes(x=生母年齡,y=嬰兒總數佔該區域嬰兒總數百分比,color=生母原屬國籍或地區)
+  )
+```
+ 

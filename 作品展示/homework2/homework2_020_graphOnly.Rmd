@@ -1,0 +1,42 @@
+---
+author: "鄭喬翊"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_020.Rda")
+c('洲別','年度','人數')->names(graphData[[1]])
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+library(grDevices) # 不同顏色模型代碼的呈現及轉換
+library(scales) # show_col()螢幕立即顯示顏色
+library(colorspace) # 調色盤選擇及ggplot應用工具
+library(shinyjs) # 支援套件
+#choose_palette(gui="shiny")
+
+colorspace::diverging_hcl(n = 5, h = c(240, 15), c = c(60, 80), l = c(75, 5), power = c(1.2, 1.5), register = "myPallete") 
+#show_col(myPallete)
+
+graphData$StudyAbroad %>%
+  ggplot(aes(x=洲別,y=人數)) +
+  labs(y = "人數(2017)",x="四大洲",title = "我國2017年赴四大洲留學人數(不含中國)") +
+  geom_bar(stat="identity", position=position_dodge())+ 
+  geom_col(aes(fill = 洲別)) +
+  scale_fill_discrete_diverging(palette = "myPallete") +
+  theme(legend.position = "none")+
+  geom_text(aes(label=str_c(round(人數))),size = 6,color = "red")
+
+```
+ 

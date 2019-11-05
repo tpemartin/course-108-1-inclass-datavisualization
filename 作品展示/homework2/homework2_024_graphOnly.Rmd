@@ -1,0 +1,41 @@
+---
+author: "劉信傑"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_024.Rda")
+c('區域別','教育程度','人數(十萬)')->names(graphData)
+## ----graph, echo=T, eval=T-----------------------------------------------
+colorspace::sequential_hcl(n = 6, h = c(250, -111), c = c(94, NA, 79), l = c(7, 93), power = c(0.7, 1.3),                           register = "mypalette")
+graphData %>% ggplot(
+  aes(x=區域別,y=`人數(十萬)`,fill=教育程度)
+)+
+  geom_col(width = 0.65)+
+  ggtitle(label = "教育程度差異")+
+  theme_grey()+
+  coord_flip()+
+  scale_fill_discrete_sequential(palette="mypalette",nmax=6, rev = FALSE)+
+  scale_y_continuous(
+    breaks=c(200000,300000,400000,500000,1000000,1300000,1600000,1800000,2100000,2500000,3000000,3500000),
+    labels=c(2,3,4,5,10,13,16,18,21,25,30,35)
+  )+
+  theme(
+    panel.grid.minor = element_blank(),plot.caption = element_text(hjust = +1.1),
+    plot.title = element_text(hjust =-0.05)
+    )+
+  labs(caption="資料來源:全國人口資料庫統計地圖") 
+```
+ 

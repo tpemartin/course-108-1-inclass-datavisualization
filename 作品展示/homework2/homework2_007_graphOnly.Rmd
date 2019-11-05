@@ -1,0 +1,62 @@
+---
+author: "游筑茵"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_007.Rda")
+c('X','City','price','Distance','rating','atmosphere','cleanliness','facilities','location','security','staff','valueformoney','lon','lat')->names(graphData)
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+#choose_palette(gui="shiny")
+p<-ggplot(graphData, aes(City, price)) + 
+  geom_boxplot(varwidth=T, fill="#56B4E9") + 
+  labs(title="Box plot",
+       x="city",
+       y="price")
+graphData1<-graphData[which(graphData$City=='Tokyo'),]
+p1<-ggplot(graphData1, aes(x=factor(1),fill=rating))+ 
+  geom_bar(width =1)+coord_polar(theta = 'y') +theme_void()+
+  labs(title="Tokyo")
+graphData2<-graphData[which(graphData$City=='Osaka'),]
+p2<-ggplot(graphData2, aes(x=factor(1),fill=rating))+ 
+  geom_bar(width =1)+coord_polar(theta = 'y') +theme_void()+
+  labs(title=" Osaka ")
+graphData3<-graphData[which(graphData$City=='Kyoto'),]
+p3<-ggplot(graphData3, aes(x=factor(1),fill=rating))+ 
+  geom_bar(width =1)+coord_polar(theta = 'y') +theme_void()+
+  labs(title="Kyoto")
+graphData4<-graphData[which(graphData$City=='Hiroshima'),]
+p4<-ggplot(graphData4, aes(x=factor(1),fill=rating))+ 
+  geom_bar(width =1)+coord_polar(theta = 'y') +theme_void()+
+  labs(title="Hiroshima")
+graphData5<-graphData[which(graphData$City=='Fukuoka-City'),]
+p5<-ggplot(graphData5, aes(x=factor(1),fill=rating))+ 
+  geom_bar(width =1)+coord_polar(theta = 'y') +theme_void()+
+  labs(title="Fukuoka-City ")
+###### 排版
+
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2,5)))
+vplayout<-function(x,y){viewport(layout.pos.row = x,layout.pos.col = y)}
+print(p,vp=vplayout(1,1:5))
+print(p5,vp=vplayout(2,1))
+print(p4,vp=vplayout(2,2))
+print(p3,vp=vplayout(2,3))
+print(p2,vp=vplayout(2,4))
+print(p1,vp=vplayout(2,5))
+
+```
+ 

@@ -1,0 +1,91 @@
+---
+title: "每週一圖作業20191002"
+output: html_document
+params:
+  組員: ["鄭喬翊"]  
+  學號: ["410773098"]
+---
+
+#### 環境設定
+
+以下為老師執行時一定會存在的環境設定
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+#### 資料處理
+
+此部份在做：
+
+  * 原始Rda資料引入（即引入**dataList**物件）；
+  
+  * 資料清理成作圖用graphData物件。
+
+請將你最原始的資料連同作業一起上傳到作業上傳網址：  
+  * 若「原始資料為網頁下載」，且下載指令寫在data cleaning chunk裡的話，可以不用上傳「資料」。  
+  * 若原始資料有很多個檔案，請先引入成data frame並存在「一個」.Rda檔裡上傳（如`example_data.Rda`檔）。  
+
+資料檔引入到進入作圖前的資料處理請寫在下面區塊，分二部份：
+
+  * 資料處理  
+  * 作圖用資料物件生成
+  
+```{r data cleaning, echo=TRUE, eval=T}
+disposableIncome <- read_csv("https://www.dropbox.com/s/z80sbjw94cjex8x/disposableIncome.csv?dl=1",
+locale = locale(encoding = "BIG5"), skip = 4)
+
+disposableIncome %>%
+  slice(c(25:43)) ->disposableIncome
+
+  colnames(disposableIncome) <-c("西元年份","平均每戶可支配所得","最低所得組平均","次低所得組平均","中間所得組平均","次高所得組平均","最高所得組平均")
+
+disposableIncome %>%
+  mutate(
+    最低平均所得對平均所得 = 最低所得組平均/平均每戶可支配所得,
+    次低平均所得對平均所得 = 次低所得組平均/平均每戶可支配所得,
+    中間平均所得對平均所得 = 中間所得組平均/平均每戶可支配所得,
+    次高平均所得對平均所得 = 次高所得組平均/平均每戶可支配所得,
+    最高平均所得對平均所得 = 最高所得組平均/平均每戶可支配所得
+  ) ->disposableIncome
+
+
+str_c(disposableIncome$西元年份,"01",sep = "-") ->disposableIncome$西元年份
+str_c(disposableIncome$西元年份,"01",sep = "-") ->disposableIncome$西元年份
+ymd(disposableIncome$西元年份) -> disposableIncome$西元年份
+
+
+disposableIncome %>%
+  gather(
+    contains("對平均所得"),key = "對平均所得",value = "比例",
+    
+  ) -> disposableIncomeGather
+
+disposableIncomeGather %>%
+  mutate(
+    對平均所得 = factor(對平均所得,levels = c("最低平均所得對平均所得","次低平均所得對平均所得","中間平均所得對平均所得","次高平均所得對平均所得","最高平均所得對平均所得"))
+  ) ->disposableIncomeGather
+
+```
+
+#### 繪圖程式
+
+```{r graph, echo=T, eval=T}
+disposableIncomeGather %>%
+  ggplot(
+    aes(x=西元年份,y=比例,color=對平均所得)
+    )+
+  geom_line(size=1) +
+  labs(title = "年各所得分位平均對年總平均可支配所得")
+```
+
+#### 設計說明
+說明想傳達的訊息（必要）及設計想法（非必要）。寫在***之後
+*** 台灣的平均每戶可支配所得越來越高，以總平均而言，其實算是很高的，甚至在西元2017年突破了一百萬。然而，按照原始資料來看，台灣的一般平民其實都未達到平均，甚至是中間所得分位的民眾，都未達平均值。
+我想要傳達的訊息是台灣的平均可支配所得各階層的差距。由此圖表而言，收入最低階層的民眾甚至未達到總平均可支配所得的一半，而最高階層卻是兩倍多，這其實反映了貧富差距有點大，而且財富其實集中在少數人手中。除了最高所得階層的人之外，其他人都很接近總平均所得(比例 = 1.0)或在其之下。這些便是我想傳達的訊息。
+
+

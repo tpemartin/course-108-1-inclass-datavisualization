@@ -1,0 +1,28 @@
+---
+author: "鄭喬翊"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_007.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+disposableIncomeGather %>%
+  ggplot(
+    aes(x=西元年份,y=比例,color=對平均所得)
+    )+
+  geom_line(size=1) +
+  labs(title = "年各所得分位平均對年總平均可支配所得")
+
+```
+ 

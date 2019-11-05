@@ -1,0 +1,80 @@
+---
+author: "王正評"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_013.Rda")
+c('西元年','性別','吸菸率')->names(graphData[[1]])
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+library(scales)
+library(colorspace)
+library(shiny)
+library(shinyjs)
+
+graphData$smoke_result %>%
+  ggplot(
+    aes(
+      x = 西元年, 
+      y = 吸菸率, 
+      color = 性別, 
+      group = 性別
+    )
+  ) + 
+  geom_line(size = 2) + 
+  geom_point(
+    data = graphData$smoke_result %>% 
+      filter(
+        year(西元年) %in% c(2004, 2010, 2016)
+      ), 
+    size = 3
+  ) + 
+  geom_text(
+    data = graphData$smoke_result %>% 
+      filter(
+        year(西元年) %in% c(2004, 2010, 2016)
+      ), 
+    aes(
+      label = str_c(round(吸菸率, 1), "%")
+    ), 
+    vjust = -0.8
+  ) + 
+  ylim(0, 50) + 
+  labs(
+    y = "吸菸率（％）", 
+    title = "台灣18歲以上人口吸菸率", 
+    subtitle = "2004～2016年"
+  ) -> 
+  godPlot
+  
+godPlot + 
+  theme(
+    plot.background = element_rect(fill = "#B76F39"), 
+    panel.background = element_rect(fill = "#006E37"), 
+    panel.grid.major=element_blank(), 
+    panel.grid.minor=element_blank(),
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 15), 
+    plot.subtitle = element_text(face = "bold", hjust = 0.5), 
+    legend.background = element_rect(fill="#006E37", colour = "black"), 
+    legend.position=c(0.9,0.8)
+  ) + 
+  scale_color_manual(
+    values = c("#E24C80", "#FFFFFF"), 
+    breaks = c("男", "女")
+  )
+  
+```
+ 

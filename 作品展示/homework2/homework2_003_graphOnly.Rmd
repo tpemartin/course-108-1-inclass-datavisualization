@@ -1,0 +1,35 @@
+---
+author: "彭亦楓"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_003.Rda")
+c('區名','月份','營業額(元)')->names(graphData[[1]])
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+breakmoney <- c(10000000,30000000,50000000,70000000)
+labelmoney <- c("一千萬","三千萬","五千萬","七千萬")
+sequential_hcl(n = 5, h = c(10, 85), c = c(80, NA, 10), l = c(25, 95), power = c(0.05, 1.3), register = "K1")
+
+graphData$ans%>%
+  ggplot()+
+  geom_tile(
+    aes(x=月份,y=區名,fill=`營業額(元)`)
+  )+
+  labs(title = "國道服務區於每月的營業額")+
+  scale_fill_continuous_sequential(palette="K1",breaks=breakmoney,labels=labelmoney)
+```
+ 

@@ -1,0 +1,41 @@
+---
+author: "王先誠"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_026.Rda")
+c('洲別','國別','學位生_正式修讀學位外國生','學位生_僑生(含港澳)','學位生_正式修讀學位陸生','非學位生_外國交換生','非學位生_外國短期研習及個人選讀','非學位生_大專附設華語文中心學生','非學位生_大陸研修生','非學位生_海青班','境外專班')->names(graphData[[1]])
+c('洲別','國別','學位生_正式修讀學位外國生','學位生_僑生(含港澳)','學位生_正式修讀學位陸生','非學位生_外國交換生','非學位生_外國短期研習及個人選讀','非學位生_大專附設華語文中心學生','非學位生_大陸研修生','非學位生_海青班','境外專班','大學生類型','人數')->names(graphData[[2]])
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(grDevices) # 不同顏色模型代碼的呈現及轉換
+library(scales) # show_col()螢幕立即顯示顏色
+library(colorspace) # 調色盤選擇及ggplot應用工具
+library(shinyjs) # 支援套件
+graphData$graphy %>%
+  ggplot()+
+  geom_col(aes(x=國別,y=人數,fill=大學生類型),width=0.3)->
+  finalplot
+finalplot
+
+choose_palette(gui="shiny")
+
+colorspace::sequential_hcl(n = 3, h = c(0, 90), c = c(80, NA, 30), l = c(30, 90), power = c(0.2, 2), register = "Custom-Palette")
+
+finalplot+
+  scale_fill_discrete_sequential(palette="Custom-Palette")
+
+```
+ 

@@ -1,0 +1,29 @@
+---
+author: "王童緯"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_019.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+graphData %>% 
+  ggplot()+
+  geom_line(
+    aes(x=期間,y=`日圓JPY/USD`,color="red")
+    )-> finalplot
+finalplot
+
+```
+ 

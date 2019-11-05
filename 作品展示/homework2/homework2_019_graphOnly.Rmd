@@ -1,0 +1,38 @@
+---
+author: "曾雨晴"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(magrittr)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+
+ 
+load("graphData_homework2_019.Rda")
+c('分析項目','吸菸率類型','比率','教育別','年')->names(graphData[[1]])
+## ----graph, echo=T, eval=T-----------------------------------------------
+library(scales)
+library(colorspace)
+library(shiny)
+library(shinyjs)
+colorspace::sequential_hcl(n = 7, h = c(0, -100), c = c(80, NA, 40), l = c(40, 75), power = c(1, 1), register = "Palette1")
+graphData$cigaretteRate%>%
+  ggplot(aes(x=年,y=比率,color=教育別))+
+  geom_line(aes(linetype=教育別))+
+   scale_linetype_manual(
+    values=c("15","24","34","51","71","1242"))+
+  labs(title = "2004年到2016年每日抽菸率(以教育別劃分)",
+       caption = "資料來源: 臺灣政府資料開放平臺")+
+  scale_color_discrete_sequential(palette = "Palette1")->finalplot
+finalplot
+
+```
+ 

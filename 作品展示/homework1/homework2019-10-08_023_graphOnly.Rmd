@@ -1,0 +1,54 @@
+---
+author: "林奕齊"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_023.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+library(colorspace)
+library(shinyjs) 
+colorspace::qualitative_hcl(n = 9, h = c(0, 258), c = 100, l = 42, register = "Custom-Palette")
+
+graphData$cost_disease %>% 
+  ggplot(aes(x = 年, y = 價格指數, color = 類別)) + 
+  geom_line(aes(size = 0.3)) + geom_point(aes(size = 0.5)) + 
+  guides(size = FALSE ) +
+  ggtitle( "台灣醫療費用的成本病")  +
+  theme(plot.title = element_text(size = 35, face = "bold", vjust = 6.5),
+        panel.background = element_rect(fill = "AntiqueWhite1"),
+        legend.background = element_rect(fill = "AntiqueWhite1"),
+        panel.grid.major = element_line(color = "gray80", size = 0.5, linetype = "dotted"),
+        panel.grid.major.x = element_blank(),
+        line = element_blank(),
+        legend.position = "top",
+        axis.ticks.length = unit(.15, "cm"),
+        plot.background = element_rect(fill = "AntiqueWhite1"),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(4, 4, 4, 4, "cm"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 15, face = "bold"),
+        axis.text.y = element_text(size = 15, face = "bold"),
+        legend.text = element_text(size = 15),
+        legend.title = element_text(size = 18, face = "bold"),
+        legend.key.size = unit(15, "point")) +
+  scale_color_discrete_qualitative(palette = "Custom-Palette" ,nmax=5) + 
+  scale_x_continuous(breaks = seq(1991,2017, 1)) -> finalplot
+
+finalplot
+finalplot %>% ggplotly(width = 2000, height = 1000)
+```
+ 

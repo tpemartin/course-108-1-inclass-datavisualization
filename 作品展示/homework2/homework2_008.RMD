@@ -1,0 +1,162 @@
+---
+title: "每周一圖作業10_09"
+author: "410473002 林易霆"
+date: "2019/10/12"
+output: html_document
+params:
+  組員: ["林易霆"]  
+  學號: ["410473002"]
+---
+
+#### 環境設定
+
+以下為老師執行時一定會存在的環境設定
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+#font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+#### 資料處理
+
+此部份在做：
+
+  * 原始Rda資料引入（即引入**dataList**物件）；
+  
+  * 資料清理成作圖用graphData物件。
+
+請將你最原始的資料連同作業一起上傳到作業上傳網址：  
+  * 若「原始資料為網頁下載」，且下載指令寫在data cleaning chunk裡的話，可以不用上傳「資料」。  
+  * 若原始資料有很多個檔案，請先引入成data frame並存在「一個」.Rda檔裡上傳（如`example_data.Rda`檔）。  
+
+資料檔引入到進入作圖前的資料處理請寫在下面區塊，分二部份：
+
+  * 資料處理  
+  * 作圖用資料物件生成
+  
+```{r data cleaning, echo=TRUE, eval=T}
+graphData <- list()
+
+crash <- read_csv("http://data.moi.gov.tw/MoiOD/System/DownloadFile.aspx?DATA=BF1377E4-73DE-4DD1-9C2F-174E28EA1031")
+
+
+# 車禍受傷死亡人數資料
+
+# crash %>% View
+
+str(crash) # check the data structure
+
+crash.new <- crash %>% 
+  transmute(發生時間 = substr(發生時間, 12, 13), 
+                # leave only the hour of incident
+         縣市 = substr(發生地點, 1, 3), # only the state of accident location
+         死亡 = substr(死亡受傷人數, 3, 3), 
+         受傷 = substr(死亡受傷人數, 7, 7))
+
+# forgot to as.num and factorize everything, DUMB
+
+crash.new <- crash.new %>%
+  mutate(發生時間 = as.numeric(發生時間),
+         縣市 = as.factor(縣市), 
+         死亡 = as.numeric(死亡), 
+         受傷 = as.numeric(受傷)) %>%
+  # split the time into 4 more interesting groups
+  mutate(發生時間 = case_when(發生時間 <= 5 ~ "凌晨", 
+                              12 >= 發生時間 & 發生時間 >= 6 ~ "上午",
+                              17 >= 發生時間 & 發生時間 >= 13 ~ "下午",
+                              23 >= 發生時間 & 發生時間 >= 18 ~ "晚上"))
+
+str(crash.new)
+
+# To draw, we need some story as a subject, try to find something in the data
+
+table(crash.new$死亡) # deaths > 1 must be severe
+table(crash.new$受傷) # injuries > 3 must be dubbed sever as well
+
+# crash.new %>% filter(死亡 > 1) %>% View
+# crash.new %>% filter(受傷 > 3) %>% View # sneek peek of the data
+
+# group into severe accidents and normal A1 accidents
+crash.tidy <- crash.new %>%
+  mutate(嚴重程度 = case_when(死亡 > 1 | 受傷 > 3 ~ "嚴重事故",
+                            TRUE ~ "普通事故")) %>%
+  mutate(嚴重程度 = as.factor(嚴重程度),
+         發生時間 = as.factor(發生時間))
+
+
+crash.pie <-  crash.tidy %>% select(發生時間, 嚴重程度) %>%
+  group_by(發生時間, 嚴重程度) %>%
+  summarise(count = n()) %>% 
+  group_by(發生時間) %>%
+  mutate(pct = count / sum(count)) %>% ungroup()
+
+crash.pie <- crash.pie[-9,] # lazy deleting the NA
+
+ # rm(list = c("crash.new", "crash.tidy")), clean up 
+
+graphData$Original <- crash
+graphData$tidy <- crash.tidy
+graphData$pie <- crash.pie
+
+
+```
+
+#### 繪圖程式
+
+```{r graph, echo=T, eval=T}
+# How bout a pie chart for the severe and conventional accidents?
+library(ggthemes); library(colorspace)
+
+pie.chart <- graphData$pie %>% ggplot(aes(x = "", y = pct, fill = 嚴重程度)) +
+  geom_bar(stat = 'identity') + coord_polar("y", start = 0) + 
+  geom_text(aes(label = paste0(round(pct*100,2),"%")),
+            position = position_stack(vjust = 0.65),
+            color = "white") +
+  labs(x = NULL, y = NULL, title = "全台嚴重死傷車禍於各時段發生之佔比", 
+       caption = "資料來源: 台灣政府公開資料庫") +
+  facet_wrap(~發生時間) +
+  scale_fill_manual(values = c("grey50", "red")) +
+  theme(axis.text.x = element_blank(), # remove the ugly x breaks
+        plot.title = element_text(size = 15, face = "bold", # hjust = -0.5
+                                  hjust = 0.5, color = "black"), 
+        plot.caption = element_text(face = "italic",
+                                    color = "black"), # hjust = 2
+        plot.background = element_rect(fill = "#FBDFB3"), 
+        legend.background = element_rect(linetype = "solid", fill = "#97E3F4", color = "black"),
+        legend.box.margin = margin(6, 6, 6, 6),
+        panel.border = element_rect(fill = NA),
+        panel.background = element_rect(fill = "white"),
+        strip.text = element_text(face = "bold", size = 10),
+        strip.background = element_rect(fill = "#97E3F4", colour = "black", size = 1.5),
+        axis.line = element_blank())
+
+pie.chart
+
+# colorspace::choose_palette(gui = "shiny")
+# colorspace::choose_color() 
+
+```
+
+#### 設計說明
+說明想傳達的訊息（必要）及設計想法（非必要）。寫在***之後
+*** 
+
+該圖為全台灣之嚴重死亡車禍於各時段發生之佔比。此圖之資料僅包含死亡車禍的資料，圖中對於嚴重死亡車禍之定義為: 死亡人數超過1人或是受傷人數超過3人之死亡車禍。而對於交通時段之定義則為: 凌晨(00時 ~ 05時)、上午(06時 ~ 12時)、下午(13時 ~ 17時)、晚上(18時 ~ 23時)。其中凌晨時段共發生 211件 死亡車禍、上午時段共發生 448件 死亡車禍、下午時段共發生 306件 死亡車禍、晚上時段共發生 315件 死亡車禍。  
+\  
+
+由圖中的比例可知，上午時段之嚴重死亡車禍發生比例最低。推測其可能的原因在於嚴重死亡車禍通常伴隨著酒駕、精神恍惚之類的現象發生，但上午時段較少發生應酬、熬夜駕駛、飲酒駕車等行為。且上午時段的駕駛人意識普遍較其他時段的駕駛人要清醒，故對於發生事故的緊急應變能力較其他時段之駕駛人穩健。  
+\  
+
+下午時段和晚上時段的發生佔比較為相近。但凌晨時段的發生佔比卻是四個時段裡最高的。雖然發生於凌晨時段的死亡車禍僅有上午時段的一半左右，但前述之酒駕、疲勞駕駛等高風險駕駛人較容易出現於凌晨時段，故造成重大傷亡車禍的機率也隨之上升。  
+\  
+
+嚴重死亡車禍的發生原因於各個時段的發生機率皆十分低。最大的佔比僅有4%左右，最小也僅有2.18%，不只數字極小且比率相近。若以圓餅圖呈現此現象則容易發生主題難以體現的問題，且在做不同時段的比較時也容易因為數值相近而導致無法從圖形面積直觀了解到比較差異的問題。因此該組資料現象並不適合以圓餅圖的方式呈現。  
+\  
+
+```{r demonstrate graph, echo = T, eval = T}
+pie.chart 
+```
+

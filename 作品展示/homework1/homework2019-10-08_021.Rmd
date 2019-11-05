@@ -1,0 +1,132 @@
+---
+title: "每週一圖作業"
+output: html_document
+params:
+  組員: ["簡靖軒"]  
+  學號: ["710861131"]
+editor_options: 
+  chunk_output_type: console
+---
+
+#### 環境設定
+
+以下為老師執行時一定會存在的環境設定
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+#### 資料處理
+
+此部份在做：
+
+  * 原始Rda資料引入（即引入**dataList**物件）；
+  
+  * 資料清理成作圖用graphData物件。
+
+請將你最原始的資料連同作業一起上傳到作業上傳網址：  
+  * 若「原始資料為網頁下載」，且下載指令寫在data cleaning chunk裡的話，可以不用上傳「資料」。  
+  * 若原始資料有很多個檔案，請先引入成data frame並存在「一個」.Rda檔裡上傳（如`example_data.Rda`檔）。  
+
+資料檔引入到進入作圖前的資料處理請寫在下面區塊，分二部份：
+
+  * 資料處理  
+  * 作圖用資料物件生成(最後形成作圖資料物件graphData)
+  
+```{r data cleaning, echo=TRUE, eval=T}
+library(readr)
+loan=read_csv("https://ws.moe.edu.tw/001/Upload/4/relfile/0/4764/a27e7193-392e-4780-9133-f27d3a65c791.csv",
+              locale = locale(encoding = "BIG5"))
+
+
+str(loan$項目) #查看項目的
+貸款人次 = loan[loan$項目 == "貸款人次", ]
+貸款金額 = loan[loan$項目 == "貸款金額（元）", ]
+
+貸款人次1= data.frame(貸款人次[,1],
+                      貸款人次[,3:6]/10000) #每萬人
+貸款金額1 =data.frame(貸款金額[,1],
+                      貸款金額[,3:6]/100000000) #每千萬元
+平均每人貸款金額0=data.frame(貸款金額[,1],
+                            貸款人次[,3:6],
+                            貸款金額[,3:6]/10000) #每萬元/人
+
+平均每人貸款金額1=data.frame(貸款金額[,1],
+  平均每人貸款金額0$公立大專校院.1/平均每人貸款金額0$公立大專校院,
+  平均每人貸款金額0$私立大專校院.1/平均每人貸款金額0$私立大專校院,
+  平均每人貸款金額0$公立高中職.1/平均每人貸款金額0$公立高中職,
+  平均每人貸款金額0$私立高中職.1/平均每人貸款金額0$私立高中職)
+names(平均每人貸款金額1)[2:5] <-c("公立大專校院", "私立大專校院", "公立高中職", "私立高中職")
+```
+
+#### 繪圖程式
+
+```{r graph, echo=T, eval=T}
+library(reshape2)
+
+人次 = melt(貸款人次1,id.vars="學年度")
+figure_人次=ggplot(人次,
+                   aes(x=學年度,
+                       y=value)) + 
+            geom_line(aes(color=variable)) 
+
+graphData1 = figure_人次 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=98),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '貸款人次/萬人')
+
+金額 = melt(貸款金額1,
+            id.vars="學年度")
+figure_金額=ggplot(金額,
+                   aes(x=學年度,
+                       y=value)) + 
+                   geom_line(aes(color=variable))
+
+graphData2 = figure_金額 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=98),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '貸款金額/千萬元')
+
+平均貸款金額= melt(平均每人貸款金額1,
+                   id.vars="學年度")
+figure_平均貸款金額 = ggplot(平均貸款金額,
+                             aes(x=學年度,
+                                 y=value)) + 
+                      geom_line(aes(color=variable))  
+graphData3 = figure_平均貸款金額 + 
+       geom_hline(aes(yintercept=10)) +
+       geom_vline(aes(xintercept=100),
+                      colour="#BB0000",
+                      linetype="dashed") +
+       labs(title = '平均貸款金額/元')
+```
+
+#### 設計說明
+說明想傳達的訊息（必要）及設計想法（非必要）。寫在***之後
+***
+
+此資料為92-105學年度高級中等以上學校學生申請就學貸款人次、人數及貸款金額。
+
+```{r}
+graphData1
+```
+graphData1為貸款人次，各教育體制約在98學年度時，貸款人次逐年下降；
+
+```{r}
+graphData2
+```
+graphData2為貸款金額，各教育體制也約在98學年度時，貸款金額下降，此結果相當直覺，貸款人次逐年下降，總貸款金額下降是可以理解的；
+從graphData1跟graphData2的結果，也許我們會推測每人平均貸款金額可能下降或持平，尤其是高中職體系於103學年度開始實施12年國教，學費的降低，直覺來講應會讓更多家庭負擔得起、貸款金額降低。
+
+```{r}
+graphData3
+```
+但graphData3的結果顯示，在100學年度起，無論公立或私立的高中職，其平均貸款金額皆明顯逐年提高，是值得我們探究其原因的結果。
+```

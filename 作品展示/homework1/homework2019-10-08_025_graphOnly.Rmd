@@ -1,0 +1,30 @@
+---
+author: "劉信傑"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_025.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+graphData %>% mutate(
+  地區=factor(地區,levels=c("高雄市","台北市"))
+)%>% ggplot(
+  aes(x=食物種類,y=消費金額,color=地區)
+  )+
+  geom_point(size=5)+
+  theme_gray()+
+  ggtitle(label = "台北與高雄-持卡人之平均每月`食衣消費`比較")
+```
+ 

@@ -1,0 +1,32 @@
+---
+author: "游筑茵"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, fig.showtext=TRUE, message=FALSE}
+
+
+## ----basic setup, message=FALSE, echo=TRUE, eval=T-----------------------
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+ 
+load("graphData_homework2019-10-08_010.Rda")
+## ----graph, echo=T, eval=T-----------------------------------------------
+
+#choose_palette(gui="shiny")
+colorspace::sequential_hcl(n = 5, h = c(-83, 20), c = c(65, NA, 18), l = c(32, 90), power = c(0.5, 1), register = "mypalette")
+ggplot(graphData,aes(x=atmosphere,y=price))+
+ geom_point(aes(colour=rating))+
+ geom_smooth(aes(colour=rating,fill=rating))+
+  facet_wrap(~rating,ncol=3,nrow=2)->basicplot
+ basicplot +
+  scale_color_discrete_sequential(palette="mypalette")+scale_fill_discrete_sequential(palette="mypalette") ->finalplot
+ finalplot   
+
+```
+ 
