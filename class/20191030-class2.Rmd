@@ -335,7 +335,7 @@ image_read("https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/2450df203
 
 image_info(mapListD$taipei101) #觀察圖片的高寬比，使縮放時比例不變
 
-mapListD$taipei101_asp <- 
+taipei101_asp <- 
   image_info(mapListD$taipei101)$height/image_info(mapListD$taipei101)$width
 
 ```
@@ -348,11 +348,90 @@ theme_bw() +
   theme(
     panel.background = element_rect(fill = "cyan4")
   ) -> 
-  mapListP$theme_checkBack
+  theme_checkBack
 
 image_ggplot(mapListD$taipei101) + 
-  mapListP$theme_checkBack
+  theme_checkBack
 #非透明
+
+```
+
+image_fill(image, color, point = "+1+1", fuzz = 0, refcolor = NULL)
+
+point: 倒顏料的位置（小畫家）；注意Y軸是顛倒的
+fuzz: 邊界定義的模糊度，0（嚴謹）～100（鬆散）
+
+```{r}
+
+image_fill(mapListD$taipei101, "transparent", point = "+100+100", fuzz = 0) %>%
+  image_ggplot() + 
+  theme_checkBack #邊界定義太過嚴謹
+
+image_fill(mapListD$taipei101, "transparent", point = "+100+100", fuzz = 15) %>%
+  image_ggplot() + 
+  theme_checkBack
+
+```
+
+```{r}
+
+#轉成raster（矩陣）資料
+
+image_fill(mapListD$taipei101, "none", point = "+100+100", fuzz = 15) -> 
+  mapListD$taipei101_noBack
+
+mapListD$taipei101_noBack %>% 
+  as.raster() -> 
+  mapListD$taipei101_raster
+
+mapListD$taipei101_raster[100,300]
+
+```
+
+```{r}
+
+taipei101_position <- 
+  c(lon=121.5622782,lat=25.0339687)  # Taipei經緯度
+
+
+taipei101_width <- 0.13  # Taipei101在地圖佔寬
+
+mapListP$bigTaipei + 
+  annotation_raster(
+    raster = mapListD$taipei101_raster, 
+    xmin = taipei101_position[1]-taipei101_width/2, 
+    xmax = taipei101_position[1]+taipei101_width/2, 
+    ymin = taipei101_position[2]-taipei101_asp*taipei101_width/2, 
+    ymax = taipei101_position[2]+taipei101_asp*taipei101_width/2
+  ) -> 
+  mapListP$bigTaipei_image
+ 
+```
+
+```{r}
+
+# 調低解析度（小圖不用太高的解析度）
+
+image_scale(mapListD$taipei101_noBack, "200") -> 
+  mapListD$taipei101_noBacksm
+  # Taipei寬解析度調整成200，並維持aspect ratio
+
+mapListD$taipei101_noBacksm %>% 
+  as.raster() -> 
+  mapListD$taipei101_rastersm
+
+mapListP$bigTaipei + 
+  annotation_raster(
+    mapListD$taipei101_rastersm, 
+    taipei101_position[1] - taipei101_width/2, 
+    taipei101_position[1] + taipei101_width/2, 
+    taipei101_position[2] - taipei101_asp*taipei101_width/2, 
+    taipei101_position[2] + taipei101_asp*taipei101_width/2
+  ) -> 
+  mapListP$bigTaipei_imagesm
+
+mapListP$bigTaipei_image
+mapListP$bigTaipei_imagesm
 
 ```
 
