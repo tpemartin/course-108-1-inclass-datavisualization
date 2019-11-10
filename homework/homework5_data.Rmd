@@ -1,0 +1,39 @@
+---
+title: "每週一圖作業資料檔"
+output: html_document
+params:
+  組員: ["王正評"]  
+  學號: ["710761105"]
+---
+
+#### 環境設定
+
+以下為老師執行時一定會存在的環境設定
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+rm(list=ls())
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(colorspace); library(grDevices); library(shiny); library(shinyjs); library(scales)
+library(tidyr); library(showtext); library(tidyverse); library(colorspace)
+
+#font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(fig.align='center', fig.showtext=T)
+```
+
+#### 資料處理
+  
+```{r data cleaning, echo=TRUE, eval=T}
+
+graphListD <- list()
+
+graphListD$myGrade <- data.frame(
+  學位 = c("大學", "大學", "大學", "大學", "大學", "大學", "大學", "大學", "研究所", "研究所"), 
+  學年期 = c("大一上", "大一下", "大二上", "大二下", "大三上", "大三下", "大四上", "大四下", "碩一上", "碩一下"), 
+  歷年成績 = c(77.47, 69.71, 71.95, 73.58, 88.72, 87.24, 82.33, 92.4, 81.4, 83.5), 
+  總修學分 = c(18, 15, 21, 24, 18, 21, 9, 20, 17, 11), 
+  實得學分 = c(18, 13, 21, 24, 18, 21, 9, 20, 17, 11)
+)
+
+# save(graphListD, file = "homework5.Rda")
+
+```
