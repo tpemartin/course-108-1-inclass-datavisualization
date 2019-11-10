@@ -1,0 +1,67 @@
+"0","library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext)"
+"2","package ¡¥dplyr¡¦ was built under R version 3.5.2"
+"2","
+Attaching package: ¡¥dplyr¡¦
+
+"
+"2","The following objects are masked from ¡¥package:stats¡¦:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ¡¥package:base¡¦:
+
+    intersect, setdiff, setequal, union
+
+"
+"2","Warning message:
+"
+"2","In strsplit(code, ""\n"", fixed = TRUE) :"
+"2","
+ "
+"2"," input string 1 is invalid in this locale
+"
+"2","package ¡¥stringr¡¦ was built under R version 3.5.2"
+"2","package ¡¥ggplot2¡¦ was built under R version 3.5.2"
+"2","package ¡¥plotly¡¦ was built under R version 3.5.3"
+"2","
+Attaching package: ¡¥plotly¡¦
+
+"
+"2","The following object is masked from ¡¥package:ggplot2¡¦:
+
+    last_plot
+
+"
+"2","The following object is masked from ¡¥package:stats¡¦:
+
+    filter
+
+"
+"2","The following object is masked from ¡¥package:graphics¡¦:
+
+    layout
+
+"
+"2","package ¡¥lubridate¡¦ was built under R version 3.5.3"
+"2","
+Attaching package: ¡¥lubridate¡¦
+
+"
+"2","The following object is masked from ¡¥package:base¡¦:
+
+    date
+
+"
+"2","package ¡¥tidyr¡¦ was built under R version 3.5.3"
+"2","package ¡¥showtext¡¦ was built under R version 3.5.3"
+"2","Loading required package: sysfonts
+"
+"2","package ¡¥sysfonts¡¦ was built under R version 3.5.3"
+"2","Loading required package: showtextdb
+"
+"2","package ¡¥showtextdb¡¦ was built under R version 3.5.3"
+"0","font_add(""QYuan"",""cwTeXQYuan-Medium.ttf"") # æ–°å¢žå­—é«”"
+"0","showtext_auto(enable=TRUE) #å•Ÿç”¨å­—é«”"
+"0","theme_set(theme_classic())"
+"0","knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)"

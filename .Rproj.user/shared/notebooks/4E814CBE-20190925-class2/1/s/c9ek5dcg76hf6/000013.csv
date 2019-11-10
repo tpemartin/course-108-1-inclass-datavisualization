@@ -1,0 +1,16 @@
+"0","subsetDataTWbank %>%"
+"0","  gather(contains(""利率""), "
+"0","       key = ""類別"", value = ""利率"") ->"
+"0","  subsetDataTWbank_1"
+"2","Warning message:
+"
+"2","In strsplit(code, ""\n"", fixed = TRUE) :"
+"2","
+ "
+"2"," input string 1 is invalid in this locale
+"
+"0","subsetDataTWbank_1 %>%"
+"0","  ggplot() + "
+"0","  geom_boxplot("
+"0","    aes(x=類別, y=利率, color=類別)"
+"0","  )"

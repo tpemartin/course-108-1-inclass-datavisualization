@@ -1,0 +1,29 @@
+"0","library(readr)"
+"2","Warning message:
+"
+"2","In strsplit(code, ""\n"", fixed = TRUE) :"
+"2","
+ "
+"2"," input string 1 is invalid in this locale
+"
+"0","bop_aq <- read_csv(""BPA2Q01.csv"")"
+"2","Parsed with column specification:
+cols(
+  ���� = [31mcol_character()[39m,
+  `�g�`�b-�b�B-���B` = [32mcol_number()[39m
+)
+"
+"0","save(bop_aq, file=""uploadfile.Rda"")"
+"0","load(""uploadfile.Rda"")"
+"0","graphData <- list()"
+"0","bop_aq %>%"
+"0","  rename("
+"0","    ""年季""=""期間"""
+"0","  ) %>%"
+"0","  mutate("
+"0","    年季=yq(年季),"
+"0","    `經常帳-淨額-金額`=`經常帳-淨額-金額`/100 # 單位：億美元"
+"0","  ) %>%"
+"0","  filter("
+"0","    年季>=yq(""2015Q3"")"
+"0","  )-> graphData$bop_aq"
