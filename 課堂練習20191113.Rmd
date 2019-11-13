@@ -1,0 +1,100 @@
+---
+title: "2019-10-09"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(scales);
+library(sf)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+# 5.5.2
+
+```{r}
+# 輸入各自county polygon座標資訊
+outer <-     
+  rbind( # 外圍
+    c(1,5),
+    c(2,1),
+    c(5,1),
+    c(5,5),
+    c(1,5)) # 必需自行輸入起點close it
+
+hole <-
+  rbind( # 洞
+    c(2,4),
+    c(3,2),
+    c(4,3),
+    c(2,4))  # 必需自行輸入起點close it
+  
+outer2 <- outer + 12
+hole2 <- hole + 12
+
+```
+
+
+```{r}
+# 架構每個county的sfg (sf geometry)
+sfg_county1 <- st_polygon(list(
+  outer,hole
+))
+sfg_county2 <- st_polygon(list(
+  outer2, hole2
+))
+```
+
+```{r}
+# sfg 堆成sfc
+sfc_county12column <- st_sfc(sfg_county1,sfg_county2)
+```
+
+# 5.5.3
+
+```{r}
+# 各county的基本資訊
+df_county12 <- data.frame(
+  name=c("county1","county2"),
+  population=c(100,107)
+)
+
+df_county12
+```
+
+```{r}
+# df 添加geometry column
+df_county12 %>%
+  st_set_geometry(sfc_county12column) -> df_county12
+
+df_county12 %>% names
+```
+
+```{r}
+class(df_county12)
+```
+
+
+```{r}
+df_county12 %>% 
+  ggplot+geom_sf(
+    aes(
+      fill=population
+    )
+  )+
+  geom_sf_text(
+    aes(label=name)
+  )
+```
+
+```{r}
+
+```
+
