@@ -95,6 +95,90 @@ df_county12 %>%
 ```
 
 ```{r}
+df_county12
+```
 
+```{r}
+dir.create("county12")
+write_sf(df_county12,"county12/county12.shp")
+```
+
+# tpe mrt
+
+```{r}
+load(url("https://www.dropbox.com/s/uvco1te2kbs6o01/MRT_Taipei.Rda?dl=1"))
+```
+
+```{r}
+sf_mrt_tpe %>% View
+```
+
+```{r}
+sf_mrt_tpe %>%
+  filter(
+    stringr::str_detect(經過路線,"BL")
+  ) ->
+  sf_mrt_tpe_bl
+```
+
+```{r}
+sf_mrt_tpe_bl %>% 
+  View
+```
+
+
+```{r}
+sf_mrt_tpe_bl %>%
+  st_coordinates() %>%
+  st_linestring() -> sfg_mrt_bl
+
+sfg_mrt_bl %>%
+  ggplot()+geom_sf()
+```
+
+```{r}
+sf_mrt_tpe_bl %>%
+  mutate(
+    站號=stringr::str_extract(
+      經過路線, "(?<=(BL))[:digit:]+"
+    ) # 取出那些數字（那些指它們前面有BL字眼）
+  ) %>%
+  arrange(站號)-> sf_mrt_tpe_bl
+
+sf_mrt_tpe_bl %>% View
+```
+
+```{r}
+sf_mrt_tpe_bl %>%
+  st_coordinates() %>%
+  st_linestring() -> sfg_mrt_bl2 # 捷運板南的simple feature geometry
+
+sfg_mrt_bl2 %>%
+  ggplot()+geom_sf()
+```
+
+```{r}
+df_mrt <- data.frame(
+  linename="BL"
+)
+sfg_mrt_bl2 %>%
+  st_sfc() -> sfc_mrt_bl2
+
+df_mrt %>%
+  st_set_geometry(sfc_mrt_bl2) -> 
+  df_mrt
+
+df_mrt
+```
+
+```{r}
+sf_mrt_tpe %>%
+  st_crs -> mrt_crs
+
+df_mrt %>%
+  st_set_crs(mrt_crs) ->
+  df_mrt
+
+df_mrt
 ```
 
