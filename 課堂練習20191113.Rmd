@@ -182,3 +182,19 @@ df_mrt %>%
 df_mrt
 ```
 
+
+```{r}
+read_sf("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/mapdata201907311006 /COUNTY_MOI_1080726.shp") -> 
+  sf_taiwan
+```
+
+```{r}
+sf_taiwan
+```
+
+```{r}
+sf_taiwan %>%
+  ggplot()+
+  geom_sf()
+```
+
