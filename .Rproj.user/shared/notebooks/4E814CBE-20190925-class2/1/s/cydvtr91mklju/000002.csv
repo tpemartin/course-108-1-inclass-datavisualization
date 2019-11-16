@@ -1,8 +1,0 @@
-"0","twCalendar <- c(""民國88年11月1日"",""民國88年12月1日"",""民國89年1月1日"")"
-"2","Warning message:
-"
-"2","In strsplit(code, ""\n"", fixed = TRUE) :"
-"2","
- "
-"2"," input string 1 is invalid in this locale
-"
