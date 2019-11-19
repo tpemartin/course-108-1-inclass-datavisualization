@@ -1,0 +1,414 @@
+---
+title: "Simple Features"
+author: "jacky wang"
+date: "2019/11/13"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+library(grDevices) #不同色彩空間的十六進制代碼呈現（#598C73）
+library(scales) #show_col()：螢幕立即顯示顏色
+library(colorspace) #調色盤選擇及ggplot應用工具
+library(shiny) #支援套件
+library(shinyjs) #支援套件
+
+```
+
+
+
+
+
+# simple features
+
+```{r}
+
+library(sf)
+sfList <- list()
+
+```
+
+1. simple feature geometry（sfg class）: 每個縣市由某些簡單幾何構成，
+
+2. simple feature column（sfc class）: 將所有縣市的sfg堆疊成的column
+
+3. simple feature object（sf class）: 再放上所有縣市其他非地理特徵形成的完整資料物件
+
+
+## sfg
+
+```{r}
+
+sfList$point <- st_point(c(2,3))
+
+sfList$point %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+```{r}
+
+sfList$mpoint <- st_multipoint(
+  rbind(
+    c(1,0),
+    c(2,3),
+    c(-1,2)
+  )
+)
+
+sfList$point %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+```{r}
+
+sfList$line <- st_linestring(
+  rbind(
+    c(1,0),
+    c(2,3),
+    c(-1,2)
+  )
+)
+
+sfList$line %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+```{r}
+
+sfList$mline <- st_multilinestring(
+  list(
+    rbind(
+      c(1,0),
+      c(2,3),
+      c(-1,3)
+    ),
+    rbind(
+      c(-2,3),
+      c(-1,-1)
+    )
+  )
+)
+
+sfList$mline %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+```{r}
+
+#外圍
+outer <- 
+  rbind( 
+    c(1,5),
+    c(2,1),
+    c(5,1),
+    c(5,5),
+    c(1,5)  #必需自行輸入起點close it
+  )
+
+#洞
+hole <- 
+  rbind( 
+    c(2,4),
+    c(3,2),
+    c(4,3),
+    c(2,4)  #必需自行輸入起點close it
+  )  
+  
+sfList$poly <- 
+  st_polygon(
+    list(
+      outer,  #最外圍的要放在第一個
+      hole
+    )
+  ) 
+
+sfList$poly %>%
+  ggplot() + 
+  geom_sf()
+
+```
+
+```{r}
+
+outer2 <- outer + 12 #矩陣內每項皆+12
+hole2 <- hole + 12
+
+sfList$mpoly <- 
+  st_multipolygon(
+    list(
+      list(
+        outer,
+        hole
+      ),
+      list(
+        outer2,
+        hole2
+      )
+    )
+  ) 
+
+sfList$mpoly %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+```{r}
+
+st_geometrycollection(
+  list(
+    sfList$mline, sfList$mpoly
+    #sfList$point、sfList$mpoint沒出現
+  )
+) %>% 
+  ggplot() + 
+  geom_sf() + 
+  theme_classic()
+
+```
+
+
+## sfc
+
+```{r}
+
+sfList$county1 <- st_polygon(
+  list(
+    outer, 
+    hole
+  )
+)
+
+sfList$county2 <- st_polygon(
+  list(
+    outer2, 
+    hole2
+  )
+)
+
+# sfg堆成sfc（一個變數資料，每一筆代表一個county）
+
+sfList$county12col <- 
+  st_sfc(sfList$county1, sfList$county2)
+
+sfList$county12col %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+## sfo
+
+```{r}
+
+#各county的基本資料
+df_county12 <- data.frame(
+  name = c("county1","county2"),
+  population = c(100,107)
+)
+
+df_county12
+
+```
+
+```{r}
+
+#建立simple feature object
+st_set_geometry(df_county12, sfList$county12col) -> df_county12_sfo
+
+class(df_county12_sfo)
+names(df_county12_sfo)
+
+```
+
+```{r}
+
+df_county12_sfo %>% 
+  ggplot() + 
+  geom_sf(
+    aes(
+      fill = population
+    )
+  ) + 
+  geom_sf_text(
+    aes(
+      label = name
+    )
+  )
+#用geom_sf_text()可以不給座標，它會自動以geometry的中心為座標
+
+```
+
+```{r}
+
+df_county12_sfo #沒有CRS（亂畫可以不用設）
+
+df_county12_sfo %>% 
+  st_set_crs(value = 4326) #在sfo設
+
+sfList$county12col %>% 
+  st_set_crs(value = 4326) #也可在sfg設
+
+```
+
+## 儲存成shp檔
+
+```{r}
+
+#dir.create("county12") #創造一個資料夾，名為county12
+
+#write_sf(df_county12_sfo, "county12/county12.shp")
+#將shp檔存在資料夾內（shp檔會有多個檔案）
+
+```
+
+## 例題
+
+```{r}
+
+load(url("https://www.dropbox.com/s/uvco1te2kbs6o01/MRT_Taipei.Rda?dl=1"))
+
+```
+
+```{r}
+
+listMRT <- list()
+
+sf_mrtStops_tpe %>% 
+  filter(
+    stringr::str_detect(經過路線, "BL") #偵測（detect）變數「經過路線」下字串有「BL」的row
+  ) ->                            # negate = T: 偵測變數「經過路線」下字串沒有「BL」的row
+  listMRT$sf_mrtStops_tpeBL
+
+```
+
+```{r}
+
+listMRT$sf_mrtStops_tpeBL %>% 
+  #取出變數 geometry 的座標
+  st_coordinates() %>% 
+  #畫線
+  st_linestring() -> 
+  listMRT$sfg_mrtStops_tpeBL
+
+listMRT$sfg_mrtStops_tpeBL %>% 
+  ggplot() + 
+  geom_sf()
+#點沒有照站的順序排好
+
+```
+
+```{r}
+
+listMRT$sf_mrtStops_tpeBL %>% 
+  mutate(
+    站號 = stringr::str_extract(
+      經過路線, "(?<=(BL))[:digit:]+"  
+    )
+  ) %>%
+  arrange(站號) -> 
+  listMRT$sf_mrtStops_tpeBL1
+#取出變數「經過路線」下BL後面的全部數字（遇到非數字即止）
+# ?<=(BL): preceded by(BL在前)
+# [:digit:]+: 多位數字; [:digit:] = [0-9]
+
+```
+
+```{r}
+
+listMRT$sf_mrtStops_tpeBL1 %>% 
+  st_coordinates() %>% 
+  st_linestring() ->
+  listMRT$sfg_mrtStops_tpeBL1
+#捷運板南線的simple feature geometry
+
+listMRT$sfg_mrtStops_tpeBL1 %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+
+
+```{r}
+
+#建立 sf data frame
+
+listMRT$SFO_MRT <- 
+  data.frame(
+    linename = "板南線"
+  )
+
+listMRT$sfg_mrtStops_tpeBL1 %>% 
+  st_sfc() -> 
+  listMRT$BLUE
+
+st_set_geometry(listMRT$SFO_MRT, listMRT$BLUE) -> 
+  listMRT$SFO_MRT
+
+```
+
+```{r}
+
+#沒有CSR（Coordinate Reference Systems）
+
+#作法一（觀察法）
+
+#listMRT$sf_mrtStops_tpeBL1    # EPSG: 3826
+
+listMRT$SFO_MRT %>% 
+  st_set_crs(value = 3826) -> 
+  listMRT$SFO_MRT
+
+#作法二（取出法）
+
+listMRT$sf_mrtStops_tpeBL1 %>% 
+  st_crs() -> crsBLUE
+
+#listMRT$SFO_MRT %>% 
+  #st_set_crs(crsBLUE)
+
+crsBLUE
+listMRT$SFO_MRT %>% st_crs()
+
+```
+
+```{r}
+
+listMRT$SFO_MRT
+
+```
+
+
+
+
+
+
+
+
