@@ -28,10 +28,16 @@ library(sf); library(osmdata); library(rmapshaper)
 
 ## 5.7
 
+### 5.7.1
 ```{r}
 # 取出spData套件附的world data
 data(world,package="spData")
 class(world) # 已是sf object
+```
+
+```{r}
+world %>%
+  st_crs()
 ```
 
 
@@ -39,6 +45,22 @@ class(world) # 已是sf object
 
 ```{r}
 load(url("https://www.dropbox.com/s/elnvocol0nnkcc9/sf_northTaiwan.Rda?dl=1"))
+```
+
+### 5.7.3
+
+```{r}
+sf_northTaiwan %>%
+  st_centroid(of_largest_polygon = T) ->
+  sf_centroid_northTaiwan
+
+sf_centroid_northTaiwan
+
+sf_northTaiwan %>%
+  st_geometry()
+
+sf_centroid_northTaiwan %>%
+  st_geometry()
 ```
 
 
@@ -49,5 +71,280 @@ download.file("http://data.moi.gov.tw/MoiOD/System/DownloadFile.aspx?DATA=72874C
               destfile="tw.zip")
 unzip("tw.zip",exdir="taiwan")
 read_sf("taiwan/COUNTY_MOI_1080726.shp")-> sf_taiwan
+```
+
+```{r}
+sf_taiwan %>%
+  st_crs()
+```
+
+```{r}
+world %>%
+  st_crs() -> crs_world
+
+sf_taiwan %>%
+  st_transform(crs=crs_world) -> 
+  sf_taiwan2
+
+sf_taiwan2 %>%
+  st_crs()
+crs_world
+```
+
+```{r}
+sf_taiwan2 %>%
+  rmapshaper::ms_simplify() -> sf_taiwan2
+```
+
+```{r}
+# world, sf_taiwan2
+world %>%
+  ggplot()+
+  geom_sf()+
+  geom_sf(
+    data=sf_taiwan2
+  ) -> gg_big
+
+gg_big
+```
+
+
+```{r}
+gg_big+
+  coord_sf(
+    xlim=c(119,122),
+    ylim=c(24.6,25.3)
+  )
+```
+
+http://data.moi.gov.tw/MoiOD/System/DownloadFile.aspx?DATA=6684962F-C0ED-4D47-A31A-B1732BEDA50B
+
+
+```{r}
+world %>%
+  st_crop(xmin=119,xmax=122,ymin=24.6,ymax=25.3) ->
+  world_small
+
+sf_taiwan2 %>%
+  st_crop(xmin=119,xmax=122,ymin=24.6,ymax=25.3) ->
+  sf_taiwan_small
+```
+
+```{r}
+world_small %>%
+  ggplot()+geom_sf()+
+  geom_sf(
+    data=sf_taiwan_small
+  )
+
+
+```
+
+
+## 5.8
+
+```{r}
+load(url("https://www.dropbox.com/s/uvco1te2kbs6o01/MRT_Taipei.Rda?dl=1"))
+```
+
+```{r}
+sf_mrt <-
+  read_sf("/Users/martin/Desktop/GitHub/Courses/course-108-1-inclass-datavisualization/mrt/mapdata201907050841/MARK_捷運車站_1080626.shp")
+```
+
+```{r}
+sf_mrt %>% View()
+```
+
+### crs
+
+```{r}
+sf_mrtStops_tpe %>%
+  st_crs() -> sf_mrtStops_tpe_crs
+sf_mrtStops_tpe_crs
+```
+
+### obtain BL
+
+```{r}
+sf_mrtStops_tpe %>% View
+```
+
+```{r}
+sf_mrtStops_tpe %>%
+  filter(
+    str_detect(經過路線,"BL")
+  ) -> sf_mrtStops_tpe_BL
+
+sf_mrtStops_BL %>% View
+```
+
+```{r}
+sf_mrtStops_BL %>%
+  mutate(
+      站號=str_extract(經過路線,"(?<=(BL))[:digit:]+")
+            ) %>%
+  arrange(站號) -> sf_mrtStops_BL
+
+sf_mrtStops_BL %>% View
+```
+
+```{r}
+mrt_BL0 +
+  geom_path(
+    data=sf_mrtStops_tpe_BL %>% 
+            mutate(
+              站號=str_extract(經過路線,"(?<=(BL))[:digit:]+")
+            ) %>%
+            arrange(站號),
+    aes(x=x,y=y)
+  ) -> mrt_BL1
+
+mrt_BL1
+```
+
+```{r northtwmap}
+sf_northTaiwan %>%
+  ggplot()+geom_sf()+
+  geom_sf(
+    data=sf_mrtStops_BL
+  )+
+  coord_sf(
+    xlim=c(121.4,121.7),
+    ylim=c(24.9,25.1)
+  ) -> gg_tpe_mrt
+gg_tpe_mrt
+```
+
+```{r}
+sf_northTaiwan %>%
+  st_crop(
+    
+  )
+
+sf_mrtStops_BL %>%
+  st_crop(
+    
+  )
+```
+
+
+
+```{r}
+sf_mrtStops_BL %>%
+  st_coordinates() -> bl_coords
+
+gg_tpe_mrt+
+  geom_path(
+    data=data.frame(
+      x=bl_coords[,"X"],
+      y=bl_coords[,"Y"]
+    ),
+    aes(
+      x=x,y=y
+    )
+  )
+
+
+ ggplot()+geom_path(
+    data=data.frame(
+      x=bl_coords[,"X"],
+      y=bl_coords[,"Y"]
+    ),
+    aes(
+      x=x,y=y
+    )
+  )
+```
+
+
+```{r}
+bl_coords %>% colnames
+```
+
+```{r}
+sf_mrtStops_BL %>%
+  st_coordinates() %>%
+  st_linestring() -> BL_line
+
+class(BL_line)
+
+sf_northTaiwan %>% st_crs() -> crs0
+
+BL_line %>%
+  st_sfc() -> sfc_BL_line
+```
+
+```{r}
+class(BL_line)
+class(sfc_BL_line)
+```
+
+```{r}
+sfc_BL_line %>%
+  st_set_crs(crs0)-> sfc_BL_line
+```
+
+
+```{r}
+gg_tpe_mrt+
+  geom_sf(
+    data=sfc_BL_line
+  )
+
+sf_northTaiwan %>%
+  st_crs
+sfc_BL_line %>%
+  ggplot()+geom_sf()
+  st_crs
+```
+
+
+```{r northtwmap2}
+sf_northTaiwan %>%
+  ggplot()+geom_sf()+
+  geom_sf(
+    data=sf_mrtStops_BL
+  )+
+  geom_sf(
+    data=sfc_BL_line
+  )+
+  coord_sf(
+    xlim=c(121.4,121.7),
+    ylim=c(24.9,25.1)
+  ) -> gg_tpe_mrt
+gg_tpe_mrt
+```
+
+
+st_union()
+
+## osmdata
+
+```{r}
+library(osmdata)
+# open pass query with bounding box
+bbox_taipei <- opq(
+  bbox = c(121.4616,25.1050,121.6058,24.9894) 
+) 
+
+bbox_taipei %>%
+  add_osm_feature(
+    key="building",value="residential"
+  ) %>%
+  osmdata_sf() -> sf_ntpu_building
+```
+
+
+```{r}
+sf_ntpu_building$osm_polygons ->
+  sf_ntpu_building_poly
+
+sf_ntpu_building_poly  %>%
+  ggplot()+geom_sf()
+```
+
+```{r}
+sf_ntpu_building_poly %>% View
 ```
 
