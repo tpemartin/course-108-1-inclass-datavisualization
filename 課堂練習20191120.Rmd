@@ -1,0 +1,53 @@
+---
+title: "2019-10-09"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(scales); library(magick)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+
+```{r}
+library(sf); library(osmdata); library(rmapshaper)
+```
+
+
+```{r}
+
+```
+
+## 5.7
+
+```{r}
+# 取出spData套件附的world data
+data(world,package="spData")
+class(world) # 已是sf object
+```
+
+
+### 5.7.2
+
+```{r}
+load(url("https://www.dropbox.com/s/elnvocol0nnkcc9/sf_northTaiwan.Rda?dl=1"))
+```
+
+
+### 5.7.5
+
+```{r}
+download.file("http://data.moi.gov.tw/MoiOD/System/DownloadFile.aspx?DATA=72874C55-884D-4CEA-B7D6-F60B0BE85AB0",
+              destfile="tw.zip")
+unzip("tw.zip",exdir="taiwan")
+read_sf("taiwan/COUNTY_MOI_1080726.shp")-> sf_taiwan
+```
+
