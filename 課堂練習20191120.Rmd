@@ -159,6 +159,7 @@ sf_mrt %>% View()
 ### crs
 
 ```{r}
+load(url("https://www.dropbox.com/s/uvco1te2kbs6o01/MRT_Taipei.Rda?dl=1"))  
 sf_mrtStops_tpe %>%
   st_crs() -> sf_mrtStops_tpe_crs
 sf_mrtStops_tpe_crs
@@ -175,18 +176,20 @@ sf_mrtStops_tpe %>%
   filter(
     str_detect(經過路線,"BL")
   ) -> sf_mrtStops_tpe_BL
-
-sf_mrtStops_BL %>% View
 ```
 
 ```{r}
-sf_mrtStops_BL %>%
+sf_mrtStops_tpe_BL %>% View
+```
+
+```{r}
+sf_mrtStops_tpe_BL %>%
   mutate(
       站號=str_extract(經過路線,"(?<=(BL))[:digit:]+")
             ) %>%
-  arrange(站號) -> sf_mrtStops_BL
+  arrange(站號) -> sf_mrtStops_tpe_BL
 
-sf_mrtStops_BL %>% View
+sf_mrtStops_tpe_BL %>% View
 ```
 
 ```{r}
@@ -207,7 +210,7 @@ mrt_BL1
 sf_northTaiwan %>%
   ggplot()+geom_sf()+
   geom_sf(
-    data=sf_mrtStops_BL
+    data=sf_mrtStops_tpe_BL
   )+
   coord_sf(
     xlim=c(121.4,121.7),
@@ -231,7 +234,7 @@ sf_mrtStops_BL %>%
 
 
 ```{r}
-sf_mrtStops_BL %>%
+sf_mrtStops_tpe_BL %>%
   st_coordinates() -> bl_coords
 
 gg_tpe_mrt+

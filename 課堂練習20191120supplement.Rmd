@@ -1,0 +1,160 @@
+---
+title: "2019-10-09"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(scales); library(magick); library(sf); library(rmapshaper); library(osmdata)
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+# Introduction 
+
+In this example, two sf's (sf_northTaiwan and sf_mrtStops_tpe) have different CRS's. 
+
+  * Set them to the same CRS before you graph them together. 
+
+# MRT BL stops
+
+```{r}
+load(url("https://www.dropbox.com/s/uvco1te2kbs6o01/MRT_Taipei.Rda?dl=1"))
+```
+
+## Retrieve BL stops from all Taipei MRT
+
+```{r}
+sf_mrtStops_tpe %>%
+  filter(
+    str_detect(經過路線,"BL")
+  ) %>%
+  mutate(
+      站號=str_extract(經過路線,"(?<=(BL))[:digit:]+")
+            ) %>%
+  arrange(站號) -> sf_mrtStops_tpe_BL
+```
+
+
+
+
+```{r}
+graph <- list()
+sf_mrtStops_tpe_BL %>%
+  ggplot()+geom_sf() -> graph$mrt_BL_stops
+
+graph$mrt_BL_stops
+```
+
+```{r}
+sf_mrtStops_tpe_BL %>% st_bbox
+sf_mrtStops_tpe_BL %>% st_crs
+```
+
+
+## graph north taiwan
+
+
+```{r}
+load(url("https://www.dropbox.com/s/elnvocol0nnkcc9/sf_northTaiwan.Rda?dl=1"))
+
+sf_northTaiwan %>%
+  rmapshaper::ms_simplify() -> sf_northTaiwan
+```
+
+```{r}
+sf_northTaiwan %>% st_bbox()
+sf_northTaiwan %>% st_crs()
+```
+
+
+```{r}
+sf_northTaiwan %>% 
+  ggplot()+geom_sf() -> graph$northTaiwan
+
+graph$northTaiwan
+```
+
+# graph Both north taiwan and BL stops
+
+## set consistent CRS before you start
+
+```{r}
+crs0 <- sf_northTaiwan %>% st_crs()
+
+sf_mrtStops_tpe_BL %>%
+  st_transform(crs=crs0) -> sf_mrtStops_tpe_BL  # if sf already has CRS, use st_transform
+```
+
+
+```{r}
+st_geometry(sf_northTaiwan)
+st_geometry(sf_mrtStops_tpe_BL)
+```
+
+## graph
+
+```{r}
+graph$northTaiwan +
+  geom_sf(
+    data=sf_mrtStops_tpe_BL
+  ) -> graph$northTaiwan_with_BLstops
+
+graph$northTaiwan_with_BLstops
+```
+
+# Make BL stops into BL line
+
+## from points to linestring
+```{r}
+# forming a linestring sfc
+sf_mrtStops_tpe_BL %>%
+  st_geometry() %>%
+  st_coordinates() %>% # you lose CRS at this step
+  st_linestring() %>%
+  st_geometry() -> sfc_BL_line # only sfc can be assigned CRS
+
+# ## Error: sfc object should have crs set
+# graph$northTaiwan_with_BLstops +
+#   geom_sf(
+#     data=sfg_BL_line
+# )
+
+# assing CRS to sfc
+sfc_BL_line %>% 
+  st_set_crs(
+    st_crs(sf_northTaiwan)
+  ) -> sfc_BL_line
+
+graph$northTaiwan_with_BLstops+
+  geom_sf(
+    data=sfc_BL_line
+  ) -> graph$northTaiwan_with_BL
+graph$northTaiwan_with_BL
+```
+
+
+
+```{r}
+# just to show CRS again
+sfc_BL_line %>% st_crs
+sf_northTaiwan %>% st_crs
+sf_mrtStops_tpe_BL %>% st_crs
+```
+
+## coord_sf
+
+```{r}
+graph$northTaiwan_with_BL+
+  coord_sf(
+    xlim=c(121.4,121.7),
+    ylim=c(24.9,25.09)
+  )
+```
+
