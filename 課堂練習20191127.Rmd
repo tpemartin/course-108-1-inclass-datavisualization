@@ -1,0 +1,235 @@
+---
+title: "2019-10-09"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(scales); library(magick); library(sf); library(rmapshaper); library(osmdata); library(plotly); library(leaflet); 
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+```{r}
+download.file(
+  "https://www.dropbox.com/s/x3q9c084k58kn92/flexdashboard.zip?dl=1",
+  destfile="flexdashboard.zip")
+
+unzip("flexdashboard.zip")
+```
+
+## map.osm
+
+```{r}
+st_layers("map.osm") ->
+  layers_map 
+
+layers_map %>% View
+```
+
+```{r}
+st_read("map.osm",layer="lines") -> sf_ntpu_lines
+```
+
+```{r}
+sf_ntpu_lines %>%
+  View
+```
+
+```{r}
+sf_ntpu_lines %>%
+  ggplot()+geom_sf()
+```
+
+```{r}
+sf_ntpu_lines %>%
+  filter(
+    !is.na(name)
+  ) %>%
+  ggplot()+geom_sf()
+```
+
+```{r}
+st_read("map.osm",layer="points") -> sf_ntpu_points
+```
+
+```{r}
+sf_ntpu_points %>%
+  ggplot()+geom_sf()
+```
+
+```{r}
+sf_ntpu_points %>% View
+```
+
+```{r}
+layers_map 
+```
+
+```{r}
+st_read("map.osm",
+        layer="multilinestrings") %>%
+  ggplot()+geom_sf()
+```
+
+```{r}
+st_read("map.osm",
+        layer="multipolygons") ->
+  sf_ntpu_polygons
+
+sf_ntpu_polygons %>%
+  ggplot()+geom_sf() ->
+  gg_ntpu
+
+gg_ntpu
+```
+
+```{r}
+gg_ntpu +
+  geom_sf(
+    data=sf_ntpu_lines
+  )+
+  geom_sf(
+    data=sf_ntpu_points,
+    aes(color=highway,fill=highway)
+  )+
+  coord_sf(
+    xlim=c(121.5555,121.5655)
+  )
+```
+
+```{r}
+source("https://www.dropbox.com/s/wlv1ssxqq6n4p7u/gg_hw5_004.R?dl=1")
+```
+
+```{r}
+gg_ntpu
+```
+
+## osm bbox
+
+opq: openpass query
+```{r}
+opq(bbox=c(121.55886,25.03733,121.56369,25.04163)) -> opq_ntpu
+```
+
+```{r}
+opq_ntpu %>%
+  add_osm_feature(
+    key="tourism",
+    value="attraction"
+  ) %>%
+  osmdata_sf() ->
+  multipleSf_ntpu_tourism
+
+multipleSf_ntpu_tourism 
+```
+
+
+```{r}
+multipleSf_ntpu_tourism$osm_polygons %>%
+  ggplot()+geom_sf()
+```
+
+## opq: taipei
+
+```{r}
+library(osmdata)
+# open pass query with bounding box
+bbox_taipei <- opq(
+  bbox = c(121.4616,25.1050,121.6058,24.9894) 
+) 
+```
+
+```{r}
+bbox_taipei %>%
+  add_osm_feature(
+    key="admin_level", value="5"
+  ) %>%
+  osmdata_sf() -> map_taipei_boundary
+
+map_taipei_boundary  
+```
+
+```{r}
+map_taipei_boundary$osm_multipolygons -> map_taipei # sf class
+```
+
+```{r}
+map_taipei %>%
+  ggplot()+
+  geom_sf()
+```
+
+```{r}
+source("https://www.dropbox.com/s/8ndtvzqbdb4cb93/data_visulaization_pk.R?dl=1")
+```
+
+```{r}
+download.file("https://www.dropbox.com/s/8ndtvzqbdb4cb93/data_visulaization_pk.R?dl=1",
+              destfile = "data_visulaization_pk.R")
+```
+
+```{r}
+source("data_visulaization_pk.R")
+```
+
+
+```{r}
+map_taipei %>%
+  osm_geom_rename() %>%
+  ggplot()+
+  geom_sf()
+```
+
+## Guides
+
+```{r}
+billionaire <- 
+  read_csv("https://www.dropbox.com/s/cpu4f09x3j78wqi/billionaire.csv?dl=1") %>%
+  rename(
+    "Year"="X1"
+  )
+```
+
+```{r}
+f <- function(x) x/10
+f_inverse <- function(f_value) 10*f_value
+```
+
+```{r}
+billionaire %>%
+  mutate(
+    World2=f(World)
+  ) -> billionaire
+```
+
+```{r}
+billionaire %>%
+  ggplot()+
+  geom_line(
+    aes(x=Year,y=Russia), color="blue", size=2
+  ) +
+  geom_line(
+    aes(x=Year,y=World2), color="brown", size=2
+  ) + 
+  scale_y_continuous(
+    limits=c(-1,230),
+    breaks=seq(0,200,by=50),
+    expand=expand_scale(mult=c(0,0)),
+    sec.axis = sec_axis(  # 設定右Y軸
+      trans=f_inverse,
+      name="Rest of the World"
+    )
+  ) +
+  theme_bw() -> plot_sec_axis 
+
+plot_sec_axis
+```
+
