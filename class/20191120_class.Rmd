@@ -1,0 +1,334 @@
+---
+title: "Maps"
+author: "jacky wang"
+date: "2019/11/20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+library(grDevices) #不同色彩空間的十六進制代碼呈現（#598C73）
+library(scales) #show_col()：螢幕立即顯示顏色
+library(colorspace) #調色盤選擇及ggplot應用工具
+library(shiny) #支援套件
+library(shinyjs) #支援套件
+
+```
+
+
+```{r}
+
+library(sf)
+
+```
+
+
+
+# 常見圖資運算
+
+
+## CRS轉換
+
+```{r}
+
+#取出spData套件附的world圖資
+data(world, package="spData")
+
+class(world) #已是sf object
+
+world %>% 
+  st_crs() #查看圖資的CRS
+
+```
+
+```{r}
+
+read_sf("sf-Taiwan/COUNTY_MOI_1080726.shp") ->
+  sf_Taiwan
+
+```
+
+```{r}
+
+#將world之CRS套用至sf_taiwan
+
+world %>% 
+  st_crs() -> 
+  crs_world
+
+sf_Taiwan %>% 
+  st_transform(crs = crs_world) -> 
+  sf_Taiwan2
+
+
+
+```
+
+```{r}
+
+#sf_Taiwan %>% st_set_crs(3826) %>% st_crs()
+
+sf_Taiwan %>% 
+  st_crs()
+
+sf_Taiwan2 %>% 
+  st_crs()
+
+```
+
+## 幾何簡化
+
+```{r}
+
+library(rmapshaper)
+
+```
+
+```{r}
+
+sf_Taiwan2 %>% 
+  rmapshaper::ms_simplify() -> 
+  sf_Taiwan2
+
+```
+
+```{r}
+
+world %>% 
+  ggplot() + 
+  geom_sf() + 
+  geom_sf(
+    data = sf_Taiwan2
+  ) + 
+  theme_classic()
+
+#若忘了轉換CRS，ggplot會自動採用最底層圖資的CRS
+
+```
+
+## 切出部份範圍
+
+```{r}
+
+world %>% 
+  st_crop(
+    xmin = 119, 
+    xmax = 122, 
+    ymin = 24.6, 
+    ymax = 25.3
+  ) -> 
+  world_small
+
+sf_Taiwan2 %>% 
+  st_crop(
+    xmin = 119, 
+    xmax = 122, 
+    ymin = 24.6, 
+    ymax = 25.3
+  ) -> 
+  sf_Taiwan2_small
+
+```
+
+```{r}
+
+world_small %>% 
+  ggplot() + 
+  geom_sf() + 
+  geom_sf(
+    data = sf_Taiwan2_small
+  ) + 
+  theme_classic()
+
+```
+
+## 找中心點
+
+```{r}
+
+load(url("https://www.dropbox.com/s/elnvocol0nnkcc9/sf_northTaiwan.Rda?dl=1"))
+
+```
+
+```{r}
+
+sf_northTaiwan %>%
+  st_centroid(of_largest_polygon = T) ->
+  sf_centroid_northTaiwan
+# of_largest_polygon = T: 找最大polygon的中心點
+
+sf_northTaiwan %>% 
+  st_geometry()
+
+sf_centroid_northTaiwan %>% 
+  st_geometry()
+
+```
+
+## 使用 coord_sf(xlim=...,ylim=...) 限縮範圍
+
+```{r}
+
+world %>% 
+  ggplot() + 
+  geom_sf() + 
+  geom_sf(
+    data = sf_Taiwan2
+  ) + 
+  theme_classic()
+
+world %>% 
+  ggplot() + 
+  geom_sf() + 
+  geom_sf(
+    data = sf_Taiwan2
+  ) + 
+  theme_classic() + 
+  coord_sf(
+    xlim = c(119, 122), 
+    ylim = c(24.6, 25.3)
+  )
+
+```
+
+
+
+# 練習：捷運車站
+
+```{r}
+
+read_sf("sf-MRT/MARK_捷運車站_1080626.shp") -> 
+  sf_MRT_Taiwan
+
+sf_MRT_Taiwan
+
+```
+
+```{r}
+
+#用老師整理過的資料
+
+load(url("https://www.dropbox.com/s/uvco1te2kbs6o01/MRT_Taipei.Rda?dl=1"))
+
+```
+
+```{r}
+
+sf_mrtStops_tpe %>% 
+  st_crs()
+
+```
+
+```{r}
+
+#只取藍線資料並依站號排序
+
+sf_mrtStops_tpe %>% 
+  filter(
+    str_detect(經過路線, "BL")
+  ) %>% 
+  mutate(
+    站號 = str_extract(
+      經過路線, "(?<=BL)[:digit:]+"
+    )
+  ) %>% 
+  arrange(站號) -> 
+  sf_mrtStops_blue
+
+sf_mrtStops_blue
+
+```
+
+```{r}
+
+sf_mrtStops_blue %>% 
+  ggplot() + 
+  geom_sf()
+
+```
+
+```{r}
+
+#引入北台灣資料
+
+load(url("https://www.dropbox.com/s/elnvocol0nnkcc9/sf_northTaiwan.Rda?dl=1"))
+
+```
+
+```{r}
+
+sf_northTaiwan
+
+```
+
+```{r}
+
+sf_northTaiwan %>% 
+  ggplot() + 
+  geom_sf() + 
+  geom_sf(
+    data = sf_mrtStops_blue
+  )
+#太小了
+
+```
+
+```{r}
+
+sf_northTaiwan %>% 
+  ggplot() + 
+  geom_sf() + 
+  geom_sf(
+    data = sf_mrtStops_blue
+  ) + 
+  coord_sf(
+    xlim = c(121.4, 121.7), 
+    ylim = c(24.9, 25.1)
+  ) + 
+  theme_classic()
+
+```
+
+
+
+
+
+```{r}
+
+sf_northTaiwan %>%
+  st_crop(
+    xmin = 121.2, 
+    xmax = 122, 
+    ymin = 24.6, 
+    ymax = 25.3
+  ) %>%
+  ggplot() + 
+  geom_sf() + 
+  geom_sf(
+    data = sf_mrtStops_blue
+  )
+
+
+```
+
+
+
+
+
