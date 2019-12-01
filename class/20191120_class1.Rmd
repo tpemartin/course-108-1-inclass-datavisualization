@@ -60,8 +60,10 @@ world %>%
 
 ```{r}
 
+Lis1 <- list()
+
 read_sf("sf-Taiwan/COUNTY_MOI_1080726.shp") ->
-  sf_Taiwan
+  Lis1$sf_Taiwan
 
 ```
 
@@ -73,9 +75,9 @@ world %>%
   st_crs() -> 
   crs_world
 
-sf_Taiwan %>% 
+Lis1$sf_Taiwan %>% 
   st_transform(crs = crs_world) -> 
-  sf_Taiwan2
+  Lis1$sf_Taiwan2
 
 
 
@@ -85,10 +87,10 @@ sf_Taiwan %>%
 
 #sf_Taiwan %>% st_set_crs(3826) %>% st_crs()
 
-sf_Taiwan %>% 
+Lis1$sf_Taiwan %>% 
   st_crs()
 
-sf_Taiwan2 %>% 
+Lis1$sf_Taiwan2 %>% 
   st_crs()
 
 ```
@@ -103,9 +105,9 @@ library(rmapshaper)
 
 ```{r}
 
-sf_Taiwan2 %>% 
+Lis1$sf_Taiwan2 %>% 
   rmapshaper::ms_simplify() -> 
-  sf_Taiwan2
+  Lis1$sf_Taiwan2_sim
 
 ```
 
@@ -115,7 +117,7 @@ world %>%
   ggplot() + 
   geom_sf() + 
   geom_sf(
-    data = sf_Taiwan2
+    data = Lis1$sf_Taiwan2_sim
   ) + 
   theme_classic()
 
@@ -136,14 +138,14 @@ world %>%
   ) -> 
   world_small
 
-sf_Taiwan2 %>% 
+Lis1$sf_Taiwan2_sim %>% 
   st_crop(
     xmin = 119, 
     xmax = 122, 
     ymin = 24.6, 
     ymax = 25.3
   ) -> 
-  sf_Taiwan2_small
+  Lis1$sf_Taiwan2_small
 
 ```
 
@@ -153,7 +155,7 @@ world_small %>%
   ggplot() + 
   geom_sf() + 
   geom_sf(
-    data = sf_Taiwan2_small
+    data = Lis1$sf_Taiwan2_small
   ) + 
   theme_classic()
 
@@ -190,7 +192,7 @@ world %>%
   ggplot() + 
   geom_sf() + 
   geom_sf(
-    data = sf_Taiwan2
+    data = Lis1$sf_Taiwan2_sim
   ) + 
   theme_classic()
 
@@ -198,7 +200,7 @@ world %>%
   ggplot() + 
   geom_sf() + 
   geom_sf(
-    data = sf_Taiwan2
+    data = Lis1$sf_Taiwan2_sim
   ) + 
   theme_classic() + 
   coord_sf(
@@ -208,125 +210,6 @@ world %>%
 
 ```
 
-
-
-# 練習：捷運車站
-
-```{r}
-
-read_sf("sf-MRT/MARK_捷運車站_1080626.shp") -> 
-  sf_MRT_Taiwan
-
-sf_MRT_Taiwan
-
-```
-
-```{r}
-
-#用老師整理過的資料
-
-load(url("https://www.dropbox.com/s/uvco1te2kbs6o01/MRT_Taipei.Rda?dl=1"))
-
-```
-
-```{r}
-
-sf_mrtStops_tpe %>% 
-  st_crs()
-
-```
-
-```{r}
-
-#只取藍線資料並依站號排序
-
-sf_mrtStops_tpe %>% 
-  filter(
-    str_detect(經過路線, "BL")
-  ) %>% 
-  mutate(
-    站號 = str_extract(
-      經過路線, "(?<=BL)[:digit:]+"
-    )
-  ) %>% 
-  arrange(站號) -> 
-  sf_mrtStops_blue
-
-sf_mrtStops_blue
-
-```
-
-```{r}
-
-sf_mrtStops_blue %>% 
-  ggplot() + 
-  geom_sf()
-
-```
-
-```{r}
-
-#引入北台灣資料
-
-load(url("https://www.dropbox.com/s/elnvocol0nnkcc9/sf_northTaiwan.Rda?dl=1"))
-
-```
-
-```{r}
-
-sf_northTaiwan
-
-```
-
-```{r}
-
-sf_northTaiwan %>% 
-  ggplot() + 
-  geom_sf() + 
-  geom_sf(
-    data = sf_mrtStops_blue
-  )
-#太小了
-
-```
-
-```{r}
-
-sf_northTaiwan %>% 
-  ggplot() + 
-  geom_sf() + 
-  geom_sf(
-    data = sf_mrtStops_blue
-  ) + 
-  coord_sf(
-    xlim = c(121.4, 121.7), 
-    ylim = c(24.9, 25.1)
-  ) + 
-  theme_classic()
-
-```
-
-
-
-
-
-```{r}
-
-sf_northTaiwan %>%
-  st_crop(
-    xmin = 121.2, 
-    xmax = 122, 
-    ymin = 24.6, 
-    ymax = 25.3
-  ) %>%
-  ggplot() + 
-  geom_sf() + 
-  geom_sf(
-    data = sf_mrtStops_blue
-  )
-
-
-```
 
 
 

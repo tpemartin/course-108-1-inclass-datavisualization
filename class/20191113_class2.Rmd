@@ -75,7 +75,7 @@ sfList$mpoint <- st_multipoint(
   )
 )
 
-sfList$point %>% 
+sfList$mpoint %>% 
   ggplot() + 
   geom_sf()
 
@@ -405,7 +405,28 @@ listMRT$SFO_MRT
 
 ```
 
+## 讀入shp檔
 
+```{r}
+
+read_sf("sf-Taiwan/COUNTY_MOI_1080726.shp") ->
+  sf_Taiwan
+#讀不到CRS
+
+sf_Taiwan %>% 
+  st_set_crs(3824) ->
+  sf_Taiwan
+
+sf_Taiwan
+
+sf_Taiwan %>% 
+  ggplot() + 
+  theme_classic() + 
+  geom_sf()
+
+#建議用QGIS軟體處理地理圖資（不動產城鄉系選修）
+
+```
 
 
 
