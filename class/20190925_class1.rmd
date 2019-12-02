@@ -1,0 +1,313 @@
+---
+title: "data cleaning 2"
+author: "王正評"
+date: "9/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+```
+
+```{r, include=FALSE}
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(lubridate)
+
+```
+
+
+
+# dplyr
+
+
+## gather
+
+```{r gather 1}
+
+df_gatherExample <- 
+  data.frame(
+    country=c("A","B","C"), 
+    `1999`=c("0.7k","37k","212k"), 
+    `2000`=c("2k","80k","213k"), 
+    check.names = F
+    )
+#當名稱有特殊符號（eg. 數字開頭、空格…），須加`名稱`
+
+```
+
+```{r gather 2}
+
+df_gatherExample
+
+#將年份、資料值變成兩個欄位
+
+gather(
+  df_gatherExample, 
+  `1999`,`2000`, 
+  key="年份", value="人口"
+  ) 
+#變數名稱有特殊符號（eg. 數字開頭、空格…），需用``將之囊括
+
+```
+
+```{r gather practice 1}
+
+library(readr)
+collegeData <- read_csv("https://raw.githubusercontent.com/tpemartin/github-data/master/103_student.csv")
+
+```
+
+```{r gather practice 1-1}
+
+#將collegeData裡各年級男女生人數合成兩個欄位，類別、人數，其中類別值為原始欄位名稱，而人數則為對應人數
+
+gather(
+  collegeData, 
+  contains("生"), 
+  key = "類別", value = "人數"
+  ) ->
+  collegeData_gather
+#gather中的變數選擇可使用select helpers
+
+gather(
+  collegeData, 
+  ends_with("生"), 
+  key = "類別", value = "人數"
+  )
+#另解
+
+```
+
+```{r gather practice 2}
+
+library(readr)
+df_taoyuanMarriage <- read_csv("https://data.tycg.gov.tw/opendata/datalist/datasetMeta/download?id=f95d1a33-ec56-44c5-a9ec-3afba8157e39&rid=fd2070ef-7431-4f9c-bc3a-82d7bfbcd2fb")
+
+```
+
+```{r gather practice 2-1}
+
+#將資料「一～十二月」縮排在月份變數，而其下的對應值縮排在對數變數
+
+df_taoyuanMarriage
+
+df_taoyuanMarriage %>% 
+  gather(
+    -月份區域別, 
+    key = "月份", value = "對數"
+    ) -> 
+  df_taoyuanMarriage_gather
+  
+```
+
+```{r gather practice 2-2}
+
+#計算每個月份桃園總結婚對數
+
+df_taoyuanMarriage_gather
+
+df_taoyuanMarriage_gather %>% 
+  group_by(
+    月份
+  ) %>%
+  summarise(
+    每月總對數 = sum(對數)
+  ) %>%
+  ungroup() ->
+  df_taoyuanMarriage_gather_monSum
+#盡量用pipe寫法
+#排序怪怪的
+
+df_taoyuanMarriage_gather_monSum %>% 
+  mutate(
+    月份 = factor(
+      月份, 
+      levels=c(
+        "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"
+      )
+    )
+  ) -> df_taoyuanMarriage_gather_monSum2
+
+
+#用原始資料。summarise_at()為針對某些變數去算特徵值
+df_taoyuanMarriage %>%
+  summarise_at(
+    vars(
+      ends_with("月")
+      ),  
+    funs(
+      總對數 = sum(.)
+    )
+  )
+
+```
+
+```{r gather practice 2-3}
+
+#找出每個地區結婚最高峰月份
+
+df_taoyuanMarriage_gather
+
+df_taoyuanMarriage_gather %>% 
+  group_by(
+    月份區域別
+  ) %>%
+  summarise(
+    結婚最高峰月份 = which.max(對數)
+    ) %>%
+  ungroup()
+#錯！which.max()只是找出位置，非月份；且若資料不是按照 1-一月...12-十二月 會有問題
+
+df_taoyuanMarriage_gather %>% 
+  group_by(
+    月份區域別
+  ) %>%
+  summarise(
+    結婚最高峰月份 = 月份[[which.max(對數)]]
+    ) %>%
+  ungroup()
+# [[]]為取得變數的值（which.max()=位置）
+
+df_taoyuanMarriage$三月[[7]] # $變數[[位置]]=值
+
+```
+
+
+## spread
+
+```{r spread 1}
+
+df_spreadExample <- data.frame(
+  id = c(1,1,1,2,2,2),
+  var = c("花朶萼片長度", "學名", "總類數"),
+  value = c(5.1, "setosa", 1, 
+            7.0, "versicolor", 2))
+
+```
+
+```{r spread 2}
+
+#將var變成欄位
+
+df_spreadExample
+
+spread(df_spreadExample, 
+       var, value)
+
+```
+
+```{r spread practice 1}
+
+df_twbankExchangeRate <- read_csv("http://www.bot.com.tw/Govinfo/opendata/csv/151/20180101-20181231-FXCRT.csv")
+
+```
+
+```{r spread practice 1-1}
+
+#留下日期、幣別、即期買入匯率，將幣別依其貨幣名稱spread成不同欄位，其下所屬值為即期買入匯率
+
+df_twbankExchangeRate %>%
+  select(
+    -即期賣出匯率
+    ) %>%
+  spread(
+    幣別, 
+    即期買入匯率
+    ) ->
+  df_twbankExchangeRate_spread
+
+df_twbankExchangeRate_spread
+
+```
+
+
+
+# 變數類別調整
+
+
+```{r}
+
+df_twbankExchangeRate
+
+# 將變數調整成合理的屬性
+
+df_twbankExchangeRate %>%
+  transmute(
+    日期 = lubridate::ymd(日期), #須先觀察日期怎麼寫的
+    幣別 = as.factor(幣別), 
+    即期買入匯率 = as.double(即期買入匯率), 
+    即期賣出匯率 = as.double(即期賣出匯率)
+  ) -> 
+  df_twbankExchangeRate_1
+
+df_twbankExchangeRate_1
+
+#dbl為數值
+#chr為字串
+#fctr為類別
+#date為日期
+
+```
+
+
+# data import 
+
+
+```{r, include=FALSE}
+
+library(readr)
+
+```
+
+```{r}
+
+#點Environment -> 點Import Dataset -> 點From text(readr) 
+#貼上檔案下載網址或選電腦檔案
+#點Locale: configure -> 自選Encoding
+
+taifex_open_data <- read_csv("http://www.taifex.com.tw/data_gov/taifex_open_data.asp?data_name=DailyForeignExchangeRates",locale = locale(encoding = "BIG5"))
+
+#交作業要貼程式碼
+
+#可由指令iconvlist()查詢R可處理哪些編碼
+
+# From text(readr)是用read_csv，較好用；From text(base)是用read.csv
+
+```
+
+```{r}
+
+#改日期變數成date class
+
+taifex_open_data
+
+taifex_open_data %>%
+  mutate(
+    日期 = lubridate::ymd(日期)
+  ) ->
+  taifex_open_data_1
+
+taifex_open_data_1
+
+```
+
+```{r}
+
+#試著從任意一個資料庫下載一個csv檔，並讀入R
+
+File1 <- read_csv("http://data.moi.gov.tw/MoiOD/System/DownloadFile.aspx?DATA=131574B0-82E4-452B-BF40-C76FAA930312",locale = locale(encoding = "BIG5"))
+
+
+File2 <- read_csv("https://gis.taiwan.net.tw/od/01_PRD/%E5%9C%8B%E4%BA%BA%E5%87%BA%E5%9C%8B%E6%97%85%E9%81%8A%E9%87%8D%E8%A6%81%E6%8C%87%E6%A8%99%E7%B5%B1%E8%A8%88%E8%A1%A8.csv",locale = locale(encoding = "BIG5"))
+#網址有中文字須先用Unicode Converter（用Percent Encoding）轉換
+
+
+```
+

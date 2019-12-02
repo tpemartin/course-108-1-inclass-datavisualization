@@ -1,0 +1,282 @@
+---
+title: "Positions"
+author: "jacky wang"
+date: "2019/10/30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+```
+
+
+
+
+
+# stat function
+
+
+## stat summary
+
+```{r}
+library(Hmisc)
+```
+
+
+```{r}
+
+p1 <- 
+  ggplot(
+    mtcars, # mpg: miles per gallon; cyl: cylinder（汽缸）
+    aes(cyl, mpg)
+  ) + 
+  geom_point()
+
+p1
+
+p1 + stat_summary(fun.data = "mean_cl_boot", colour = "red", size = 2)
+# mean_cl_boot: 無母數下計算信賴區間的方法
+#   default: conf.int=.95（95％信心水準）, B=1000（採抽後放回方式重複抽樣1000次）
+
+mtcars %>% 
+  transmute(
+    cyl = cyl, 
+    mpg = mpg
+  ) %>% 
+  smean.cl.boot() # "mean_cl_boot" = 呼叫smean.cl.boot()函式
+
+```
+
+```{r}
+
+p1 + 
+  stat_summary(fun.y = "median", color = "red", geom = "point")
+
+```
+
+
+
+
+# position
+
+
+## geom_bar應用
+
+```{r import data 1}
+
+barListDa <- list()
+
+barListDa$library2014 <- 
+  read_csv("https://www.dropbox.com/s/999hy0u1y98y6ep/library2014.csv?dl=1")
+
+```
+
+```{r data wrangling 1}
+
+barListDa$library2014 %<>% 
+  mutate(
+    學院 = reorder(學院, 學號, length, order=T)
+  ) #學院依照各院資料筆數（length(學號)，已依學院分類）排序
+
+barListDa$library2014 %<>% 
+  mutate(
+    讀者年級 = as.factor(讀者年級)
+  )
+
+```
+
+```{r plot 1-1}
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    position = "dodge"
+  )
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7, #調整類別變數bar的寬度
+    position = "dodge"
+  ) # 電資院、法學院少了1群，造成width放大
+
+```
+
+```{r plot 1-2}
+
+# position: "stack"、"dodge"、"fill"，或呼叫position adjustment function
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7, 
+    position = position_dodge(preserve = "single")
+  ) #維持類別變數內各群的bar一樣的寬度
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7, 
+    position = position_dodge(width = 0.9, preserve = "single")
+  ) # dodge的寬度大於類別變數的寬度，始中間有空隙
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7, 
+    position = position_dodge(width = 0.4, preserve = "single")
+  ) 
+
+```
+
+```{r plot data 1-3}
+
+#電資、法學院沒有1年級資料，造成圖面的不一致
+
+barListDa$library2014 %>% 
+  select(學院, 讀者年級) %>% 
+  group_by(學院,讀者年級) %>% 
+  summarise(
+    各院各年級總數 = n()
+  ) %>% 
+  ungroup() %>% 
+  add_row(
+    學院 = c("電機資訊學院", "法律學院"), #變數名稱要與資料相同
+    讀者年級 = c(1, 1), 
+    各院各年級總數 = c(0, 0)
+  ) -> 
+  barListDa$library2014_count
+
+```
+
+```{r plot 1-3}
+
+barListDa$library2014_count %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      y = 各院各年級總數,        #指定y值
+      fill = 讀者年級            # fill一定要下，因為y值不是各院總數
+    ), 
+    stat = "identity",           # default為"count"，自行設定y值時要改
+    width = 0.7, 
+    position = position_dodge(width = 0.9) # preserve = "single"在類別齊全時可不用
+  )
+
+barListDa$library2014_count %>% 
+  ggplot() + 
+  geom_col(
+    aes(
+      x = 學院, 
+      y = 各院各年級總數, 
+      fill = 讀者年級
+    ), 
+    width = 0.7, 
+    position = position_dodge(width = 0.9)
+  ) #也可改用geom_col()
+
+```
+
+```{r comparison 1}
+
+barListPo <- list()
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7,
+    position = "dodge"
+  ) -> 
+  barListPo$origin
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7, 
+    position = position_dodge(preserve = "single")
+  ) -> 
+  barListPo$rightWidth
+
+barListDa$library2014 %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      fill = 讀者年級
+    ), 
+    width = 0.7, 
+    position = position_dodge(width = 0.9, preserve = "single")
+  ) -> 
+  barListPo$rightWidth_space
+
+barListDa$library2014_count %>% 
+  ggplot() + 
+  geom_bar(
+    aes(
+      x = 學院, 
+      y = 各院各年級總數,        
+      fill = 讀者年級            
+    ), 
+    stat = "identity",          
+    width = 0.7, 
+    position = position_dodge(width = 0.9)
+  ) -> 
+  barListPo$end
+
+```
+
+```{r comparison 2}
+
+barListPo$origin
+barListPo$rightWidth
+barListPo$rightWidth_space
+barListPo$end
+
+```
+
