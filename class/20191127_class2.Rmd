@@ -1,0 +1,329 @@
+---
+title: "guide, facet and theme"
+author: "jacky wang"
+date: "2019/11/27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+# windows檔名不要有"-"號
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+library(grDevices) #不同色彩空間的十六進制代碼呈現（#598C73）
+library(scales) #show_col()：螢幕立即顯示顏色
+library(colorspace) #調色盤選擇及ggplot應用工具
+library(shiny) #支援套件
+library(shinyjs) #支援套件
+
+library(sf)
+library(osmdata)
+source(file = "D:/Users/User/Documents/GitHub/Rfunction/osmGeomRename.R")
+
+```
+
+
+
+# Guides
+
+```{r}
+
+read_csv("https://www.dropbox.com/s/cpu4f09x3j78wqi/billionaire.csv?dl=1") %>% 
+  rename(
+    "Year" = "X1"
+  ) -> 
+  billionaire
+
+```
+
+```{r}
+
+billionaire %>%
+  ggplot() + 
+  geom_line(
+    aes(x=Year,y=Russia)
+  ) +
+  scale_y_continuous(
+    breaks = seq(0,200,by=50)
+  ) +
+  theme_bw() -> 
+  plot_Russia
+
+plot_Russia
+
+billionaire %>%
+  ggplot() + 
+  geom_line(
+    aes(x=Year,y=World)
+  )+
+  scale_y_continuous(
+    breaks=seq(0,2000,by=500)
+  ) +
+  theme_bw() -> 
+  plot_world
+
+plot_world
+
+```
+
+## 用雙軸扭曲視覺化
+
+```{r}
+
+#一、定義函數和反函數
+
+f <- function(x) x/10
+f_inverse <- function(y) 10*y
+
+```
+
+```{r}
+
+#將world值縮小（用f）
+
+billionaire %>%
+  mutate(
+    World2 = f(World)
+  ) -> 
+  billionaire
+
+```
+
+```{r}
+
+billionaire %>% 
+  ggplot() + 
+  geom_line(
+    aes(
+      x = Year, 
+      y = Russia
+    ), 
+    color = "blue", 
+    size = 2
+  ) + 
+  geom_line(
+    aes(
+      x = Year, 
+      y = World2
+    ), 
+    color = "brown", 
+    size = 2
+  ) + 
+  scale_y_continuous(
+    breaks = seq(0, 200, by = 50), 
+    expand = expand_scale(add = c(0, 0)), 
+    #加入雙軸
+    sec.axis = sec_axis(
+      trans = f_inverse, 
+      name = "World"
+    )
+  ) + 
+  theme_bw() -> 
+  plot_dualAxis
+
+plot_dualAxis
+
+```
+
+## 用雙軸方便讀者閱讀
+
+```{r}
+
+load(url("https://www.dropbox.com/s/r21jg0vxf77geu9/plot_tree.Rda?dl=1"))
+
+plot_tree
+
+```
+
+```{r}
+
+plot_tree + 
+  scale_x_continuous(
+    sec.axis = dup_axis()
+  )
+
+```
+
+
+
+# Facet
+
+## 範例一
+
+```{r}
+
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/homework6/graphData_homework6_021.Rda?raw=true"))
+
+source("https://www.dropbox.com/s/0ydtqtxu5guy6i1/theme_lin.R?dl=1")
+
+resume_df %>% 
+  mutate(開始 = ymd(開始), 結束 = ymd(結束))  -> resume_df
+
+```
+
+```{r}
+
+resume_df %>% 
+  ggplot(
+    aes(x = 開始, y = 項目)
+  ) +    
+  geom_text(
+    aes(label = 名稱), 
+      size = 2.5
+  ) + 
+  geom_segment(
+    aes(
+      xend = 結束, 
+      yend = 項目, 
+      color = 分類 
+    ), 
+    size = 2, 
+    alpha = 0.5
+  ) +
+  scale_x_date(
+      breaks = seq(as.Date("2015-01-01"), as.Date("2020-01-01"), by = "1 year"),
+      labels = scales::date_format("%Y")
+  ) +
+  labs(
+    title = "Kuo, Shih-Jung  郭士榮", 
+    subtitle = "熱愛挑戰不設限、豐富國際經驗、在學三份實習"
+  ) + 
+  theme_lin() -> 
+  plot_base
+
+plot_base
+
+```
+
+```{r}
+
+#列式依變數（分類）分類
+plot_base + 
+  facet_grid(rows = vars(分類))
+
+#列式
+#plot_base + 
+#  facet_grid( 分類 ~ .)
+
+#行式
+#plot_base + 
+#  facet_grid(. ~ 分類)
+
+#此時每個facet保留了所有Y軸的值
+
+```
+
+```{r}
+
+# free scales
+
+plot_base + 
+  facet_grid(
+    rows = vars(分類), 
+    scales = "free_y"   #可下"free"`、"free_x"、"free_y"
+  ) -> 
+  plot_facetFree
+
+plot_facetFree
+
+```
+
+```{r}
+
+#strip.XXX: 調整facet labels
+
+plot_facetFree + 
+  theme(
+    strip.background = element_rect(color = "grey", fill = "#F6F4E8")
+  )
+
+```
+
+## 經濟學人小招
+
+```{r}
+
+load(url("https://github.com/tpemartin/course-108-1-inclass-datavisualization/blob/master/%E4%BD%9C%E5%93%81%E5%B1%95%E7%A4%BA/homework3/graphData_homework3_002.Rda?raw=true"))
+
+graphData$sub_2015_city %>% 
+  #依area分類，排序avg_nh（小至大）
+  arrange(desc(area), avg_nh) %>% 
+  mutate(
+    city = forcats::fct_inorder(city)  #???
+  ) -> 
+  df_eldercare
+
+rm(graphData)
+
+```
+
+```{r}
+
+ df_eldercare %>%
+  ggplot(
+    aes(
+      x = city, 
+      y = avg_nh, 
+      fill = area
+    )
+  ) + 
+  geom_col(
+    width=0.7
+  ) + 
+  coord_flip() + 
+  labs(
+    x = "", 
+    y="長照機構數(每10,000位老人)"
+  ) + 
+  theme_bw() -> 
+  plot_ori
+
+plot_ori
+
+```
+
+```{r}
+
+# free scale
+
+plot_ori + 
+  facet_grid(
+    rows = vars(area), 
+    scales = "free_y"
+  )
+
+```
+
+```{r}
+
+# free scale and space
+
+plot_ori + 
+  facet_grid(
+    rows = vars(area), 
+    scales = "free_y", 
+    space = "free_y"
+  )
+
+```
+
+
+
+
+

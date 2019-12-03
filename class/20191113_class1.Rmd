@@ -1,0 +1,109 @@
+---
+title: "Try"
+author: "jacky wang"
+date: "2019/11/13"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+library(grDevices) #不同色彩空間的十六進制代碼呈現（#598C73）
+library(scales) #show_col()：螢幕立即顯示顏色
+library(colorspace) #調色盤選擇及ggplot應用工具
+library(shiny) #支援套件
+library(shinyjs) #支援套件
+
+```
+
+
+
+
+
+# try
+
+```{r}
+load("20191113_classTry.Rda")
+qualitative_hcl(n = 2, h = c(-140, 0), c = 100, l = 60, register = "godPalette_2Qua")
+
+try123 <- data.frame(
+  x1 = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 
+  y1 = c(30, 35, 30, 35, 30, 35, 30, 35, 30, 35)
+)
+
+graphListP$mycredit_end + 
+  geom_text(
+    data = try123, 
+    mapping = aes(
+      x = x1, 
+      y = y1, 
+      label = "text"
+    )
+  )
+# 類別變數的位置其實就是integer 1, 2, 3, ...
+
+
+library(emojifont)
+
+graphListP$mycredit_end + 
+  geom_text(
+    data = try123, 
+    mapping = aes(
+      x = x1, 
+      y = y1, 
+      label = fontawesome("fa-battery-quarter")
+    ), 
+    family="fontawesome-webfont"
+  )
+
+graphListP$mycredit_end + 
+  geom_text(
+    data = try123, 
+    mapping = aes(
+      x = x1, 
+      y = y1, 
+      label = emoji("space_invader")
+    ), 
+    family="EmojiOne", 
+    size = 24/.pt
+  )
+
+#search_fontawesome("b") #打關鍵字
+#search_emoji("n")
+#sample_fontawesome()
+#sample_emoji()
+
+```
+
+```{r}
+
+library(ggthemes)
+
+graphListP$myCredit_base + 
+  theme_economist()
+
+graphListP$myCredit_base + 
+  theme_fivethirtyeight()
+
+```
+
+
+
+
