@@ -1,0 +1,54 @@
+---
+title: "2019-12-09"
+author: "林茂廷"
+date: "9/11/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r basic setup, message=FALSE, echo=TRUE, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(scales); library(magick); library(sf); library(rmapshaper); library(osmdata); library(plotly); library(leaflet); 
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(out.width='80%', fig.asp=.75, fig.align='center', fig.showtext=T)
+```
+
+## save as svg
+
+```{r}
+load(url("https://www.dropbox.com/s/r21jg0vxf77geu9/plot_tree.Rda?dl=1"))
+
+plot_tree
+```
+
+```{r}
+ggsave(plot_tree, filename="tree.svg")
+```
+
+## plotly
+
+```{r}
+library(colorspace)
+source("https://www.dropbox.com/s/wlv1ssxqq6n4p7u/gg_hw5_004.R?dl=1")
+
+gg_hw5_004 %>%
+  ggplotly() ->
+  pltly_hw5_004
+```
+
+```{r}
+gg_hw5_004
+```
+
+```{r}
+pltly_hw5_004
+```
+
+```{r}
+api_create(pltly_hw5_004,filename="pltly_hw5_004b",fileopt="overwrite") -> Meta_pltly_hw5_004
+```
+
+
