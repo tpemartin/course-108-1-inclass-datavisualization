@@ -1,0 +1,51 @@
+---
+title: "Homework 7"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r basic setup, message=FALSE, echo=F, eval=T}
+rm(list=ls())
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr)
+library(colorspace); library(grDevices); library(shiny); library(shinyjs); library(scales)
+library(tidyr); library(showtext); library(tidyverse); library(colorspace); library(flexdashboard)
+library(sf); library(osmdata); library(rvest); library(plotly); library(emojifont)
+
+#font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+#knitr::opts_chunk$set(fig.align='center', fig.showtext=T)
+```
+
+
+
+Column {data-width=650}
+-----------------------
+
+### Graph
+    
+```{r}
+
+load("homework7_plot.Rda")
+
+flexplot
+
+```
+
+Column {data-width=350}
+-----------------------
+### Description
+
+左圖為2019/11/21版的Politics This Week，其中：
+
+<ul>
+  <li>綠色區塊代表Politics This Week涵蓋的國家</li>
+  <li>一個紅色旗子代表一篇文章</li>
+</ul>
+
+link: [Politics this week](https://www.economist.com/the-world-this-week/2019/11/21/politics-this-week)
+
+
+

@@ -1,0 +1,155 @@
+---
+title: "Untitled"
+author: "jacky wang"
+date: "2019/12/7"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+rm(list = ls())
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+# windows檔名不要有"-"號
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+library(grDevices) #不同色彩空間的十六進制代碼呈現（#598C73）
+library(scales) #show_col()：螢幕立即顯示顏色
+library(colorspace) #調色盤選擇及ggplot應用工具
+library(shiny) #支援套件
+library(shinyjs) #支援套件
+
+library(sf)
+library(osmdata)
+library(rvest)
+library(plotly)
+library(emojifont)
+source(file = "D:/Users/User/Documents/GitHub/Rfunction/osmGeomRename.R")
+
+```
+
+
+
+```{r graph 1}
+
+load("homework7.Rda")
+data(world, package = "spData")
+
+godPlot <- list()
+
+world %>% 
+  filter(
+    !continent %in% c("Antarctica", "Seven seas (open ocean)") 
+  ) %>%
+  ggplot() + 
+  geom_sf(
+    color = "white"
+  ) + 
+  geom_sf(
+    data = godData$world_PW, 
+    color = "white", 
+    fill = "forestgreen"
+  ) + 
+  theme_bw()  + 
+  scale_x_continuous(
+    expand = expand_scale(add = 0)
+  ) -> 
+  godPlot$plot_base
+
+godPlot$plot_base
+
+```
+
+```{r graph 2}
+
+ godPlot$plot_base + 
+  geom_point(
+    data = godData$world_centroid, 
+    mapping = aes(
+      x = X, 
+      y = Y
+    )
+  ) + 
+  geom_text(
+    data = godData$world_centroid_nUSA, 
+    mapping = aes(
+      x = X-1, 
+      y = Y, 
+      label = emoji("fire")
+    ), 
+    family = "EmojiOne"
+  ) + 
+  geom_text(
+    data = godData$world_centroid_USA, 
+    mapping = aes(
+      x = X-1, 
+      y = Y, 
+      label = str_c(emoji("fire"), emoji("fire"), emoji("fire"), collapse = "")
+    ), 
+    family = "EmojiOne"
+  ) -> 
+  godPlot$plot_CountryEvent
+
+godPlot$plot_CountryEvent
+
+```
+
+```{r graph 3}
+
+godPlot$plot_CountryEvent + 
+  theme(
+    panel.border = element_blank(), 
+    panel.grid = element_blank(), 
+    axis.ticks = element_blank(), 
+    axis.title = element_blank(), 
+    axis.text = element_blank()
+  ) + 
+  labs(
+    title = "Politics this week"
+  ) + 
+  theme(
+    panel.background = element_rect(fill = "lightblue")
+  ) -> 
+  godPlot$plot_end
+
+godPlot$plot_end
+
+```
+
+```{r plotly}
+
+godPlot$plot_end %>% 
+  ggplotly() %>% 
+  style(
+    traces = 4, 
+    hovertext = godData$world_centroid %>% row.names()
+  )  %>% 
+  style(
+    traces = 5:6, 
+    hoverinfo = "none"
+  ) -> 
+  ptly_end
+
+ptly_end
+
+#save(ptly_end, file = "homework7_ptly.Rda")
+
+```
+
+
+

@@ -1,0 +1,133 @@
+---
+title: "Untitled"
+author: "jacky wang"
+date: "2019/12/7"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(knitr)
+
+opts_chunk$set(echo = TRUE, message = F, warning = F, eval=T)
+
+# windows檔名不要有"-"號
+
+```
+
+```{r package, include=FALSE}
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+library(grDevices) #不同色彩空間的十六進制代碼呈現（#598C73）
+library(scales) #show_col()：螢幕立即顯示顏色
+library(colorspace) #調色盤選擇及ggplot應用工具
+library(shiny) #支援套件
+library(shinyjs) #支援套件
+
+library(sf)
+library(osmdata)
+library(rvest)
+library(plotly)
+library(emojifont)
+source(file = "D:/Users/User/Documents/GitHub/Rfunction/osmGeomRename.R")
+
+```
+
+```{r data import}
+
+source("https://www.dropbox.com/s/4tubw8e5h3cem6w/theEconomist.R?dl=1")
+
+"https://www.economist.com/the-world-this-week/2019/11/21/politics-this-week" %>% 
+  get_theWorldThisWeek() -> df_politics
+
+data(world, package = "spData")
+
+```
+
+```{r data wrangling}
+
+godData <- list()
+
+
+# 一週大事國家
+c("LK","CN","US","KR","AF","IR","IL","SY","BF","ML","NE","BR","CL","BO","GB","SE","BY") -> 
+  godData$PW
+
+
+# 畫底圖用
+world %>% 
+  filter(
+    iso_a2 %in% godData$PW 
+  ) -> 
+  godData$world_PW
+
+
+# 畫point
+godData$world_PW %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  data.frame(
+    row.names = godData$world_PW$name_long
+  ) -> 
+  godData$world_centroid
+
+godData$world_centroid %>% 
+  mutate(
+    country_name = row.names(godData$world_centroid)
+  ) -> 
+  godData$world_centroid1
+
+
+# 畫text
+godData$world_centroid1 %>% 
+  filter(
+    !country_name %in% c("United States", "Mali", "Niger")
+  ) -> 
+  godData$world_centroid_nUSA
+
+godData$world_centroid1 %>% 
+  filter(
+    country_name == "United States"
+  ) -> 
+  godData$world_centroid_USA
+
+
+# 畫segment
+godData$world_centroid1 %>% 
+  filter(
+    X < -60 | country_name %in% c("Burkina Faso", "United Kingdom", "Syria", "Sweden")
+  ) -> 
+  godData$seg_left
+
+godData$world_centroid1 %>% 
+  filter(
+    country_name %in% c("China", "Afghanistan", "Iran")
+  ) -> 
+  godData$seg_up
+
+godData$world_centroid1 %>% 
+  filter(
+    country_name %in% c("Israel", "Sri Lanka")
+  ) -> 
+  godData$seg_down
+
+godData$world_centroid1 %>% 
+  filter(
+    country_name %in% c("Republic of Korea", "Belarus", "Brazil")
+  ) -> 
+  godData$seg_right
+
+
+#save(godData, file = "homework7.Rda")
+
+```
+
+
