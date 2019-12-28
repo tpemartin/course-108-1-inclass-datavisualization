@@ -1,0 +1,173 @@
+---
+title: "homework8"
+output: 
+  flexdashboard::flex_dashboard:
+    includes:
+      in_header: ["fontawesome.html"]
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+
+library(flexdashboard)
+
+library(readr) #資料匯入
+library(dplyr) #資料整理（slice、select、filter、mutate）
+library(tidyr) #資料整理（gather、spread）
+library(stringr) #處理字串
+library(lubridate) #時間資料處理（ymd）
+library(ggplot2) #作圖
+library(magrittr) # %<>%
+library(showtext) #從字型檔讀取字型，並在繪圖時使用
+
+library(grDevices) #不同色彩空間的十六進制代碼呈現（#598C73）
+library(scales) #show_col()：螢幕立即顯示顏色
+library(colorspace) #調色盤選擇及ggplot應用工具
+library(shiny) #支援套件
+library(shinyjs) #支援套件
+
+load("rda/homework8PlotLine.Rda")
+load("rda/homework8Plot.Rda")
+load("rda/homework8_PieChart.Rda")
+
+qualitative_hcl(n = 2, h = c(60, 250), c = 71, l = 78, register = "godPalette_2Qua")
+
+```
+
+
+
+Column {.tabset data-width=500}
+-----------------------------------------------------------------------
+
+### 總點擊次數
+
+```{r}
+
+final_plot_col
+
+```
+
+### 公告區占比
+
+<div>
+  <div>青銀共賞電影</div>
+```{r}
+
+movie_PieChart
+
+```
+</div>
+
+<div>
+  <div>北大玩具節</div>
+```{r}
+
+toys_PieChart
+
+```
+</div>
+
+<div>
+  <div>聖誕點燈暨北大管樂節</div>
+```{r}
+
+Christmas_PieChart
+
+```
+</div>
+
+
+
+Column {.tabset data-width=500}
+-----------------------------------------------------------------------
+   
+### <i class="fab fa-facebook-square"></i> FB點擊
+
+<div>
+  <div>青銀共賞電影</div>
+```{r}
+
+godPlot$fbMovieP
+
+```
+</div>
+
+<div>
+  <div>北大玩具節</div>
+```{r}
+
+godPlot$fbToysP
+
+```
+</div>
+
+<div>
+  <div>聖誕點燈暨北大管樂節</div>
+```{r}
+
+godPlot$fbChristmasP
+
+```
+</div>
+
+### <i class="fab fa-chrome"></i> Web點擊
+    
+<div>
+  <div>青銀共賞電影</div>
+```{r}
+
+godPlot$webMovieP
+
+```
+</div>
+
+<div>
+  <div>北大玩具節</div>
+```{r}
+
+godPlot$webMovieP
+
+```
+</div>
+
+<div>
+  <div>聖誕點燈暨北大管樂節</div>
+```{r}
+
+godPlot$webMovieP
+
+```
+</div>
+
+### <i class="fas fa-qrcode"></i> Poster點擊
+    
+<div>
+  <div>青銀共賞電影</div>
+```{r}
+
+godPlot$posterMovieP
+
+```
+</div>
+
+<div>
+  <div>北大玩具節</div>
+```{r}
+
+godPlot$posterMovieP
+
+```
+</div>
+
+<div>
+  <div>聖誕點燈暨北大管樂節</div>
+```{r}
+
+godPlot$posterMovieP
+
+```
+</div>
+
+
+
