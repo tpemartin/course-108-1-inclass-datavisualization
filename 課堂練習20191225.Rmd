@@ -1,0 +1,24 @@
+---
+title: "2019-10-09"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r basic setup, message=FALSE, echo=F, eval=T}
+library(dplyr); library(stringr); library(ggplot2); library(plotly); library(lubridate); library(readr); library(tidyr); library(showtext); library(colorspace); library(scales); library(magick); library(sf); library(rmapshaper); library(osmdata); library(plotly); library(leaflet); 
+
+font_add("QYuan","cwTeXQYuan-Medium.ttf") # 新增字體
+showtext_auto(enable=TRUE) #啟用字體
+theme_set(theme_classic())
+knitr::opts_chunk$set(fig.align='center', fig.showtext=T)
+
+source("https://www.dropbox.com/s/mdx4777ugnluspz/webApplications.R?dl=1")
+```
+
+## Create a New Project
+
+```{r}
+webapp_project_create(dirlib="./ch7_final", overwrite = T)
+```
+
