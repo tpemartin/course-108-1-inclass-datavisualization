@@ -50,14 +50,31 @@ Column {.tabset data-width=500}
    
 ### <i class="fab fa-facebook-square"></i> FB點擊
 
-<object id="fbToys" data="svg/fbToysP.svg" type="image/svg+xml" width="100%"></object>
+<object style="display: block" id="fbToys" data="svg/fbToysP.svg" type="image/svg+xml" width="100%"></object>
+
+<object style="display: none" id="fbMovie" data="svg/fbMovieP.svg" type="image/svg+xml" width="100%"></object>
+
+<object style="display: none" id="fbXmas" data="svg/fbChristmasP.svg" type="image/svg+xml" width="100%"></object>
+
 
 ### <i class="fab fa-chrome"></i> Web點擊
     
-<object id="webToys" data="svg/webToysP.svg" type="image/svg+xml" width="100%"></object>
+<object style="display: block" id="webToys" data="svg/webToysP.svg" type="image/svg+xml" width="100%"></object>
+
+<object style="display: none" id="webMovie" data="svg/webMovieP.svg" type="image/svg+xml" width="100%"></object>
+
+<object style="display: none" id="webXmas" data="svg/webChristmasP.svg" type="image/svg+xml" width="100%"></object>
 
 ### <i class="fas fa-qrcode"></i> Poster點擊
     
-<object id="posterToys" data="svg/posterToysP.svg" type="image/svg+xml" width="100%"></object>
+<object style="display: block" id="posterToys" data="svg/posterToysP.svg" type="image/svg+xml" width="100%"></object>
+
+<object style="display: none" id="posterMovie" data="svg/posterMovieP.svg" type="image/svg+xml" width="100%"></object>
+
+<object style="display: none" id="posterXmas" data="svg/posterChristmasP.svg" type="image/svg+xml" width="100%"></object>
+
+
+
+<script src="js/homework8_script.js"></script>
 
 

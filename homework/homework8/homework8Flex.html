@@ -2649,18 +2649,91 @@ window.FlexDashboardComponents.push({
 <h2>Column</h2>
 <div id="fb點擊" class="section level3">
 <h3><i class="fab fa-facebook-square"></i> FB點擊</h3>
-<object id="fbToys" data="svg/fbToysP.svg" type="image/svg+xml" width="100%">
+<object style="display: block" id="fbToys" data="svg/fbToysP.svg" type="image/svg+xml" width="100%">
+</object>
+<object style="display: none" id="fbMovie" data="svg/fbMovieP.svg" type="image/svg+xml" width="100%">
+</object>
+<object style="display: none" id="fbXmas" data="svg/fbChristmasP.svg" type="image/svg+xml" width="100%">
 </object>
 </div>
 <div id="web點擊" class="section level3">
 <h3><i class="fab fa-chrome"></i> Web點擊</h3>
-<object id="webToys" data="svg/webToysP.svg" type="image/svg+xml" width="100%">
+<object style="display: block" id="webToys" data="svg/webToysP.svg" type="image/svg+xml" width="100%">
+</object>
+<object style="display: none" id="webMovie" data="svg/webMovieP.svg" type="image/svg+xml" width="100%">
+</object>
+<object style="display: none" id="webXmas" data="svg/webChristmasP.svg" type="image/svg+xml" width="100%">
 </object>
 </div>
 <div id="poster點擊" class="section level3">
 <h3><i class="fas fa-qrcode"></i> Poster點擊</h3>
-<object id="posterToys" data="svg/posterToysP.svg" type="image/svg+xml" width="100%">
+<object style="display: block" id="posterToys" data="svg/posterToysP.svg" type="image/svg+xml" width="100%">
 </object>
+<object style="display: none" id="posterMovie" data="svg/posterMovieP.svg" type="image/svg+xml" width="100%">
+</object>
+<object style="display: none" id="posterXmas" data="svg/posterChristmasP.svg" type="image/svg+xml" width="100%">
+</object>
+<script>window.onload = function() {
+  var bar=document.getElementById('barChart').contentDocument
+  var tBar=bar.getElementById('toysBar')
+  var mBar=bar.getElementById('movieBar')
+  var xBar=bar.getElementById('XmasBar')
+
+  var fbT=document.getElementById('fbToys')
+  var fbM=document.getElementById('fbMovie')
+  var fbX=document.getElementById('fbXmas')
+  var webT=document.getElementById('webToys')
+  var webM=document.getElementById('webMovie')
+  var webX=document.getElementById('webXmas')
+  var pstT=document.getElementById('posterToys')
+  var pstM=document.getElementById('posterMovie')
+  var pstX=document.getElementById('posterXmas')
+
+
+  function showT(){
+      fbT.setAttribute("style", "display: block"); 
+      webT.setAttribute("style", "display: block"); 
+      pstT.setAttribute("style", "display: block"); 
+      fbM.setAttribute("style", "display: none"); 
+      webM.setAttribute("style", "display: none"); 
+      pstM.setAttribute("style", "display: none"); 
+      fbX.setAttribute("style", "display: none"); 
+      webX.setAttribute("style", "display: none"); 
+      pstX.setAttribute("style", "display: none")
+  }
+
+  function showM(){
+      fbT.setAttribute("style", "display: none"); 
+      webT.setAttribute("style", "display: none"); 
+      pstT.setAttribute("style", "display: none"); 
+      fbM.setAttribute("style", "display: block"); 
+      webM.setAttribute("style", "display: block"); 
+      pstM.setAttribute("style", "display: block"); 
+      fbX.setAttribute("style", "display: none"); 
+      webX.setAttribute("style", "display: none"); 
+      pstX.setAttribute("style", "display: none")
+  }
+
+  function showX(){
+      fbT.setAttribute("style", "display: none"); 
+      webT.setAttribute("style", "display: none"); 
+      pstT.setAttribute("style", "display: none"); 
+      fbM.setAttribute("style", "display: none"); 
+      webM.setAttribute("style", "display: none"); 
+      pstM.setAttribute("style", "display: none"); 
+      fbX.setAttribute("style", "display: block"); 
+      webX.setAttribute("style", "display: block"); 
+      pstX.setAttribute("style", "display: block")
+  }
+
+
+  tBar.addEventListener("click", showT)
+  mBar.addEventListener("click", showM)
+  xBar.addEventListener("click", showX)
+}
+
+
+</script>
 </div>
 </div>
 
