@@ -32,9 +32,6 @@ library(colorspace) #調色盤選擇及ggplot應用工具
 library(shiny) #支援套件
 library(shinyjs) #支援套件
 
-library(sf)
-library(osmdata)
-
 ```
 
 
@@ -43,7 +40,7 @@ library(osmdata)
 
 ```{r}
 
-load("homework8Data.Rda")
+load("rda/homework8Data.Rda")
 
 godPlot <- list()
 
@@ -526,7 +523,7 @@ godPlot$posterMovieP
 godPlot$posterToysP
 godPlot$posterChristmasP
 
-#save(godPlot, file = "homework8PlotLine.Rda")
+#save(godPlot, file = "rda/homework8PlotLine.Rda")
 
 ```
 

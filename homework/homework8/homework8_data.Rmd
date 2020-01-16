@@ -32,9 +32,6 @@ library(colorspace) #調色盤選擇及ggplot應用工具
 library(shiny) #支援套件
 library(shinyjs) #支援套件
 
-library(sf)
-library(osmdata)
-
 ```
 
 
@@ -186,7 +183,7 @@ data_frame(
 #  fb_Christmas, fb_movie, fb_toys, 
 #  web_Christmas, web_movie, web_toys, 
 #  poster_Christmas, poster_movie, poster_toys, 
-#  file = "homework8Data.Rda"
+#  file = "rda/homework8Data.Rda"
 #)
 
 ```

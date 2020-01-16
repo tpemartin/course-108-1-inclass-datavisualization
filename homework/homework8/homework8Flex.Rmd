@@ -27,12 +27,6 @@ library(colorspace) #調色盤選擇及ggplot應用工具
 library(shiny) #支援套件
 library(shinyjs) #支援套件
 
-load("rda/homework8PlotLine.Rda")
-load("rda/homework8Plot.Rda")
-load("rda/homework8_PieChart.Rda")
-
-qualitative_hcl(n = 2, h = c(60, 250), c = 71, l = 78, register = "godPalette_2Qua")
-
 ```
 
 
@@ -42,40 +36,12 @@ Column {.tabset data-width=500}
 
 ### 總點擊次數
 
-```{r}
-
-final_plot_col
-
-```
+<object id="barChart" data="svg/bar.svg" type="image/svg+xml" width="100%"></object>
 
 ### 公告區占比
 
-<div>
-  <div>青銀共賞電影</div>
-```{r}
 
-movie_PieChart
 
-```
-</div>
-
-<div>
-  <div>北大玩具節</div>
-```{r}
-
-toys_PieChart
-
-```
-</div>
-
-<div>
-  <div>聖誕點燈暨北大管樂節</div>
-```{r}
-
-Christmas_PieChart
-
-```
-</div>
 
 
 
@@ -84,90 +50,14 @@ Column {.tabset data-width=500}
    
 ### <i class="fab fa-facebook-square"></i> FB點擊
 
-<div>
-  <div>青銀共賞電影</div>
-```{r}
-
-godPlot$fbMovieP
-
-```
-</div>
-
-<div>
-  <div>北大玩具節</div>
-```{r}
-
-godPlot$fbToysP
-
-```
-</div>
-
-<div>
-  <div>聖誕點燈暨北大管樂節</div>
-```{r}
-
-godPlot$fbChristmasP
-
-```
-</div>
+<object id="fbToys" data="svg/fbToysP.svg" type="image/svg+xml" width="100%"></object>
 
 ### <i class="fab fa-chrome"></i> Web點擊
     
-<div>
-  <div>青銀共賞電影</div>
-```{r}
-
-godPlot$webMovieP
-
-```
-</div>
-
-<div>
-  <div>北大玩具節</div>
-```{r}
-
-godPlot$webMovieP
-
-```
-</div>
-
-<div>
-  <div>聖誕點燈暨北大管樂節</div>
-```{r}
-
-godPlot$webMovieP
-
-```
-</div>
+<object id="webToys" data="svg/webToysP.svg" type="image/svg+xml" width="100%"></object>
 
 ### <i class="fas fa-qrcode"></i> Poster點擊
     
-<div>
-  <div>青銀共賞電影</div>
-```{r}
-
-godPlot$posterMovieP
-
-```
-</div>
-
-<div>
-  <div>北大玩具節</div>
-```{r}
-
-godPlot$posterMovieP
-
-```
-</div>
-
-<div>
-  <div>聖誕點燈暨北大管樂節</div>
-```{r}
-
-godPlot$posterMovieP
-
-```
-</div>
-
+<object id="posterToys" data="svg/posterToysP.svg" type="image/svg+xml" width="100%"></object>
 
 

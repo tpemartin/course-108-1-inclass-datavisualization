@@ -35,9 +35,6 @@ library(colorspace) #調色盤選擇及ggplot應用工具
 library(shiny) #支援套件
 library(shinyjs) #支援套件
 
-library(sf)
-library(osmdata)
-
 ```
 
 
@@ -46,17 +43,7 @@ library(osmdata)
 
 ```{r}
 
-load("homework8Plot.Rda")
-load("homework8_PieChart.Rda")
-load("homework8PlotLine.Rda")
-
-```
-
-```{r eval=FALSE}
-
-final_plot_col
-
-ggsave(filename = "bar.svg", plot = final_plot_col)
+load("rda/homework8PlotLine.Rda")
 
 ```
 
@@ -74,23 +61,15 @@ godPlot$posterMovieP
 godPlot$posterToysP
 godPlot$posterChristmasP
 
-ggsave(filename = "fbMovieP.svg", plot = godPlot$fbMovieP)
-ggsave(filename = "fbToysP.svg", plot = godPlot$fbToysP)
-ggsave(filename = "fbChristmasP.svg", plot = godPlot$fbChristmasP)
-ggsave(filename = "webMovieP.svg", plot = godPlot$webMovieP)
-ggsave(filename = "webToysP.svg", plot = godPlot$webToysP)
-ggsave(filename = "webChristmasP.svg", plot = godPlot$webChristmasP)
-ggsave(filename = "posterMovieP.svg", plot = godPlot$posterMovieP)
-ggsave(filename = "posterToysP.svg", plot = godPlot$posterToysP)
-ggsave(filename = "posterChristmasP.svg", plot = godPlot$posterChristmasP)
-
-```
-
-```{r eval=FALSE}
-
-ggsave(filename = "pieMovie.svg", plot = movie_PieChart)
-ggsave(filename = "pieToys.svg", plot = toys_PieChart)
-ggsave(filename = "pieChristmas.svg", plot = Christmas_PieChart)
+#ggsave(filename = "fbMovieP.svg", plot = godPlot$fbMovieP)
+#ggsave(filename = "fbToysP.svg", plot = godPlot$fbToysP)
+#ggsave(filename = "fbChristmasP.svg", plot = godPlot$fbChristmasP)
+#ggsave(filename = "webMovieP.svg", plot = godPlot$webMovieP)
+#ggsave(filename = "webToysP.svg", plot = godPlot$webToysP)
+#ggsave(filename = "webChristmasP.svg", plot = godPlot$webChristmasP)
+#ggsave(filename = "posterMovieP.svg", plot = godPlot$posterMovieP)
+#ggsave(filename = "posterToysP.svg", plot = godPlot$posterToysP)
+#ggsave(filename = "posterChristmasP.svg", plot = godPlot$posterChristmasP)
 
 ```
 
