@@ -1,0 +1,87 @@
+---
+output: 
+  html_document:
+    theme: null
+    highlight: null
+    mathjax: null
+    self_contained: false
+    includes:
+      in_header: "external/in_header/header.html"
+      before_body: "external/before_body/before_body.html"
+      after_body: "external/after_body/after_body.html"
+params:
+  output_filename: "index.html"
+---
+```{r local serve, eval=F, echo=F}
+servr::daemon_stop(
+  which=servr::daemon_list()
+)
+servr::httd(dir=".",port=8800,initpath=params$output_filename)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning=F)
+library(dplyr)
+```
+
+
+<!--cards-->
+```{r 檢查cards html是否work用, eval=F,echo=F}
+library(htmltools)
+includeHTML("external/within_body/cards.html") %>% print
+```
+
+```{r, echo=FALSE}
+readLines("external/within_body/cards.html") -> .cardTemplate
+```
+
+
+```{r,eval=F, echo=F}
+.workname <- "work1.png"
+.cardTemplate %>%
+  stringr::str_replace(
+    "\\{workname\\}",.workname
+  ) %>%
+  htmltools::HTML()
+```
+
+<!--nav bar-->
+```{r, echo=FALSE}
+htmltools::includeHTML("external/within_body/nav.html")
+```
+
+
+<!--cards algorithm starts-->
+<div class="container">
+<div class="row">
+<!-- Page Content goes here -->
+```{r, echo=F}
+list.files("assets/finalproject") -> .workfiles
+.cardTemplate2cat <- c()
+for(i in seq_along(.workfiles)){
+  .workname <- .workfiles[[i]]
+  .cardTemplate %>%
+    stringr::str_replace(
+      "\\{workname\\}",.workname
+    ) %>%
+    {c(.cardTemplate2cat,
+      '<div class="col s12 m6">',
+      .,
+      '</div>') }->
+    .cardTemplate2cat
+}
+.cardTemplate2cat %>%
+    htmltools::HTML()  
+```
+</div>
+
+<div class="row">
+```{r, echo=F}
+htmltools::includeHTML("external/within_body/carousel.html")
+```
+
+</div>
+</div>
+
+
