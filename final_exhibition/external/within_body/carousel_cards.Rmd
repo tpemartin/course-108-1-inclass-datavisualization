@@ -1,0 +1,52 @@
+---
+output: html_fragment
+---
+
+```{r setup0, include=FALSE, eval=F}
+knitr::opts_chunk$set(echo = F,
+                      warning=F, message=F)
+library(dplyr); library(stringr); library(rprojroot)
+
+root <- rprojroot::is_rstudio_project
+root_file <- root$make_fix_file()
+```
+
+
+<div class="carousel">
+```{r, echo=F}
+readLines(file.path(root_file(),
+                    "external/within_body/cards.html")
+          )->
+  .cardTemplate
+
+# # 增加carousel-item class
+# .cardTemplate %>%
+#   stringr::str_replace(
+#     "<div class=\"card\">",
+#     "<div class=\"card carousel-item\">"  
+#   ) -> .cardTemplate
+
+list.files(file.path(root_file(),"assets/finalproject")) -> 
+  .workfiles
+.cardTemplate2cat <- c()
+
+for(i in seq_along(.workfiles)){
+  .workname <- .workfiles[[i]]
+  .cardTemplate %>%
+    stringr::str_replace(
+      "\\{workname\\}",.workname
+    ) %>% 
+    stringr::str_replace(
+      "Card Title", paste0("第",i,"組")
+    ) %>%
+    {c(.cardTemplate2cat,
+       "<div class=\"carousel-item\">",
+      .,
+      "</div>") }->
+    .cardTemplate2cat
+}
+
+.cardTemplate2cat %>%
+    htmltools::HTML()  
+```
+</div>

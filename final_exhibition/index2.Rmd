@@ -1,0 +1,99 @@
+---
+output: 
+  html_document:
+    title: "test"
+    theme: null
+    highlight: null
+    mathjax: null
+    self_contained: false
+    includes:
+      in_header: "external/in_header/header.html"
+      before_body: "external/before_body/before_body.html"
+      after_body: "external/after_body/after_body.html"
+params:
+  output_filename: "index2.html"
+---
+```{r local serve, eval=F, echo=F}
+servr::daemon_stop(
+  which=servr::daemon_list()
+)
+servr::httd(dir=".",port=8800,initpath=params$output_filename)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning=F)
+library(dplyr)
+rmarkdown::render(
+  output_format="html_fragment",
+  file.path(root_file(),
+            "external/within_body/carousel_cards.Rmd")
+)
+```
+
+```{css, echo=F}
+.carousel .carousel-item {
+  width:400px !important;
+  height:100% !important;
+  }
+```
+
+
+<!--nav bar-->
+```{r, echo=FALSE}
+htmltools::includeHTML("external/within_body/nav.html")
+```
+
+
+<!--以下中大螢幕才會顯示-->
+<div class="container-fluid hide-on-small-and-down">
+
+<!-- Carousel cards BEGINNING-->
+```{r, echo=F}
+htmltools::includeHTML("external/within_body/carousel_cards.html")
+```
+<!-- Carousel cards END-->
+
+<!--評分button BEGIN-->
+<div class="row" style="text-align: center;">
+<a class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
+</div>
+<!--評分button END-->
+
+</div>
+<!--中大螢幕顯示 END-->
+
+
+<!--以下小螢幕才會顯示-->
+<div class="container show-on-small hide-on-med-and-up">
+<div class="row">
+<!-- Page Content goes here -->
+```{r, echo=F}
+readLines("external/within_body/cards.html") -> .cardTemplate
+list.files("assets/finalproject") -> .workfiles
+.cardTemplate2cat <- c()
+for(i in seq_along(.workfiles)){
+  .workname <- .workfiles[[i]]
+  .cardTemplate %>%
+    stringr::str_replace(
+      "\\{workname\\}",.workname
+    ) %>%
+    {c(.cardTemplate2cat,
+      '<div class="col s12 m6">',
+      .,
+      '</div>') }->
+    .cardTemplate2cat
+}
+.cardTemplate2cat %>%
+    htmltools::HTML()  
+```
+
+<!--評分button BEGIN-->
+<div class="fixed-action-btn">
+<a class="btn-floating btn-large waves-effect waves-light btn tooltipped" data-position="top" data-tooltip="評分<br> 由此去"><i class="material-icons right">assessment</i></a>
+</div>
+<!--評分button END-->
+
+</div>
+<!--小螢幕顯示 END-->
+
