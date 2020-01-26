@@ -11,7 +11,7 @@ output:
       before_body: "external/before_body/before_body.html"
       after_body: "external/after_body/after_body.html"
 params:
-  output_filename: "index2.html"
+  output_filename: "index.html"
 ---
 ```{r local serve, eval=F, echo=F}
 servr::daemon_stop(
