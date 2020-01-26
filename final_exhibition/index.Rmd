@@ -1,6 +1,7 @@
 ---
 output: 
   html_document:
+    title: "test"
     theme: null
     highlight: null
     mathjax: null
@@ -10,7 +11,7 @@ output:
       before_body: "external/before_body/before_body.html"
       after_body: "external/after_body/after_body.html"
 params:
-  output_filename: "index.html"
+  output_filename: "index2.html"
 ---
 ```{r local serve, eval=F, echo=F}
 servr::daemon_stop(
@@ -20,31 +21,33 @@ servr::httd(dir=".",port=8800,initpath=params$output_filename)
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
+knitr::opts_chunk$set(echo = F,
                       warning=F)
 library(dplyr)
+
+# 引入各組上傳資料
+load(
+  file.path(
+    root_file(), # root_file產生project路徑
+    "df_uploads.Rda"
+  ))
+
+# 生成carousel_cards.html, 下面會引入用。
+rmarkdown::render(
+  output_format="html_fragment",
+  file.path(root_file(),
+            "external/within_body/carousel_cards.Rmd")
+)
+
 ```
 
-
-<!--cards-->
-```{r 檢查cards html是否work用, eval=F,echo=F}
-library(htmltools)
-includeHTML("external/within_body/cards.html") %>% print
+```{css, echo=F}
+.carousel .carousel-item {
+  width:400px !important;
+  height:100% !important;
+  }
 ```
 
-```{r, echo=FALSE}
-readLines("external/within_body/cards.html") -> .cardTemplate
-```
-
-
-```{r,eval=F, echo=F}
-.workname <- "work1.png"
-.cardTemplate %>%
-  stringr::str_replace(
-    "\\{workname\\}",.workname
-  ) %>%
-  htmltools::HTML()
-```
 
 <!--nav bar-->
 ```{r, echo=FALSE}
@@ -52,19 +55,75 @@ htmltools::includeHTML("external/within_body/nav.html")
 ```
 
 
-<!--cards algorithm starts-->
-<div class="container">
+<!--以下中大螢幕才會顯示-->
+<div class="container-fluid hide-on-small-and-down">
+
+<!-- Carousel cards BEGINNING-->
+```{r, echo=F}
+htmltools::includeHTML("external/within_body/carousel_cards.html")
+```
+<!-- Carousel cards END-->
+
+<!--評分button/說明button BEGIN-->
+<div class="row" style="text-align: center;">
+<a href="https://forms.gle/Pm4v2rimPe9tqf8CA" target="_blank" class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
+<a href="#" data-target="slide-out" class="sidenav-trigger waves-effect waves-light btn"><i class="material-icons right">info</i>評分說明</a>
+</div>
+<!--評分button/說明button END-->
+
+
+
+</div>
+<!--中大螢幕顯示 END-->
+
+<!--sidenav內容  BEGIN-->
+```{r, eval=T}
+htmltools::includeHTML(
+  file.path(
+    root_file(),
+    "external/within_body/sidenav.html"
+  )
+)
+```
+<!--sidenav內容  END-->
+
+<!--以下小螢幕才會顯示-->
+<div class="container show-on-small hide-on-med-and-up">
 <div class="row">
 <!-- Page Content goes here -->
 ```{r, echo=F}
+readLines("external/within_body/cards.html") %>%
+  stringr::str_replace(
+    "This is a link",
+    "作品連結"
+  ) -> .cardTemplate
 list.files("assets/finalproject") -> .workfiles
 .cardTemplate2cat <- c()
-for(i in seq_along(.workfiles)){
-  .workname <- .workfiles[[i]]
+for(i in 1:nrow(df_uploads)
+){
+  .workname <- df_uploads$thumbnail[[i]]
+  .webURL <- df_uploads$`作品網頁網址（含https）`[[i]]
+  .codeURL <- df_uploads$`作品Rmd檔Github下載網址（含https）`[[i]]
   .cardTemplate %>%
     stringr::str_replace(
       "\\{workname\\}",.workname
+    ) %>% 
+    stringr::str_replace(
+      "\\{webURL\\}",.webURL
+    ) %>% 
+    stringr::str_replace(
+      "\\{codeURL\\}",.codeURL
+    ) %>% 
+    stringr::str_replace(
+      "\\{members\\}",df_uploads$姓名[[i]]
+    ) %>% 
+    stringr::str_replace(
+      "Card Title", paste0("作品",i)
     ) %>%
+    stringr::str_replace(
+      "href=\"#\"",
+      "href=\"https://www.ntpu.edu.tw\""
+    )  %>%
     {c(.cardTemplate2cat,
       '<div class="col s12 m6">',
       .,
@@ -74,14 +133,19 @@ for(i in seq_along(.workfiles)){
 .cardTemplate2cat %>%
     htmltools::HTML()  
 ```
-</div>
 
-<div class="row">
-```{r, echo=F}
-htmltools::includeHTML("external/within_body/carousel.html")
-```
+
+
+<!--評分button/說明button BEGIN-->
+<div class="fixed-action-btn">
+<a href="https://forms.gle/Pm4v2rimPe9tqf8CA" target="_blank"  class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
+<a href="#" data-target="slide-out" class="sidenav-trigger waves-effect waves-light btn"><i class="material-icons right">info</i>評分說明</a>
+</div>
+<!--評分button/說明button END-->
 
 </div>
-</div>
+<!--小螢幕顯示 END-->
+
+
 
 

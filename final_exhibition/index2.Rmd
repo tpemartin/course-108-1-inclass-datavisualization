@@ -66,7 +66,7 @@ htmltools::includeHTML("external/within_body/carousel_cards.html")
 
 <!--評分button/說明button BEGIN-->
 <div class="row" style="text-align: center;">
-<a class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
+<a href="https://forms.gle/Pm4v2rimPe9tqf8CA" target="_blank" class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
 <a href="#" data-target="slide-out" class="sidenav-trigger waves-effect waves-light btn"><i class="material-icons right">info</i>評分說明</a>
 </div>
 <!--評分button/說明button END-->
@@ -76,6 +76,16 @@ htmltools::includeHTML("external/within_body/carousel_cards.html")
 </div>
 <!--中大螢幕顯示 END-->
 
+<!--sidenav內容  BEGIN-->
+```{r, eval=T}
+htmltools::includeHTML(
+  file.path(
+    root_file(),
+    "external/within_body/sidenav.html"
+  )
+)
+```
+<!--sidenav內容  END-->
 
 <!--以下小螢幕才會顯示-->
 <div class="container show-on-small hide-on-med-and-up">
@@ -128,7 +138,7 @@ for(i in 1:nrow(df_uploads)
 
 <!--評分button/說明button BEGIN-->
 <div class="fixed-action-btn">
-<a class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
+<a href="https://forms.gle/Pm4v2rimPe9tqf8CA" target="_blank"  class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
 <a href="#" data-target="slide-out" class="sidenav-trigger waves-effect waves-light btn"><i class="material-icons right">info</i>評分說明</a>
 </div>
 <!--評分button/說明button END-->
@@ -136,14 +146,6 @@ for(i in 1:nrow(df_uploads)
 </div>
 <!--小螢幕顯示 END-->
 
-<!--sidenav內容  BEGIN-->
-```{r, eval=T}
-htmltools::includeHTML(
-  file.path(
-    root_file(),
-    "external/within_body/sidenav.html"
-  )
-)
-```
-<!--sidenav內容  END-->
+
+
 

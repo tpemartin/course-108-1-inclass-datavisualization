@@ -9,6 +9,12 @@ library(dplyr); library(stringr); library(rprojroot)
 
 root <- rprojroot::is_rstudio_project
 root_file <- root$make_fix_file()
+# 引入各組上傳資料
+load(
+  file.path(
+    root_file(), # root_file產生project路徑
+    "df_uploads.Rda"
+  ))
 ```
 
 
