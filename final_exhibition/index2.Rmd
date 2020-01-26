@@ -21,14 +21,24 @@ servr::httd(dir=".",port=8800,initpath=params$output_filename)
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
+knitr::opts_chunk$set(echo = F,
                       warning=F)
 library(dplyr)
+
+# 引入各組上傳資料
+load(
+  file.path(
+    root_file(), # root_file產生project路徑
+    "df_uploads.Rda"
+  ))
+
+# 生成carousel_cards.html, 下面會引入用。
 rmarkdown::render(
   output_format="html_fragment",
   file.path(root_file(),
             "external/within_body/carousel_cards.Rmd")
 )
+
 ```
 
 ```{css, echo=F}
@@ -54,11 +64,14 @@ htmltools::includeHTML("external/within_body/carousel_cards.html")
 ```
 <!-- Carousel cards END-->
 
-<!--評分button BEGIN-->
+<!--評分button/說明button BEGIN-->
 <div class="row" style="text-align: center;">
 <a class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
+<a href="#" data-target="slide-out" class="sidenav-trigger waves-effect waves-light btn"><i class="material-icons right">info</i>評分說明</a>
 </div>
-<!--評分button END-->
+<!--評分button/說明button END-->
+
+
 
 </div>
 <!--中大螢幕顯示 END-->
@@ -69,15 +82,38 @@ htmltools::includeHTML("external/within_body/carousel_cards.html")
 <div class="row">
 <!-- Page Content goes here -->
 ```{r, echo=F}
-readLines("external/within_body/cards.html") -> .cardTemplate
+readLines("external/within_body/cards.html") %>%
+  stringr::str_replace(
+    "This is a link",
+    "作品連結"
+  ) -> .cardTemplate
 list.files("assets/finalproject") -> .workfiles
 .cardTemplate2cat <- c()
-for(i in seq_along(.workfiles)){
-  .workname <- .workfiles[[i]]
+for(i in 1:nrow(df_uploads)
+){
+  .workname <- df_uploads$thumbnail[[i]]
+  .webURL <- df_uploads$`作品網頁網址（含https）`[[i]]
+  .codeURL <- df_uploads$`作品Rmd檔Github下載網址（含https）`[[i]]
   .cardTemplate %>%
     stringr::str_replace(
       "\\{workname\\}",.workname
+    ) %>% 
+    stringr::str_replace(
+      "\\{webURL\\}",.webURL
+    ) %>% 
+    stringr::str_replace(
+      "\\{codeURL\\}",.codeURL
+    ) %>% 
+    stringr::str_replace(
+      "\\{members\\}",df_uploads$姓名[[i]]
+    ) %>% 
+    stringr::str_replace(
+      "Card Title", paste0("作品",i)
     ) %>%
+    stringr::str_replace(
+      "href=\"#\"",
+      "href=\"https://www.ntpu.edu.tw\""
+    )  %>%
     {c(.cardTemplate2cat,
       '<div class="col s12 m6">',
       .,
@@ -88,12 +124,26 @@ for(i in seq_along(.workfiles)){
     htmltools::HTML()  
 ```
 
-<!--評分button BEGIN-->
+
+
+<!--評分button/說明button BEGIN-->
 <div class="fixed-action-btn">
-<a class="btn-floating btn-large waves-effect waves-light btn tooltipped" data-position="top" data-tooltip="評分<br> 由此去"><i class="material-icons right">assessment</i></a>
+<a class="waves-effect waves-light btn"><i class="material-icons right">assessment</i>評分由此去</a>
+<a href="#" data-target="slide-out" class="sidenav-trigger waves-effect waves-light btn"><i class="material-icons right">info</i>評分說明</a>
 </div>
-<!--評分button END-->
+<!--評分button/說明button END-->
 
 </div>
 <!--小螢幕顯示 END-->
+
+<!--sidenav內容  BEGIN-->
+```{r, eval=T}
+htmltools::includeHTML(
+  file.path(
+    root_file(),
+    "external/within_body/sidenav.html"
+  )
+)
+```
+<!--sidenav內容  END-->
 

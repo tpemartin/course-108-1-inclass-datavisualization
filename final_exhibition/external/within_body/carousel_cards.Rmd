@@ -2,7 +2,7 @@
 output: html_fragment
 ---
 
-```{r setup0, include=FALSE, eval=F}
+```{r, include=FALSE, eval=T}
 knitr::opts_chunk$set(echo = F,
                       warning=F, message=F)
 library(dplyr); library(stringr); library(rprojroot)
@@ -16,29 +16,42 @@ root_file <- root$make_fix_file()
 ```{r, echo=F}
 readLines(file.path(root_file(),
                     "external/within_body/cards.html")
-          )->
+          ) %>%
+  stringr::str_replace(
+    "This is a link",
+    "作品連結"
+  )->
   .cardTemplate
 
-# # 增加carousel-item class
-# .cardTemplate %>%
-#   stringr::str_replace(
-#     "<div class=\"card\">",
-#     "<div class=\"card carousel-item\">"  
-#   ) -> .cardTemplate
+# list.files(file.path(root_file(),"assets/finalproject")) -> 
+#   .workfiles
 
-list.files(file.path(root_file(),"assets/finalproject")) -> 
-  .workfiles
 .cardTemplate2cat <- c()
-
-for(i in seq_along(.workfiles)){
-  .workname <- .workfiles[[i]]
+for(i in 1:nrow(df_uploads)
+){
+  .workname <- df_uploads$thumbnail[[i]]
+  .webURL <- df_uploads$`作品網頁網址（含https）`[[i]]
+  .codeURL <- df_uploads$`作品Rmd檔Github下載網址（含https）`[[i]]
   .cardTemplate %>%
     stringr::str_replace(
       "\\{workname\\}",.workname
     ) %>% 
     stringr::str_replace(
-      "Card Title", paste0("第",i,"組")
+      "\\{webURL\\}",.webURL
+    ) %>% 
+    stringr::str_replace(
+      "\\{codeURL\\}",.codeURL
+    ) %>% 
+    stringr::str_replace(
+      "\\{members\\}",df_uploads$姓名[[i]]
+    ) %>% 
+    stringr::str_replace(
+      "Card Title", paste0("作品",i)
     ) %>%
+    # stringr::str_replace(
+    #   "href=\"#\"",
+    #   "href=\"https://www.ntpu.edu.tw\""
+    # ) %>%
     {c(.cardTemplate2cat,
        "<div class=\"carousel-item\">",
       .,

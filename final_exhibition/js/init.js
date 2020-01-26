@@ -18,3 +18,24 @@ document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.tooltipped');
     var instances = M.Tooltip.init(elems);
   });
+  
+// Feature Discovery
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.tap-target');
+    var instances = M.TapTarget.init(elems);
+  });
+
+// Pushpin 
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.pushpin');
+    var instances = M.Pushpin.init(elems);
+  });
+  
+// Sidenav
+ document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems);
+  });
+
+
