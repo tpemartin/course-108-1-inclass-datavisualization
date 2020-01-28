@@ -1,0 +1,43 @@
+---
+title: "108-1 經濟資料視覺化處理 課程大綱"
+author: "國立臺北大學經濟學系 林茂廷老師"
+date: "9/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assessment
+
+  作業：70% 
+
+  期末專題：30%
+  
+## 作業  
+
+  * 2-3人一組（成員可隨時自由變化）  
+
+  * 每週一圖，於第3週開始
+    
+  * 依作業Rmd模版（`每週一圖作業.Rmd`檔）完成  
+  
+  * 完成之作業Rmd檔連同資料檔，請上傳至：[作業上傳網頁](https://docs.google.com/forms/d/e/1FAIpQLSc0CrXL7N47iMMvPB-EmZZLkY8e4JAtAtXKk0QV0NYi1AcCBQ/viewform)
+  
+  
+*** 
+作業打分方式
+
+  * 每次有交即得10分，有幾次作業會有小組互評（另外宣佈），評分如下：
+    
+  * 小組互評分數，其中7分來自各組互評，3分為老師評分：  
+  
+    * 各組互評不評自己組  
+    * 排除最高及最低分後之平均為各組互評分數。  
+    
+<div class="alert alert-info">
+每週作業會形成一個如下的展示網頁：
+<https://tpemartin.github.io/courseweb-108-1-data-visualization-demo/graphExhibitionDemo.html>
+</div>
+    
